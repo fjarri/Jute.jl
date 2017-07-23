@@ -1,5 +1,7 @@
 # Jute, a Py.Test-inspired testing framework
 
+[![Build Status](https://travis-ci.org/fjarri/Jute.jl.svg?branch=master)](https://travis-ci.org/fjarri/Jute.jl)
+
 **This project is in the alpha stage.**
 It is an experimental project, and I am figuring out whether it is a good idea.
 Use at your own risk.
