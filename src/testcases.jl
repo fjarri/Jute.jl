@@ -6,7 +6,7 @@ struct Testcase
     order
     func
     parameters :: Array{Fixture, 1}
-    dependencies :: OrderedSet{Fixture}
+    dependencies :: OrderedSet{GlobalFixture}
 end
 
 
@@ -15,7 +15,7 @@ function testcase(func, params...)
     # A bit hacky, but we need an integer, since "9" > "10".
     order = parse(Int, string(gensym())[3:end])
     params = collect(map(normalize_fixture, params))
-    deps = union(map(dependencies, params)..., OrderedSet{Fixture}(params))
+    deps = union(map(dependencies, params)..., global_fixtures(params))
     Testcase(order, func, params, deps)
 end
 

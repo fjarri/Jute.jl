@@ -111,7 +111,7 @@ function run_testcases(run_options::RunOptions, tcs)
         name_tuple, tc = entry
 
         for fx in dependencies(tc)
-            if typeof(fx) == GlobalFixture && !haskey(global_fixtures, fx)
+            if !haskey(global_fixtures, fx)
 
                 ftd = []
 

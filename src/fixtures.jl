@@ -41,7 +41,7 @@ struct GlobalFixture <: Fixture
     name :: String
     ff :: FixtureFactory
     parameters :: Array{Fixture, 1}
-    dependencies :: OrderedSet{Fixture}
+    dependencies :: OrderedSet{GlobalFixture}
 end
 
 
@@ -65,9 +65,7 @@ function fixture(producer, parameters...; name=nothing, delayed_teardown=false)
 
     parameters = collect(map(normalize_fixture, parameters))
     # TODO: check that it does not depend on any local fixtures
-    deps = union(
-        map(dependencies, parameters)...,
-        OrderedSet{Fixture}([p for p in parameters if typeof(p) == GlobalFixture]))
+    deps = union(map(dependencies, parameters)..., global_fixtures(parameters))
     ff = fixture_factory(producer; delayed_teardown=delayed_teardown, returns_iterable=true)
     GlobalFixture(name, ff, parameters, deps)
 end
@@ -77,7 +75,7 @@ struct LocalFixture <: Fixture
     name :: String
     ff :: FixtureFactory
     parameters :: Array{Fixture, 1}
-    dependencies :: OrderedSet{Fixture}
+    dependencies :: OrderedSet{GlobalFixture}
 end
 
 
@@ -91,18 +89,21 @@ function local_fixture(producer, parameters...; name=nothing)
     end
 
     parameters = collect(map(normalize_fixture, parameters))
-    deps = union(
-        map(dependencies, parameters)...,
-        OrderedSet{Fixture}([p for p in parameters if typeof(p) == GlobalFixture]))
+    deps = union(map(dependencies, parameters)..., global_fixtures(parameters))
     ff = fixture_factory(producer; delayed_teardown=true, returns_iterable=false)
     LocalFixture(name, ff, parameters, deps)
 end
 
 
+is_global_fixture(fx::GlobalFixture) = true
+is_global_fixture(fx) = false
 
-dependencies(fx::ConstantFixture) = OrderedSet{Fixture}()
+
+dependencies(fx::ConstantFixture) = OrderedSet{GlobalFixture}()
 dependencies(fx::GlobalFixture) = fx.dependencies
 dependencies(fx::LocalFixture) = fx.dependencies
+
+global_fixtures(fxs) = OrderedSet{GlobalFixture}(filter(is_global_fixture, fxs))
 
 
 normalize_fixture(f::Fixture) = f
