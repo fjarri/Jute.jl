@@ -8,16 +8,36 @@ function round_to_meaningful(s::Float64, meaningful_digits)
 end
 
 
-function pprint_time(s::Float64)
-    meaningful_digits = 3
-    if s >= 1
-        return "$(round_to_meaningful(s, meaningful_digits)) s"
-    elseif s >= 1e-3
-        return "$(round_to_meaningful(s * 1e3, meaningful_digits)) ms"
-    elseif s >= 1e-6
-        return "$(round_to_meaningful(s * 1e6, meaningful_digits)) us"
+function pprint_time(s::Float64; meaningful_digits::Int=0)
+    limits = [
+        (24 * 3600.0, "d"),
+        (3600.0, "hr"),
+        (60.0, "m"),
+        (1.0, "s"),
+        (1e-3, "ms"),
+        (1e-6, "us"),
+        (1e-9, "ns")
+    ]
+
+    function build_str(s, unit)
+        if meaningful_digits == 0
+            rounded_s = convert(Int, round(s))
+        else
+            rounded_s = round_to_meaningful(s, meaningful_digits)
+        end
+        string(rounded_s) * " " * unit
     end
+
+    for (limit, unit) in limits[1:end-1]
+        if s >= limit
+            return build_str(s / limit, unit)
+        end
+    end
+
+    limit, unit = limits[end]
+    build_str(limit, unit)
 end
+
 
 abstract type TestcaseReturn end
 
