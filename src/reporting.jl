@@ -198,11 +198,6 @@ function progress_finish!(progress::ProgressReporter, outcomes)
 
     full_time = toq()
 
-    if progress.verbosity == 1
-        println()
-    end
-
-    println("-" ^ 80)
     outcome_objs = [outcome for (name_tuple, ids, outcome) in outcomes]
 
     full_test_time = mapreduce(outcome -> outcome.elapsed_time, +, outcome_objs)
@@ -213,6 +208,17 @@ function progress_finish!(progress::ProgressReporter, outcomes)
         for (key, tp) in [
             (:pass, Union{BT.Pass, ReturnValue}), (:fail, BT.Fail), (:error, BT.Error)])
 
+    all_success = (num_results[:fail] + num_results[:error] == 0)
+
+    if progress.verbosity == 0
+        return all_success
+    end
+
+    if progress.verbosity == 1
+        println()
+    end
+
+    println("-" ^ 80)
     println(
         "$(num_results[:pass]) tests passed, " *
         "$(num_results[:fail]) failed, " *
@@ -235,5 +241,5 @@ function progress_finish!(progress::ProgressReporter, outcomes)
         end
     end
 
-    num_results[:fail] + num_results[:error] == 0
+    all_success
 end
