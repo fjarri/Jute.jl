@@ -218,12 +218,15 @@ function progress_finish!(progress::ProgressReporter, outcomes)
         println()
     end
 
+    full_time_str = pprint_time(full_time, meaningful_digits=3)
+    full_test_time_str = pprint_time(full_test_time, meaningful_digits=3)
+
     println("-" ^ 80)
     println(
         "$(num_results[:pass]) tests passed, " *
         "$(num_results[:fail]) failed, " *
         "$(num_results[:error]) errored " *
-        "in $(pprint_time(full_time)) (total test time $(pprint_time(full_test_time)))")
+        "in $full_time_str (total test time $full_test_time_str)")
 
 
     has_stacktrace(result) = typeof(result) == BT.Fail || typeof(result) == BT.Error
