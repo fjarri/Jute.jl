@@ -3,7 +3,7 @@ using IterTools
 
 
 struct Testcase
-    order
+    order :: Int
     func
     parameters :: Array{Fixture, 1}
     dependencies :: OrderedSet{GlobalFixture}
