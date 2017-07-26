@@ -3,7 +3,7 @@ const BT = Base.Test
 
 
 function round_to_meaningful(s::Float64, meaningful_digits)
-    multiplier = 10.0^(meaningful_digits - 1 - convert(Integer, round(log10(s))))
+    multiplier = 10.0^(meaningful_digits - 1 - convert(Integer, floor(log10(s))))
     round(s * multiplier) / multiplier
 end
 
