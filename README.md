@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/fjarri/Jute.jl.svg?branch=master)](https://travis-ci.org/fjarri/Jute.jl)
 
+[![Coverage Status](https://coveralls.io/repos/github/fjarri/Jute.jl/badge.svg?branch=master)](https://coveralls.io/github/fjarri/Jute.jl?branch=master)
+
 **This project is in the alpha stage.**
 It is an experimental project, and I am figuring out whether it is a good idea.
 Use at your own risk.
