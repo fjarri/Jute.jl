@@ -19,7 +19,9 @@ export testcase
 include("inspect.jl")
 
 include("reporting.jl")
-export TestcaseReturn, @test_result
+export TestcaseReturn
+export @test_result
+export pprint_time
 
 include("runtests.jl")
 export @test, @test_throws, @test_broken, @test_skip
