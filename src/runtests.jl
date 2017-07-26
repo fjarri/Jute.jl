@@ -86,19 +86,33 @@ instantiate(fx::LocalFixture, lval) = setup(fx, lval)
 instantiate(fx, lval) = DelayedTeardownValue(lval, nothing, DelayedTeardownValue[])
 
 
+function instantiate_global(global_fixtures, fx::GlobalFixture)
+
+    for_teardown = RunningFixtureFactory[]
+
+    iterables = Array{LabeledValue, 1}[_get_iterable(global_fixtures, p) for p in parameters(fx)]
+
+    all_lvals = LabeledValue[]
+    for lvals in rowmajor_product(iterables...)
+        args = map(unwrap_value, lvals)
+        iterable, rff = setup(fx, args)
+
+        append!(all_lvals, iterable)
+        if delayed_teardown(rff)
+            push!(for_teardown, rff)
+        else
+            teardown(rff)
+        end
+    end
+    all_lvals, for_teardown
+end
+
 
 function run_testcases(run_options::RunOptions, tcs)
 
-    global_fixtures = Dict()
+    global_fixtures = Dict{GlobalFixture, Array{LabeledValue, 1}}()
     gi = get_iterable(global_fixtures)
-    for_teardown = Dict()
-    function add_for_teardown(idx, rffs)
-        if haskey(for_teardown, idx)
-            append!(for_teardown[idx], rffs)
-        else
-            for_teardown[idx] = rffs
-        end
-    end
+    for_teardown = DefaultDict{Int, Array{RunningFixtureFactory, 1}}(() -> RunningFixtureFactory[])
 
     test_outcomes = []
 
@@ -113,33 +127,19 @@ function run_testcases(run_options::RunOptions, tcs)
         for fx in dependencies(tc)
             if !haskey(global_fixtures, fx)
 
-                ftd = []
-
-                iterables = map(gi, parameters(fx))
-
-                all_pairs = []
-                for val_pairs in rowmajor_product(iterables...)
-                    args = map(unwrap_value, val_pairs)
-                    iterable, rff = setup(fx, args)
-                    push!(all_pairs, iterable)
-                    if delayed_teardown(rff)
-                        push!(ftd, rff)
-                    else
-                        teardown(rff)
-                    end
-                end
-
-                global_fixtures[fx] = chain(all_pairs...)
+                lvals, ftd = instantiate_global(global_fixtures, fx)
+                global_fixtures[fx] = lvals
 
                 if length(ftd) > 0
                     last_usage_idx = findlast(tcs) do entry
                         _, tcc = entry
-                        fx in tcc.dependencies
+                        fx in dependencies(tcc)
                     end
-                    add_for_teardown(last_usage_idx, ftd)
+                    append!(for_teardown[last_usage_idx], ftd)
                 end
             end
         end
+
 
         fixture_iterables = map(gi, parameters(tc))
         iterable_permutations = rowmajor_product(fixture_iterables...)
@@ -158,13 +158,13 @@ function run_testcases(run_options::RunOptions, tcs)
 
         if haskey(for_teardown, i)
             map(teardown, for_teardown[i])
+            delete!(for_teardown, i)
         end
 
         progress_finish_testcases!(progress, name_tuple)
     end
 
     progress_finish!(progress, test_outcomes)
-
 end
 
 
