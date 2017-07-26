@@ -1,7 +1,6 @@
 struct FixtureFactory
     channel_func :: Function
     delayed_teardown :: Bool
-    returns_iterable :: Bool
 end
 
 
@@ -44,7 +43,8 @@ function fixture_factory(producer_func; delayed_teardown=false, returns_iterable
         end
         producer_func(produce, args...)
     end
-    FixtureFactory(channel_func, delayed_teardown, returns_iterable)
+
+    FixtureFactory(channel_func, delayed_teardown)
 end
 
 
