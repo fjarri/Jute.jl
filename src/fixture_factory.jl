@@ -12,10 +12,31 @@ struct RunningFixtureFactory
 end
 
 
+struct LabeledValue
+    value :: Any
+    label :: String
+end
+
+
+labeled_value(value, label=nothing) =
+    LabeledValue(value, label === nothing ? string(value) : label)
+
+
 function fixture_factory(producer_func; delayed_teardown=false, returns_iterable=false)
     channel_func = function(c)
-        produce = function(value, tag=nothing)
-            put!(c, (value, tag))
+        produce = function(value, label=nothing)
+            if returns_iterable
+                if label === nothing
+                    ret = map(labeled_value, value)
+                else
+                    ret = map(labeled_value, value, label)
+                end
+            else
+                ret = labeled_value(value, label)
+            end
+
+            put!(c, ret)
+
             if delayed_teardown
                 # block until the caller's signal
                 take!(c)
@@ -38,16 +59,7 @@ function setup(ff::FixtureFactory, args)
     task = Task(() -> ff.channel_func(channel))
     schedule(task)
     put!(channel, args)
-    value, tag = take!(channel)
-    if tag === nothing
-        if ff.returns_iterable
-            tag = make_id.(value)
-            ret = collect(zip(value, tag))
-        else
-            tag = make_id(value)
-            ret = (value, tag)
-        end
-    end
+    ret = take!(channel)
     rff = RunningFixtureFactory(task, channel, ff.delayed_teardown)
     ret, rff
 end

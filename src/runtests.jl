@@ -38,7 +38,7 @@ end
 
 
 _get_iterable(global_fixtures, fx::GlobalFixture) = global_fixtures[fx]
-_get_iterable(global_fixtures, fx::ConstantFixture) = fx
+_get_iterable(global_fixtures, fx::ConstantFixture) = fx.lvals
 _get_iterable(global_fixtures, fx::LocalFixture) =
     rowmajor_product([_get_iterable(global_fixtures, param) for param in parameters(fx)]...)
 
@@ -46,25 +46,25 @@ get_iterable(global_fixtures) = fx -> _get_iterable(global_fixtures, fx)
 
 
 struct DelayedValue
-    pair
     rff :: RunningFixtureFactory
+    lval :: LabeledValue
     subvalues :: Array{DelayedValue, 1}
 end
 
 
-function setup(fx::LocalFixture, args)
+function setup(fx::LocalFixture, lvals)
     to_release = []
     processed_args = []
-    for (p, arg) in zip(parameters(fx), args)
+    for (p, lval) in zip(parameters(fx), lvals)
         if typeof(p) == LocalFixture
-            val = setup(p, arg)
-            push!(to_release, val)
-            arg = val.pair
+            dval = setup(p, lval)
+            push!(to_release, dval)
+            lval = dval.lval
         end
-        push!(processed_args, arg[1])
+        push!(processed_args, lval.value)
     end
-    pair, rff = setup(fx.ff, processed_args)
-    DelayedValue(pair, rff, to_release)
+    lval, rff = setup(fx.ff, processed_args)
+    DelayedValue(rff, lval, to_release)
 end
 
 
@@ -77,13 +77,13 @@ end
 function release(val) end
 
 
-unwrap_value(val::DelayedValue) = val.pair[1]
-unwrap_value(val) = val[1]
-unwrap_id(val::DelayedValue) = val.pair[2]
-unwrap_id(val) = val[2]
+unwrap_value(val::DelayedValue) = val.lval.value
+unwrap_label(val::DelayedValue) = val.lval.label
+unwrap_value(val::LabeledValue) = val.value
+unwrap_label(val::LabeledValue) = val.label
 
-unwrap_pair(val::DelayedValue) = val.pair
-unwrap_pair(val) = val
+instantiate(fx::LocalFixture, lval) = setup(fx, lval)
+instantiate(fx, lval) = lval
 
 
 
@@ -142,22 +142,18 @@ function run_testcases(run_options::RunOptions, tcs)
         end
 
         fixture_iterables = map(gi, parameters(tc))
-
-        instantiate(fx::LocalFixture, pair) = setup(fx, pair)
-        instantiate(fx, pair) = pair
-
         iterable_permutations = rowmajor_product(fixture_iterables...)
 
         progress_start_testcases!(progress, name_tuple, length(iterable_permutations))
 
-        for val_pairs in iterable_permutations
-            actual_args = map(instantiate, parameters(tc), val_pairs)
-            args = map(unwrap_value, actual_args)
-            ids = map(unwrap_id, actual_args)
+        for lvals in iterable_permutations
+            dvals = map(instantiate, parameters(tc), lvals)
+            args = map(unwrap_value, dvals)
+            labels = map(unwrap_label, dvals)
             outcome = run_testcase(tc, args)
-            map(release, actual_args)
-            push!(test_outcomes, (name_tuple, ids, outcome))
-            progress_finish_testcase!(progress, name_tuple, ids, outcome)
+            map(release, dvals)
+            push!(test_outcomes, (name_tuple, labels, outcome))
+            progress_finish_testcase!(progress, name_tuple, labels, outcome)
         end
 
         if haskey(for_teardown, i)

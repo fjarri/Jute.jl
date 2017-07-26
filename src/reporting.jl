@@ -124,10 +124,10 @@ function result_show(::BT.Error, verbosity)
 end
 
 
-function build_full_tag(name_tuple, ids)
+function build_full_tag(name_tuple, labels)
     tc_name = join(name_tuple, "/")
-    fixtures_tag = join(ids, ",")
-    if length(ids) > 0
+    fixtures_tag = join(labels, ",")
+    if length(labels) > 0
         tc_name * "[" * fixtures_tag * "]"
     else
         tc_name
@@ -162,14 +162,14 @@ function progress_start_testcases!(progress::ProgressReporter, name_tuple, fixtu
 end
 
 
-function progress_finish_testcase!(progress::ProgressReporter, name_tuple, ids, outcome)
+function progress_finish_testcase!(progress::ProgressReporter, name_tuple, labels, outcome)
     verbosity = progress.verbosity
     if verbosity == 1
         for result in outcome.results
             print_with_color(result_color(result, verbosity), result_show(result, verbosity))
         end
     elseif progress.verbosity >= 2
-        full_tag = build_full_tag(name_tuple, ids)
+        full_tag = build_full_tag(name_tuple, labels)
         elapsed_time = pprint_time(outcome.elapsed_time)
 
         print("$full_tag ($elapsed_time)")
@@ -198,7 +198,7 @@ function progress_finish!(progress::ProgressReporter, outcomes)
 
     full_time = toq()
 
-    outcome_objs = [outcome for (name_tuple, ids, outcome) in outcomes]
+    outcome_objs = [outcome for (name_tuple, labels, outcome) in outcomes]
 
     full_test_time = mapreduce(outcome -> outcome.elapsed_time, +, outcome_objs)
 
@@ -228,10 +228,10 @@ function progress_finish!(progress::ProgressReporter, outcomes)
 
     has_stacktrace(result) = typeof(result) == BT.Fail || typeof(result) == BT.Error
 
-    for (name_tuple, ids, outcome) in outcomes
+    for (name_tuple, labels, outcome) in outcomes
         if any(map(has_stacktrace, outcome.results))
             println("=" ^ 80)
-            println(build_full_tag(name_tuple, ids))
+            println(build_full_tag(name_tuple, labels))
             for result in outcome.results
                 tp = typeof(result)
                 if tp == BT.Fail || tp == BT.Error || tp == BT.Broken

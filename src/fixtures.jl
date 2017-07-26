@@ -3,9 +3,6 @@ using DataStructures
 abstract type Fixture end
 
 
-make_id(val) = string(val)
-
-
 is_iterable(val) = applicable(start, val)
 
 
@@ -13,29 +10,31 @@ is_callable(val) = !isempty(methods(val))
 
 
 struct ConstantFixture <: Fixture
-    name
-    val_id_pairs
+    name :: String
+    lvals :: Array{LabeledValue, 1}
 end
 
 
-function constant_fixture(vals, ids=nothing)
+function constant_fixture(vals, labels=nothing)
 
     if !is_iterable(vals)
         error("`vals` must be an iterable")
     end
 
-    if ids === nothing
-        ids = map(make_id, vals)
+    if labels === nothing
+        labeled_vals = map(labeled_value, vals)
+    else
+        labeled_vals = map(labeled_value, vals, labels)
     end
 
-    ConstantFixture(gensym("constant"), collect(zip(vals, ids)))
+    ConstantFixture(gensym("constant"), labeled_vals)
 end
 
 
-Base.start(f::ConstantFixture) = start(f.val_id_pairs)
-Base.next(f::ConstantFixture, state) = next(f.val_id_pairs, state)
-Base.done(f::ConstantFixture, state) = done(f.val_id_pairs, state)
-Base.length(f::ConstantFixture) = length(f.val_id_pairs)
+Base.start(f::ConstantFixture) = start(f.lvals)
+Base.next(f::ConstantFixture, state) = next(f.lvals, state)
+Base.done(f::ConstantFixture, state) = done(f.lvals, state)
+Base.length(f::ConstantFixture) = length(f.lvals)
 
 struct GlobalFixture <: Fixture
     name :: String
