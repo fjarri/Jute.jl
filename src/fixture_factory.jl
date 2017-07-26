@@ -1,14 +1,14 @@
 struct FixtureFactory
-    channel_func
-    delayed_teardown
-    returns_iterable
+    channel_func :: Function
+    delayed_teardown :: Bool
+    returns_iterable :: Bool
 end
 
 
 struct RunningFixtureFactory
-    task
-    channel
-    delayed_teardown
+    task :: Task
+    channel :: Channel
+    delayed_teardown :: Bool
 end
 
 
