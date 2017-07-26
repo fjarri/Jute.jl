@@ -45,15 +45,15 @@ _get_iterable(global_fixtures, fx::LocalFixture) =
 get_iterable(global_fixtures) = fx -> _get_iterable(global_fixtures, fx)
 
 
-struct DelayedValue
-    rff :: RunningFixtureFactory
+struct DelayedTeardownValue
     lval :: LabeledValue
-    subvalues :: Array{DelayedValue, 1}
+    rff :: Nullable{RunningFixtureFactory}
+    subvalues :: Array{DelayedTeardownValue, 1}
 end
 
 
 function setup(fx::LocalFixture, lvals)
-    to_release = []
+    to_release = DelayedTeardownValue[]
     processed_args = []
     for (p, lval) in zip(parameters(fx), lvals)
         if typeof(p) == LocalFixture
@@ -64,26 +64,26 @@ function setup(fx::LocalFixture, lvals)
         push!(processed_args, lval.value)
     end
     lval, rff = setup(fx.ff, processed_args)
-    DelayedValue(rff, lval, to_release)
+    DelayedTeardownValue(lval, rff, to_release)
 end
 
 
-function release(val::DelayedValue)
-    for v in val.subvalues
-        release(v)
+function release(val::DelayedTeardownValue)
+    if !isnull(val.rff)
+        for v in val.subvalues
+            release(v)
+        end
+        teardown(get(val.rff))
     end
-    teardown(val.rff)
 end
-function release(val) end
 
 
-unwrap_value(val::DelayedValue) = val.lval.value
-unwrap_label(val::DelayedValue) = val.lval.label
+unwrap_value(val::DelayedTeardownValue) = val.lval.value
+unwrap_label(val::DelayedTeardownValue) = val.lval.label
 unwrap_value(val::LabeledValue) = val.value
-unwrap_label(val::LabeledValue) = val.label
 
 instantiate(fx::LocalFixture, lval) = setup(fx, lval)
-instantiate(fx, lval) = lval
+instantiate(fx, lval) = DelayedTeardownValue(lval, nothing, DelayedTeardownValue[])
 
 
 
