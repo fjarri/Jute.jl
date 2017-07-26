@@ -102,6 +102,7 @@ dependencies(fx::ConstantFixture) = OrderedSet{GlobalFixture}()
 dependencies(fx::GlobalFixture) = fx.dependencies
 dependencies(fx::LocalFixture) = fx.dependencies
 
+
 global_fixtures(fxs) = OrderedSet{GlobalFixture}(filter(is_global_fixture, fxs))
 
 
