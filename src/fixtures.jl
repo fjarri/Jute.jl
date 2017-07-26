@@ -25,7 +25,7 @@ function constant_fixture(vals, ids=nothing)
     end
 
     if ids === nothing
-        ids = make_id.(vals)
+        ids = map(make_id, vals)
     end
 
     ConstantFixture(gensym("constant"), collect(zip(vals, ids)))
@@ -63,10 +63,10 @@ function fixture(producer, parameters...; name=nothing, delayed_teardown=false)
         error("Producer must be a callable")
     end
 
-    parameters = normalize_fixture.(collect(parameters))
+    parameters = collect(map(normalize_fixture, parameters))
     # TODO: check that it does not depend on any local fixtures
     deps = union(
-        dependencies.(parameters)...,
+        map(dependencies, parameters)...,
         OrderedSet{Fixture}([p for p in parameters if typeof(p) == GlobalFixture]))
     ff = fixture_factory(producer; delayed_teardown=delayed_teardown, returns_iterable=true)
     GlobalFixture(name, ff, parameters, deps)
@@ -90,9 +90,9 @@ function local_fixture(producer, parameters...; name=nothing)
         error("Producer must be a callable")
     end
 
-    parameters = normalize_fixture.(collect(parameters))
+    parameters = collect(map(normalize_fixture, parameters))
     deps = union(
-        dependencies.(parameters)...,
+        map(dependencies, parameters)...,
         OrderedSet{Fixture}([p for p in parameters if typeof(p) == GlobalFixture]))
     ff = fixture_factory(producer; delayed_teardown=true, returns_iterable=false)
     LocalFixture(name, ff, parameters, deps)

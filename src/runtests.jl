@@ -115,11 +115,11 @@ function run_testcases(run_options::RunOptions, tcs)
 
                 ftd = []
 
-                iterables = gi.(parameters(fx))
+                iterables = map(gi, parameters(fx))
 
                 all_pairs = []
                 for val_pairs in rowmajor_product(iterables...)
-                    args = unwrap_value.(val_pairs)
+                    args = map(unwrap_value, val_pairs)
                     iterable, rff = setup(fx, args)
                     push!(all_pairs, iterable)
                     if delayed_teardown(rff)
@@ -141,7 +141,7 @@ function run_testcases(run_options::RunOptions, tcs)
             end
         end
 
-        fixture_iterables = gi.(parameters(tc))
+        fixture_iterables = map(gi, parameters(tc))
 
         instantiate(fx::LocalFixture, pair) = setup(fx, pair)
         instantiate(fx, pair) = pair
@@ -151,17 +151,17 @@ function run_testcases(run_options::RunOptions, tcs)
         progress_start_testcases!(progress, name_tuple, length(iterable_permutations))
 
         for val_pairs in iterable_permutations
-            actual_args = instantiate.(parameters(tc), val_pairs)
-            args = unwrap_value.(actual_args)
-            ids = unwrap_id.(actual_args)
+            actual_args = map(instantiate, parameters(tc), val_pairs)
+            args = map(unwrap_value, actual_args)
+            ids = map(unwrap_id, actual_args)
             outcome = run_testcase(tc, args)
-            release.(actual_args)
+            map(release, actual_args)
             push!(test_outcomes, (name_tuple, ids, outcome))
             progress_finish_testcase!(progress, name_tuple, ids, outcome)
         end
 
         if haskey(for_teardown, i)
-            teardown.(for_teardown[i])
+            map(teardown, for_teardown[i])
         end
 
         progress_finish_testcases!(progress, name_tuple)
