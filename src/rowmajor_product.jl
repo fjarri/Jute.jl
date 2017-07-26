@@ -3,16 +3,22 @@
 # FIXME: Review this after some response is given on
 # https://github.com/JuliaCollections/IterTools.jl/issues/2
 
-immutable RowMajorProduct{T<:Tuple}
+struct RowMajorProduct{T<:Tuple}
     xss::T
 end
 
+
 Base.iteratorsize{T<:RowMajorProduct}(::Type{T}) = Base.SizeUnknown()
 
+
 Base.eltype{T}(::Type{RowMajorProduct{T}}) = Tuple{map(eltype, T.parameters)...}
+
+
 Base.length(p::RowMajorProduct) = mapreduce(length, *, 1, p.xss)
 
+
 rowmajor_product(xss...) = RowMajorProduct(xss)
+
 
 function Base.start(it::RowMajorProduct)
     n = length(it.xss)
@@ -28,6 +34,7 @@ function Base.start(it::RowMajorProduct)
     end
     return js, vs
 end
+
 
 function Base.next(it::RowMajorProduct, state)
     js = copy(state[1])
@@ -46,5 +53,6 @@ function Base.next(it::RowMajorProduct, state)
     end
     ans, (js, nothing)
 end
+
 
 Base.done(it::RowMajorProduct, state) = state[2] === nothing
