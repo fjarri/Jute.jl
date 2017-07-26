@@ -24,7 +24,10 @@ export @test_result
 export pprint_time
 
 include("runtests.jl")
-export @test, @test_throws, @test_broken, @test_skip
+export @test
+export @test_throws
+export @test_broken
+export @test_skip
 export runtests
 
 include("builtin_fixtures.jl")
