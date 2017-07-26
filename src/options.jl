@@ -10,7 +10,7 @@ function ArgParse.parse_item(::Type{Nullable{Regex}}, x::AbstractString)
 end
 
 
-function parse_commandline()
+function parse_commandline(args)
     s = ArgParseSettings(; autofix_names=true)
 
     @add_arg_table s begin
@@ -28,7 +28,7 @@ function parse_commandline()
             default = 1
     end
 
-    parse_args(s; as_symbols=true)
+    parse_args(args, s; as_symbols=true)
 end
 
 
@@ -58,8 +58,8 @@ function RunOptions(vals_dict)
 end
 
 
-function build_run_options()
+function build_run_options(args)
     inifile_opts = parse_inifile()
-    cmdline_opts = parse_commandline()
+    cmdline_opts = parse_commandline(args)
     RunOptions(merge(inifile_opts, cmdline_opts))
 end

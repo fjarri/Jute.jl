@@ -193,16 +193,33 @@ function sort_testcases(tcs)
 end
 
 
-function runtests()
-    run_options = build_run_options()
-    println("Loading test files...")
-    obj_dict = load_test_files(run_options)
-    println("Collecting testcases...")
+function runtests_internal(run_options, obj_dict)
+    if run_options.verbosity > 0
+        println("Collecting testcases...")
+    end
     all_testcases = get_testcases(run_options, obj_dict)
     testcases = filter_testcases(run_options, all_testcases)
-    println("Running $(length(testcases)) out of $(length(all_testcases)) testcases...")
-    println("=" ^ 80)
     testcases = sort_testcases(testcases)
+
+    if run_options.verbosity > 0
+        println("Running $(length(testcases)) out of $(length(all_testcases)) testcases...")
+        println("=" ^ 80)
+    end
     all_successful = run_testcases(run_options, testcases)
     Int(!all_successful)
+end
+
+
+function runtests()
+    run_options = build_run_options(ARGS)
+    runtests_dir = get_runtests_dir()
+    test_files = find_test_files(runtests_dir, run_options.test_file_postfix)
+
+    if run_options.verbosity > 0
+        println("Loading test files...")
+    end
+    obj_dict = include_test_files!(
+        test_files, run_options.dont_add_runtests_path ? nothing : runtests_dir)
+
+    runtests_internal(run_options, obj_dict)
 end
