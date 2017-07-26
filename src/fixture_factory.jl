@@ -23,7 +23,7 @@ labeled_value(value, label=nothing) =
 
 
 function fixture_factory(producer_func; delayed_teardown=false, returns_iterable=false)
-    channel_func = function(c)
+    channel_func = function(c, args)
         produce = function(value, label=nothing)
             if returns_iterable
                 if label === nothing
@@ -42,7 +42,6 @@ function fixture_factory(producer_func; delayed_teardown=false, returns_iterable
                 take!(c)
             end
         end
-        args = take!(c)
         producer_func(produce, args...)
     end
     FixtureFactory(channel_func, delayed_teardown, returns_iterable)
@@ -56,9 +55,8 @@ function setup(ff::FixtureFactory, args)
     # where they wrap `wait()` in a try/catch and check the resulting exception.
     # So we create a task explicitly. A `Task` object can be waited on safely.
     channel = Channel(0) # an unbuffered channel
-    task = Task(() -> ff.channel_func(channel))
+    task = Task(() -> ff.channel_func(channel, args))
     schedule(task)
-    put!(channel, args)
     ret = take!(channel)
     rff = RunningFixtureFactory(task, channel, ff.delayed_teardown)
     ret, rff
