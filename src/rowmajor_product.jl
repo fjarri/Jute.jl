@@ -55,4 +55,4 @@ function Base.next(it::RowMajorProduct, state)
 end
 
 
-Base.done(it::RowMajorProduct, state) = state[2] === nothing
+Base.done(::RowMajorProduct, state) = state[2] === nothing

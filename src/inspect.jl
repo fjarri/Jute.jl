@@ -3,8 +3,6 @@ using DataStructures
 
 module ImportSandbox
 
-    using Jute: RunOptions
-
     export include_test_files!, get_module_contents
 
     function get_module_contents(module_obj)

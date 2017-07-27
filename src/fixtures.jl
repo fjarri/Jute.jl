@@ -94,11 +94,11 @@ function local_fixture(producer, parameters...; name=nothing)
 end
 
 
-is_global_fixture(fx::GlobalFixture) = true
-is_global_fixture(fx) = false
+is_global_fixture(::GlobalFixture) = true
+is_global_fixture(::Any) = false
 
 
-dependencies(fx::ConstantFixture) = OrderedSet{GlobalFixture}()
+dependencies(::ConstantFixture) = OrderedSet{GlobalFixture}()
 dependencies(fx::GlobalFixture) = fx.dependencies
 dependencies(fx::LocalFixture) = fx.dependencies
 
@@ -113,4 +113,4 @@ normalize_fixture(f) = constant_fixture(f)
 
 parameters(fixture::LocalFixture) = fixture.parameters
 parameters(fixture::GlobalFixture) = fixture.parameters
-parameters(fixture::ConstantFixture) = Array{Fixture, 1}()
+parameters(::ConstantFixture) = Array{Fixture, 1}()

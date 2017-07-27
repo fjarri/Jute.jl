@@ -136,7 +136,7 @@ end
 
 
 mutable struct ProgressReporter
-    verbosity
+    verbosity :: Int
     current_group
 end
 
