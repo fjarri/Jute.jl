@@ -1,11 +1,21 @@
 using ArgParse
 
 
-function ArgParse.parse_item(::Type{Nullable{Regex}}, x::AbstractString)
+# Avoiding an addition of a method for a function we don't own for types we don't own.
+# Hence, we need a wrapper type.
+struct MaybeRegex
+    regex :: Nullable{Regex}
+end
+
+
+Base.convert(::Type{Nullable{Regex}}, x::MaybeRegex) = x.regex
+
+
+function ArgParse.parse_item(::Type{MaybeRegex}, x::AbstractString)
     if length(x) == 0
-        Nullable{Regex}()
+        MaybeRegex(Nullable{Regex}())
     else
-        Nullable{Regex}(Regex(x))
+        MaybeRegex(Nullable{Regex}(Regex(x)))
     end
 end
 
@@ -17,11 +27,11 @@ function parse_commandline(args)
         "--include-only", "-i"
             help = "include only tests (by tag)"
             metavar = "REGEX"
-            arg_type = Nullable{Regex}
+            arg_type = MaybeRegex
         "--exclude", "-e"
             help = "exclude tests (by tag)"
             metavar = "REGEX"
-            arg_type = Nullable{Regex}
+            arg_type = MaybeRegex
         "--verbosity", "-v"
             help = "the output verbosity (0-2)"
             arg_type = Int64
