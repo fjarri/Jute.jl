@@ -206,6 +206,9 @@ function runtests_internal(run_options, obj_dict)
 end
 
 
+"""
+Run the tests.
+"""
 function runtests()
     run_options = build_run_options(ARGS)
     runtests_dir = get_runtests_dir()
