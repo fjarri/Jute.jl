@@ -52,12 +52,19 @@ function parse_inifile()
 end
 
 
+"A set of options for running the test suite."
 struct RunOptions
+    "If `true`, do not push the test root path into `PATH` before including test files."
     dont_add_runtests_path :: Bool
+    "The prefix of modules containing testcases; used during the test discovery stage."
     test_module_prefix :: String
+    "The postfix of files containing testcases; used during the test discovery stage."
     test_file_postfix :: String
+    "The regexp specifying the testcases to include (applied to the full tag)."
     include_only :: Nullable{Regex}
+    "The regexp specifying the testcases to exclude (applied to the full tag)."
     exclude :: Nullable{Regex}
+    "The reporting verbosity."
     verbosity :: Int64
 end
 

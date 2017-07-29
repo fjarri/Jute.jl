@@ -11,7 +11,8 @@ export RunOptions
 include("fixture_factory.jl")
 
 include("fixtures.jl")
-export fixture, local_fixture
+export fixture
+export local_fixture
 
 include("testcases.jl")
 export testcase
@@ -32,5 +33,6 @@ export runtests
 
 include("builtin_fixtures.jl")
 export run_options
+export temporary_dir
 
 end

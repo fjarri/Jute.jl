@@ -2,12 +2,19 @@ import Base.Test: @test, @test_throws, @test_broken, @test_skip
 const BT = Base.Test
 
 
+"Round a given number to a certain number of meaningful digits."
 function round_to_meaningful(s::Float64, meaningful_digits)
     multiplier = 10.0^(meaningful_digits - 1 - convert(Integer, floor(log10(s))))
     round(s * multiplier) / multiplier
 end
 
 
+"""
+Returns a string that represents a given time (in seconds)
+as a value scaled to the appropriate unit (minutes, hours, milliseconds etc)
+and rounded to a given number of meaningful digits.
+If the latter is `0`, the result is rounded to an integer.
+"""
 function pprint_time(s::Float64; meaningful_digits::Int=0)
     limits = [
         (24 * 3600.0, "d"),
@@ -39,6 +46,10 @@ function pprint_time(s::Float64; meaningful_digits::Int=0)
 end
 
 
+"""
+An abstract base type for all values returned from
+[`@test_result`](@ref Jute.@test_result).
+"""
 abstract type TestcaseReturn end
 
 
@@ -53,6 +64,13 @@ struct ReturnValue <: BT.Result
 end
 
 
+"""
+    @test_result expr
+
+Records a result from the test.
+`expr` must evaluate to an object with the type derived from
+[`TestcaseReturn`](@ref Jute.TestcaseReturn).
+"""
 macro test_result(expr)
     quote
         BT.record(BT.get_testset(), ReturnValue($(esc(expr))))

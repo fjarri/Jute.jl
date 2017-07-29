@@ -17,6 +17,13 @@ Base.eltype{T}(::Type{RowMajorProduct{T}}) = Tuple{map(eltype, T.parameters)...}
 Base.length(p::RowMajorProduct) = mapreduce(length, *, 1, p.xss)
 
 
+"""
+    rowmajor_product(xss...)
+
+Iterate over all combinations in the cartesian product of the inputs.
+Similar to `IterTools.product()`, but iterates in row-major order
+(that is, the first iterator is iterated the slowest).
+"""
 rowmajor_product(xss...) = RowMajorProduct(xss)
 
 

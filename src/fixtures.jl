@@ -1,5 +1,6 @@
 using DataStructures
 
+
 abstract type Fixture end
 
 
@@ -9,12 +10,20 @@ is_iterable(val) = applicable(start, val)
 is_callable(val) = !isempty(methods(val))
 
 
+"Constant fixture type"
 struct ConstantFixture <: Fixture
     name :: String
     lvals :: Array{LabeledValue, 1}
 end
 
 
+"""
+    constant_fixture(vals[, labels])
+
+Create a [`ConstantFixture`](@ref Jute.ConstantFixture) object.
+Only called to convert a given value to a fixture internally,
+users can just supply iterables directly as testcase or fixture parameters.
+"""
 function constant_fixture(vals, labels=nothing)
 
     if !is_iterable(vals)
@@ -36,6 +45,8 @@ Base.next(f::ConstantFixture, state) = next(f.lvals, state)
 Base.done(f::ConstantFixture, state) = done(f.lvals, state)
 Base.length(f::ConstantFixture) = length(f.lvals)
 
+
+"Global fixture type"
 struct GlobalFixture <: Fixture
     name :: String
     ff :: FixtureFactory
@@ -52,8 +63,23 @@ end
 delayed_teardown(rff::RunningFixtureFactory) = rff.delayed_teardown
 
 
-# Global fixture
-function fixture(producer, parameters...; name=nothing, delayed_teardown=false)
+"""
+    fixture(func, params...; delayed_teardown=false)
+
+Create a global fixture (a fixture set up once before all
+the testcases that use it and torn down after they finish).
+
+`func` is a function with `length(params) + 1` parameters.
+The first parameter takes a function `produce(values[, labels])`
+that is used to return the fixture iterable (with an optional iterable of labels).
+The rest take the values of the dependent fixtures from `params`.
+
+`params` are either fixtures (constant of global only),
+iterables or pairs of two iterables used to parametrize the fixture.
+
+Returns a [`GlobalFixture`](@ref Jute.GlobalFixture) object.
+"""
+function fixture(producer, params...; name=nothing, delayed_teardown=false)
     if name === nothing
         name = gensym("fixture")
     end
@@ -62,14 +88,15 @@ function fixture(producer, parameters...; name=nothing, delayed_teardown=false)
         error("Producer must be a callable")
     end
 
-    parameters = collect(map(normalize_fixture, parameters))
+    params = collect(map(normalize_fixture, params))
     # TODO: check that it does not depend on any local fixtures
-    deps = union(map(dependencies, parameters)..., global_fixtures(parameters))
+    deps = union(map(dependencies, params)..., global_fixtures(params))
     ff = fixture_factory(producer; delayed_teardown=delayed_teardown, returns_iterable=true)
-    GlobalFixture(name, ff, parameters, deps)
+    GlobalFixture(name, ff, params, deps)
 end
 
 
+"Local fixture type"
 struct LocalFixture <: Fixture
     name :: String
     ff :: FixtureFactory
@@ -78,19 +105,35 @@ struct LocalFixture <: Fixture
 end
 
 
-function local_fixture(producer, parameters...; name=nothing)
+"""
+    local_fixture(func, params...)
+
+Create a local fixture (a fixture set up before each testcase
+that uses it and torn down afterwards).
+
+`func` is a function with `length(params) + 1` parameters.
+The first parameter takes a function `produce(value[, label])`
+that is used to return the fixture value (with an optional label).
+The rest take the values of the dependent fixtures from `params`.
+
+`params` are either fixtures (of any type), iterables or pairs of two iterables
+used to parametrize the fixture.
+
+Returns a [`LocalFixture`](@ref Jute.LocalFixture) object.
+"""
+function local_fixture(producer, params...; name=nothing)
     if name === nothing
-        name = gensym("local_fixture")
+        name = string(gensym("local_fixture"))
     end
 
     if !is_callable(producer)
         error("Producer must be a callable")
     end
 
-    parameters = collect(map(normalize_fixture, parameters))
-    deps = union(map(dependencies, parameters)..., global_fixtures(parameters))
+    params = collect(map(normalize_fixture, params))
+    deps = union(map(dependencies, params)..., global_fixtures(params))
     ff = fixture_factory(producer; delayed_teardown=true, returns_iterable=false)
-    LocalFixture(name, ff, parameters, deps)
+    LocalFixture(name, ff, params, deps)
 end
 
 

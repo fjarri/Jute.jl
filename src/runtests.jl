@@ -207,7 +207,17 @@ end
 
 
 """
-Run the tests.
+    runtests()
+
+Run the test suite.
+
+This function has several side effects:
+
+* it parses the command-line arguments, using them to build the
+  [`RunOptions`](@ref Jute.RunOptions) object;
+* it picks up and includes the test files, selected according to the options.
+
+Returns `0` if there are no failed tests, `1` otherwise.
 """
 function runtests()
     run_options = build_run_options(ARGS)
