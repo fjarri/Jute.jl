@@ -1,4 +1,4 @@
-import Base.Test: @test, @test_throws, @test_broken, @test_skip
+using Base.Test: @test, @test_throws, @test_broken, @test_skip
 const BT = Base.Test
 
 
