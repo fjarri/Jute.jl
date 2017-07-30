@@ -205,15 +205,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public API",
     "title": "Jute.@test_result",
     "category": "Macro",
-    "text": "@test_result expr\n\nRecords a result from the test. expr must evaluate to an object with the type derived from TestcaseReturn.\n\n\n\n"
-},
-
-{
-    "location": "public.html#Jute.TestcaseReturn",
-    "page": "Public API",
-    "title": "Jute.TestcaseReturn",
-    "category": "Type",
-    "text": "An abstract base type for all values returned from @test_result.\n\n\n\n"
+    "text": "@test_result expr\n\nRecords a result from the test. The result of expr will be displayed in the report by calling string() on it.\n\n\n\n"
 },
 
 {
@@ -221,7 +213,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public API",
     "title": "Assertions",
     "category": "section",
-    "text": "The following assertions are re-exported from Base.Test and can be used inside Jute testcases.@test\n@test_throws\n@test_broken\n@test_skipThis is an additional assertion, allowing one to record an arbitrary value as a test result.@test_resultTestcaseReturn"
+    "text": "The following assertions are re-exported from Base.Test and can be used inside Jute testcases.@test\n@test_throws\n@test_broken\n@test_skipThis is an additional assertion, allowing one to record an arbitrary value as a test result.@test_result"
 },
 
 {
@@ -349,7 +341,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Version history",
     "title": "Current development version",
     "category": "section",
-    "text": "ADDED: documentation"
+    "text": "CHANGED: the abstract type TestcaseReturn was removed, @test_result can return any value now.\nADDED: documentation\nADDED: displaying the testcase tag before proceeding to run it; looks a bit better for long-running testcases"
 },
 
 {
