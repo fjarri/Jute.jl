@@ -172,6 +172,14 @@ function progress_start_testcases!(progress::ProgressReporter, name_tuple, fixtu
 end
 
 
+function progress_start_testcase!(progress::ProgressReporter, name_tuple, labels)
+    if progress.verbosity >= 2
+        full_tag = build_full_tag(name_tuple, labels)
+        print("$full_tag ")
+    end
+end
+
+
 function progress_finish_testcase!(progress::ProgressReporter, name_tuple, labels, outcome)
     verbosity = progress.verbosity
     if verbosity == 1
@@ -179,10 +187,9 @@ function progress_finish_testcase!(progress::ProgressReporter, name_tuple, label
             print_with_color(result_color(result, verbosity), result_show(result, verbosity))
         end
     elseif progress.verbosity >= 2
-        full_tag = build_full_tag(name_tuple, labels)
         elapsed_time = pprint_time(outcome.elapsed_time)
 
-        print("$full_tag ($elapsed_time)")
+        print("($elapsed_time)")
 
         for result in outcome.results
             result_str = result_show(result, progress.verbosity)
