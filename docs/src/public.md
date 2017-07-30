@@ -40,10 +40,6 @@ This is an additional assertion, allowing one to record an arbitrary value as a 
 @test_result
 ```
 
-```@docs
-TestcaseReturn
-```
-
 
 ## Run options
 

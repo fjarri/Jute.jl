@@ -46,21 +46,14 @@ function pprint_time(s::Float64; meaningful_digits::Int=0)
 end
 
 
-"""
-An abstract base type for all values returned from
-[`@test_result`](@ref Jute.@test_result).
-"""
-abstract type TestcaseReturn end
-
-
 struct TestcaseOutcome
     results :: Array{BT.Result, 1}
     elapsed_time :: Float64
 end
 
 
-struct ReturnValue <: BT.Result
-    value :: TestcaseReturn
+struct ReturnValue{T} <: BT.Result
+    value :: T
 end
 
 
@@ -68,8 +61,7 @@ end
     @test_result expr
 
 Records a result from the test.
-`expr` must evaluate to an object with the type derived from
-[`TestcaseReturn`](@ref Jute.TestcaseReturn).
+The result of `expr` will be displayed in the report by calling `string()` on it.
 """
 macro test_result(expr)
     quote

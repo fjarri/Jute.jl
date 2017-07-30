@@ -3,7 +3,7 @@ module Performance
 using Jute
 
 
-struct TimeReturn <: TestcaseReturn
+struct TimeReturn
     seconds
 end
 

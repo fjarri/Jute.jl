@@ -20,7 +20,6 @@ export testcase
 include("inspect.jl")
 
 include("reporting.jl")
-export TestcaseReturn
 export @test_result
 export pprint_time
 

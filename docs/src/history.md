@@ -3,6 +3,7 @@
 
 ## Current development version
 
+* **CHANGED:** the abstract type `TestcaseReturn` was removed, [`@test_result`](@ref Jute.@test_result) can return any value now.
 * ADDED: documentation
 
 
