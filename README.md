@@ -1,6 +1,6 @@
 # Jute, a Py.Test-inspired testing framework
 
-[![Build Status](https://travis-ci.org/fjarri/Jute.jl.svg?branch=master)](https://travis-ci.org/fjarri/Jute.jl) [![Coverage Status](https://coveralls.io/repos/github/fjarri/Jute.jl/badge.svg?branch=master)](https://coveralls.io/github/fjarri/Jute.jl?branch=master)
+[![Build Status](https://travis-ci.org/fjarri/Jute.jl.svg?branch=master)](https://travis-ci.org/fjarri/Jute.jl) [![Coverage Status](https://codecov.io/gh/fjarri/Jute.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/fjarri/Jute.jl)
 
 **This project is in the alpha stage.**
 Use at your own risk.
