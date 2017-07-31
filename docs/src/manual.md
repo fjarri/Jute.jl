@@ -120,15 +120,15 @@ end
 
 A global fixture is a more sophisticated variant of a constant fixture that has a setup and a teardown stage.
 For each global fixture, the setup is called before the first testcase that uses it.
-As for the teardown, it is either called right away (if the keyword parameter `delayed_teardown` is `false`), or after the last testcase that uses it (if `delayed_teardown` is `true`).
+As for the teardown, it is either called right away (if the keyword parameter `instant_teardown` is `true`), or after the last testcase that uses it (if `instant_teardown` is `false`, which is the default).
 If no testcases use it (for example, they were filtered out), neither setup nor teardown will be called.
 
 The setup and the teardown are defined by use of a single coroutine that produces the fixture iterable.
 The coroutine's first argument is a function that is used to return the fixture values.
-If `delayed_teardown` is `true`, the call blocks until it is time to execute the teardown:
+If `instant_teardown` is `false`, the call blocks until it is time to execute the teardown:
 
 ```julia
-db_connection = fixture(; delayed_teardown=true) do produce
+db_connection = fixture() do produce
     c = db_connect()
 
     # this call blocks until all the testcases
@@ -144,7 +144,7 @@ Note that a global fixture must produce **the whole iterable** in one go.
 Similarly to the constant fixture case, one can provide a custom identifier for the fixture via the optional second argument of `produce()`:
 
 ```julia
-db_connection = fixture(; delayed_teardown=true) do produce
+db_connection = fixture() do produce
     c = db_connect()
 
     # this call blocks until all the testcases

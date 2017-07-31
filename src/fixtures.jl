@@ -60,11 +60,8 @@ function setup(fx::GlobalFixture, args)
 end
 
 
-delayed_teardown(rff::RunningFixtureFactory) = rff.delayed_teardown
-
-
 """
-    fixture(func, params...; delayed_teardown=false)
+    fixture(func, params...; instant_teardown=false)
 
 Create a global fixture (a fixture set up once before all
 the testcases that use it and torn down after they finish).
@@ -79,7 +76,7 @@ iterables or pairs of two iterables used to parametrize the fixture.
 
 Returns a [`GlobalFixture`](@ref Jute.GlobalFixture) object.
 """
-function fixture(producer, params...; name=nothing, delayed_teardown=false)
+function fixture(producer, params...; name=nothing, instant_teardown=false)
     if name === nothing
         name = gensym("fixture")
     end
@@ -91,7 +88,7 @@ function fixture(producer, params...; name=nothing, delayed_teardown=false)
     params = collect(map(normalize_fixture, params))
     # TODO: check that it does not depend on any local fixtures
     deps = union(map(dependencies, params)..., global_fixtures(params))
-    ff = fixture_factory(producer; delayed_teardown=delayed_teardown, returns_iterable=true)
+    ff = fixture_factory(producer; instant_teardown=instant_teardown, returns_iterable=true)
     GlobalFixture(name, ff, params, deps)
 end
 
@@ -132,7 +129,7 @@ function local_fixture(producer, params...; name=nothing)
 
     params = collect(map(normalize_fixture, params))
     deps = union(map(dependencies, params)..., global_fixtures(params))
-    ff = fixture_factory(producer; delayed_teardown=true, returns_iterable=false)
+    ff = fixture_factory(producer; instant_teardown=false, returns_iterable=false)
     LocalFixture(name, ff, params, deps)
 end
 

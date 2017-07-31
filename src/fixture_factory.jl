@@ -1,14 +1,17 @@
 struct FixtureFactory
     channel_func :: Function
-    delayed_teardown :: Bool
+    instant_teardown :: Bool
 end
 
 
 struct RunningFixtureFactory
     task :: Task
     channel :: Channel
-    delayed_teardown :: Bool
+    instant_teardown :: Bool
 end
+
+
+instant_teardown(rff::RunningFixtureFactory) = rff.instant_teardown
 
 
 struct LabeledValue
@@ -21,7 +24,7 @@ labeled_value(value, label=nothing) =
     LabeledValue(value, label === nothing ? string(value) : label)
 
 
-function fixture_factory(producer_func; delayed_teardown=false, returns_iterable=false)
+function fixture_factory(producer_func; instant_teardown=false, returns_iterable=false)
     channel_func = function(c, args)
         produce = function(value, label=nothing)
             if returns_iterable
@@ -36,7 +39,7 @@ function fixture_factory(producer_func; delayed_teardown=false, returns_iterable
 
             put!(c, ret)
 
-            if delayed_teardown
+            if !instant_teardown
                 # block until the caller's signal
                 take!(c)
             end
@@ -44,7 +47,7 @@ function fixture_factory(producer_func; delayed_teardown=false, returns_iterable
         producer_func(produce, args...)
     end
 
-    FixtureFactory(channel_func, delayed_teardown)
+    FixtureFactory(channel_func, instant_teardown)
 end
 
 
@@ -58,13 +61,13 @@ function setup(ff::FixtureFactory, args)
     task = Task(() -> ff.channel_func(channel, args))
     schedule(task)
     ret = take!(channel)
-    rff = RunningFixtureFactory(task, channel, ff.delayed_teardown)
+    rff = RunningFixtureFactory(task, channel, ff.instant_teardown)
     ret, rff
 end
 
 
 function teardown(rff::RunningFixtureFactory)
-    if rff.delayed_teardown
+    if !rff.instant_teardown
         put!(rff.channel, nothing)
     end
     if !istaskdone(rff.task)

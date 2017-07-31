@@ -98,10 +98,10 @@ function instantiate_global(global_fixtures, fx::GlobalFixture)
         iterable, rff = setup(fx, args)
 
         append!(all_lvals, iterable)
-        if delayed_teardown(rff)
-            push!(for_teardown, rff)
-        else
+        if instant_teardown(rff)
             teardown(rff)
+        else
+            push!(for_teardown, rff)
         end
     end
     all_lvals, for_teardown
