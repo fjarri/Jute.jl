@@ -9,7 +9,7 @@ constant_fixture2 = ["a", "b"]
 global_fixture1_setup = false
 global_fixture1_torndown = false
 global_fixture1_vals = [10, 20]
-global_fixture1 = fixture(; name="global_fixture1") do produce
+global_fixture1 = fixture() do produce
     global global_fixture1_setup
     @assert !global_fixture1_setup
     global_fixture1_setup = true
@@ -22,7 +22,7 @@ end
 global_fixture2_setup = false
 global_fixture2_torndown = false
 global_fixture2_vals = ["x", "y"]
-global_fixture2 = fixture(; name="global_fixture2") do produce
+global_fixture2 = fixture() do produce
     global global_fixture2_setup
     @assert !global_fixture2_setup
     global_fixture2_setup = true
@@ -128,7 +128,7 @@ combine_ab(a, b) = a * b
 combine_ac(a, c) = a * c
 combine_bc(b, c) = b * "+" * c
 
-gf_as = fixture(; name="gf_as") do produce
+gf_as = fixture() do produce
     @assert gfs_state["a"] == 0
     gfs_state["a"] = 1
     produce(as)
@@ -136,7 +136,7 @@ gf_as = fixture(; name="gf_as") do produce
     gfs_state["a"] = 0
 end
 
-gf_bs = fixture(gf_as; name="gf_bs") do produce, a
+gf_bs = fixture(gf_as) do produce, a
     total_values = 2
     @assert gfs_state["b"] >= 0 && gfs_state["b"] <= total_values - 1
     gfs_state["b"] += 1
@@ -145,7 +145,7 @@ gf_bs = fixture(gf_as; name="gf_bs") do produce, a
     gfs_state["b"] -= 1
 end
 
-gf_cs = fixture(gf_as; name="gf_cs") do produce, a
+gf_cs = fixture(gf_as) do produce, a
     total_values = 2
     @assert gfs_state["c"] >= 0 && gfs_state["c"] <= total_values - 1
     gfs_state["c"] += 1
@@ -154,7 +154,7 @@ gf_cs = fixture(gf_as; name="gf_cs") do produce, a
     gfs_state["c"] -= 1
 end
 
-gf_ds = fixture(gf_bs, gf_cs; name="gf_ds") do produce, b, c
+gf_ds = fixture(gf_bs, gf_cs) do produce, b, c
     total_values = 16
     @assert gfs_state["d"] >= 0 && gfs_state["d"] <= total_values - 1
     gfs_state["d"] += 1
@@ -186,7 +186,7 @@ end
 
 lf_sequence = []
 
-lf_nodeps = local_fixture(; name="lf_nodeps") do produce
+lf_nodeps = local_fixture() do produce
     push!(lf_sequence, "setup")
     produce(1)
     push!(lf_sequence, "teardown")
@@ -215,7 +215,7 @@ lf_nodeps = local_fixture() do produce
     push!(lf_sequence2, "lf_nodeps teardown")
 end
 
-lf_deps = local_fixture(lf_nodeps, 3:4, gf_for_lf; name="lf_deps") do produce, x, y, z
+lf_deps = local_fixture(lf_nodeps, 3:4, gf_for_lf) do produce, x, y, z
     push!(lf_sequence2, "lf_deps $x $y $z setup")
     produce((x, y, z))
     push!(lf_sequence2, "lf_deps $x $y $z teardown")
