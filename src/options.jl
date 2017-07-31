@@ -54,7 +54,7 @@ end
 
 "A set of options for running the test suite."
 struct RunOptions
-    "If `true`, do not push the test root path into `PATH` before including test files."
+    "If `true`, do not push the test root path into `LOAD_PATH` before including test files."
     dont_add_runtests_path :: Bool
     "The prefix of modules containing testcases; used during the test discovery stage."
     test_module_prefix :: String
