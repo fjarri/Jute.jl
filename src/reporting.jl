@@ -134,8 +134,8 @@ function result_show(::BT.Error, verbosity)
 end
 
 
-function build_full_tag(name_tuple, labels)
-    tc_name = join(name_tuple, "/")
+function build_full_tag(tcpath::TestcasePath, labels)
+    tc_name = string(tcpath)
     fixtures_tag = join(labels, ",")
     if length(labels) > 0
         tc_name * "[" * fixtures_tag * "]"
@@ -147,40 +147,44 @@ end
 
 mutable struct ProgressReporter
     verbosity :: Int
-    current_group
+    just_started :: Bool
+    current_group :: GroupPath
 end
 
 
-function progress_reporter(name_tuples, verbosity)
-    ProgressReporter(verbosity, nothing)
+function progress_reporter(tcpaths, verbosity)
+    ProgressReporter(verbosity, true, GroupPath())
 end
 
 
-function progress_start_testcases!(progress::ProgressReporter, name_tuple, fixtures_num)
+function progress_start_testcases!(progress::ProgressReporter, tcpath::TestcasePath, fixtures_num)
     if progress.verbosity == 1
-        tc_group = name_tuple[1:end-1]
+        tc_group = group_path(tcpath)
         if tc_group != progress.current_group
-            if !(progress.current_group === nothing)
+            if !progress.just_started
                 println()
             end
-            if length(tc_group) > 0
-                print(build_full_tag(tc_group, []), ": ")
+            if !isroot(tc_group)
+                print(string(tc_group), ": ")
             end
             progress.current_group = tc_group
         end
+        progress.just_started = false
     end
 end
 
 
-function progress_start_testcase!(progress::ProgressReporter, name_tuple, labels)
+function progress_start_testcase!(progress::ProgressReporter, tcpath::TestcasePath, labels)
     if progress.verbosity >= 2
-        full_tag = build_full_tag(name_tuple, labels)
+        full_tag = build_full_tag(tcpath, labels)
         print("$full_tag ")
     end
 end
 
 
-function progress_finish_testcase!(progress::ProgressReporter, name_tuple, labels, outcome)
+function progress_finish_testcase!(
+        progress::ProgressReporter, tcpath::TestcasePath, labels, outcome)
+
     verbosity = progress.verbosity
     if verbosity == 1
         for result in outcome.results
@@ -200,7 +204,7 @@ function progress_finish_testcase!(progress::ProgressReporter, name_tuple, label
 end
 
 
-function progress_finish_testcases!(progress::ProgressReporter, name_tuple)
+function progress_finish_testcases!(progress::ProgressReporter, tcpath::TestcasePath)
 
 end
 
@@ -215,7 +219,7 @@ function progress_finish!(progress::ProgressReporter, outcomes)
 
     full_time = toq()
 
-    outcome_objs = [outcome for (name_tuple, labels, outcome) in outcomes]
+    outcome_objs = [outcome for (tcpath, labels, outcome) in outcomes]
 
     full_test_time = mapreduce(outcome -> outcome.elapsed_time, +, outcome_objs)
 
@@ -248,10 +252,10 @@ function progress_finish!(progress::ProgressReporter, outcomes)
 
     has_stacktrace(result) = typeof(result) == BT.Fail || typeof(result) == BT.Error
 
-    for (name_tuple, labels, outcome) in outcomes
+    for (tcpath, labels, outcome) in outcomes
         if any(map(has_stacktrace, outcome.results))
             println("=" ^ 80)
-            println(build_full_tag(name_tuple, labels))
+            println(build_full_tag(tcpath, labels))
             for result in outcome.results
                 tp = typeof(result)
                 if tp == BT.Fail || tp == BT.Error || tp == BT.Broken

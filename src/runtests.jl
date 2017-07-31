@@ -113,13 +113,13 @@ function run_testcases(run_options::RunOptions, tcs)
 
     test_outcomes = []
 
-    progress = progress_reporter([name_tuple for (name_tuple, tc) in tcs], run_options.verbosity)
+    progress = progress_reporter([tcpath for (tcpath, tc) in tcs], run_options.verbosity)
 
     progress_start!(progress)
 
     for (i, entry) in enumerate(tcs)
 
-        name_tuple, tc = entry
+        tcpath, tc = entry
 
         for fx in dependencies(tc)
             if !haskey(global_fixtures, fx)
@@ -141,17 +141,17 @@ function run_testcases(run_options::RunOptions, tcs)
         fixture_iterables = map(gi, parameters(tc))
         iterable_permutations = rowmajor_product(fixture_iterables...)
 
-        progress_start_testcases!(progress, name_tuple, length(iterable_permutations))
+        progress_start_testcases!(progress, tcpath, length(iterable_permutations))
 
         for lvals in iterable_permutations
             dvals = map(instantiate, parameters(tc), lvals)
             args = map(unwrap_value, dvals)
             labels = map(unwrap_label, dvals)
-            progress_start_testcase!(progress, name_tuple, labels)
+            progress_start_testcase!(progress, tcpath, labels)
             outcome = run_testcase(tc, args)
             map(release, dvals)
-            push!(test_outcomes, (name_tuple, labels, outcome))
-            progress_finish_testcase!(progress, name_tuple, labels, outcome)
+            push!(test_outcomes, (tcpath, labels, outcome))
+            progress_finish_testcase!(progress, tcpath, labels, outcome)
         end
 
         if haskey(for_teardown, i)
@@ -159,15 +159,15 @@ function run_testcases(run_options::RunOptions, tcs)
             delete!(for_teardown, i)
         end
 
-        progress_finish_testcases!(progress, name_tuple)
+        progress_finish_testcases!(progress, tcpath)
     end
 
     progress_finish!(progress, test_outcomes)
 end
 
 
-function is_testcase_included(run_options::RunOptions, name_tuple)
-    full_tag = join(name_tuple, "/") # FIXME: should be standartized
+function is_testcase_included(run_options::RunOptions, tcpath::TestcasePath)
+    full_tag = string(tcpath)
     exclude = run_options.exclude
     include_only = run_options.include_only
     (
@@ -183,7 +183,7 @@ end
 
 
 function sort_testcases(tcs)
-    sort(tcs, by=p -> tuple(p[1][1:end-1]..., p[2].order))
+    sort(tcs, by=p -> p[1])
 end
 
 
