@@ -8,12 +8,12 @@ mutable struct JuteTestSet <: BT.AbstractTestSet
 end
 
 
-function Base.Test.record(ts::JuteTestSet, res::BT.Result)
+function BT.record(ts::JuteTestSet, res::BT.Result)
     push!(ts.results, res)
 end
 
 
-function Base.Test.finish(ts::JuteTestSet) end
+function BT.finish(ts::JuteTestSet) end
 
 
 function run_testcase(tc::Testcase, args)
