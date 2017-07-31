@@ -1,4 +1,3 @@
-import Base.Test
 const BT = Base.Test
 
 
