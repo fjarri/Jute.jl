@@ -1,5 +1,3 @@
-using IterTools: chain
-
 import Base.Test
 const BT = Base.Test
 

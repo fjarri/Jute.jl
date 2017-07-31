@@ -8,6 +8,10 @@
 * ADDED: documentation
 * ADDED: displaying the testcase tag before proceeding to run it; looks a bit better for long-running testcases
 
+Internals:
+
+* Removed the unused dependency on `IterTools`
+
 
 ## v0.0.2 (27 Jul 2017)
 
