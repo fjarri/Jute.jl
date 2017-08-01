@@ -97,11 +97,19 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "manual.html#Command-line-arguments-1",
+    "location": "manual.html#Testcase-tags-1",
+    "page": "Manual",
+    "title": "Testcase tags",
+    "category": "section",
+    "text": "Testcases can be assigned tags of the type Symbol. This can be used to establish a secondary grouping, independent of the primary grouping provided by modules. For example, one can tag performance tests, tests that run for a long time, unit/integration tests, tests that require a specific resource and so on. Testcases can be filtered by tags they have or don't have using command-line arguments.The tagging is performed by the function tag() that takes a Symbol and returns a function that tags a testcase:tc = tag(:foo)(testcase() do\n    ... something\nend)It is convenient to use the <| operator:tc =\n    tag(:foo) <|\n    testcase() do\n        ... something\n    end"
+},
+
+{
+    "location": "manual.html#cmdline_args-1",
     "page": "Manual",
     "title": "Command-line arguments",
     "category": "section",
-    "text": "Jute's runtest() picks up the command-line arguments automatically. The following parameters are supported:--include-only (-i): takes a regular expression; tests with full names that do not match it will not be executed\n--exclude (-e): takes a regular expression; tests with full names that match it will not be executed\n--verbosity (-v): 0, 1 or 2, defines the amount of output that will be shown. 1 is the default."
+    "text": "Jute's runtest() picks up the command-line arguments automatically. The following parameters are supported:--include-only (-i): takes a regular expression; tests with full names that do not match it will not be executed.--exclude (-e): takes a regular expression; tests with full names that match it will not be executed.--verbosity (-v): 0, 1 or 2, defines the amount of output that will be shown. 1 is the default.--include-only-tags (-t): include only tests with any of the specified tags. You can pass several tags to this option, separated by spaces.--exclude-tags (-t): exclude tests with any of the specified tags. You can pass several tags to this option, separated by spaces."
 },
 
 {
@@ -214,6 +222,38 @@ var documenterSearchIndex = {"docs": [
     "title": "Assertions",
     "category": "section",
     "text": "The following assertions are re-exported from Base.Test and can be used inside Jute testcases.@test\n@test_throws\n@test_broken\n@test_skipThis is an additional assertion, allowing one to record an arbitrary value as a test result.@test_result"
+},
+
+{
+    "location": "public.html#Jute.tag",
+    "page": "Public API",
+    "title": "Jute.tag",
+    "category": "Function",
+    "text": "tag(::Symbol)\n\nReturns a function that tags a testcase with the given tag:\n\ntc = tag(:foo)(testcase() do\n    ... something\nend)\n\nTestcases can be filtered in/out using run options. It is convenient to use the <| operator:\n\ntc =\n    tag(:foo) <|\n    testcase() do\n        ... something\n    end\n\n\n\n"
+},
+
+{
+    "location": "public.html#Jute.untag",
+    "page": "Public API",
+    "title": "Jute.untag",
+    "category": "Function",
+    "text": "tag(::Symbol)\n\nReturns a function that untags a testcase with the given tag.\n\n\n\n"
+},
+
+{
+    "location": "public.html#Jute.:<|",
+    "page": "Public API",
+    "title": "Jute.:<|",
+    "category": "Function",
+    "text": "<|(f, x) === f(x)\n\nA helper operator that makes applying testcase tags slightly more graceful. See tag for an example.\n\n\n\n"
+},
+
+{
+    "location": "public.html#Testcase-tags-1",
+    "page": "Public API",
+    "title": "Testcase tags",
+    "category": "section",
+    "text": "tag\nuntag\n<|"
 },
 
 {
@@ -341,7 +381,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Version history",
     "title": "Current development version",
     "category": "section",
-    "text": "CHANGED: the abstract type TestcaseReturn was removed, @test_result can return any value now.\nCHANGED: delayed_teardown option of fixture was changed to instant_teardown (false by default), since delayed teardown is the most common behavior.\nADDED: documentation\nADDED: displaying the testcase tag before proceeding to run it; looks a bit better for long-running testcasesInternals:Removed the unused dependency on IterTools"
+    "text": "CHANGED: the abstract type TestcaseReturn was removed, @test_result can return any value now.\nCHANGED: delayed_teardown option of fixture() was changed to instant_teardown (false by default), since delayed teardown is the most common behavior.\nADDED: documentation\nADDED: displaying the testcase tag before proceeding to run it; looks a bit better for long-running testcases\nADDED: testcase tagging (see tag()) and filtering by tags.Internals:Removed the unused dependency on IterTools"
 },
 
 {
