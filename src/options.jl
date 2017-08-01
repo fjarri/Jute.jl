@@ -44,7 +44,7 @@ function parse_commandline(args)
             nargs = '+'
         "--verbosity", "-v"
             help = "the output verbosity (0-2)"
-            arg_type = Int64
+            arg_type = Int
             default = 1
     end
 
@@ -79,7 +79,7 @@ struct RunOptions
     "Testcases with any of these tags will be excluded."
     exclude_tags :: Array{Symbol, 1}
     "The reporting verbosity."
-    verbosity :: Int64
+    verbosity :: Int
 end
 
 
