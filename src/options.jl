@@ -25,13 +25,23 @@ function parse_commandline(args)
 
     @add_arg_table s begin
         "--include-only", "-i"
-            help = "include only tests (by tag)"
+            help = "include only tests (by path/name)"
             metavar = "REGEX"
             arg_type = MaybeRegex
         "--exclude", "-e"
-            help = "exclude tests (by tag)"
+            help = "exclude tests (by path/name)"
             metavar = "REGEX"
             arg_type = MaybeRegex
+        "--include-only-tags", "-t"
+            help = "include only tests (by tag)"
+            metavar = "TAGS"
+            arg_type = Symbol
+            nargs = '+'
+        "--exclude-tags", "-n"
+            help = "exclude tests (by tag)"
+            metavar = "TAGS"
+            arg_type = Symbol
+            nargs = '+'
         "--verbosity", "-v"
             help = "the output verbosity (0-2)"
             arg_type = Int64
@@ -64,6 +74,10 @@ struct RunOptions
     include_only :: Nullable{Regex}
     "The regexp specifying the testcases to exclude (applied to the full tag)."
     exclude :: Nullable{Regex}
+    "Only testcases with any of these tags will be included."
+    include_only_tags :: Array{Symbol, 1}
+    "Testcases with any of these tags will be excluded."
+    exclude_tags :: Array{Symbol, 1}
     "The reporting verbosity."
     verbosity :: Int64
 end

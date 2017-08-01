@@ -17,6 +17,8 @@ struct Testcase
     that are not parametrized themselves).
     """
     dependencies :: OrderedSet{GlobalFixture}
+    "Testcase tags"
+    tags :: Set{Symbol}
 end
 
 
@@ -44,7 +46,7 @@ function testcase(func, params...)
     order = parse(Int, string(gensym())[3:end])
     params = collect(map(normalize_fixture, params))
     deps = union(map(dependencies, params)..., global_fixtures(params))
-    Testcase(order, func, params, deps)
+    Testcase(order, func, params, deps, Set())
 end
 
 
@@ -52,3 +54,51 @@ parameters(tc::Testcase) = tc.parameters
 
 
 dependencies(tc::Testcase) = tc.dependencies
+
+
+"""
+    tag(::Symbol)
+
+Returns a function that tags a testcase with the given tag:
+
+    tc = tag(:foo)(testcase() do
+        ... something
+    end)
+
+Testcases can be filtered in/out using run options.
+It is convenient to use the [`<|`](@ref Jute.:<|) operator:
+
+    tc =
+        tag(:foo) <|
+        testcase() do
+            ... something
+        end
+"""
+function tag(tag_name::Symbol)
+    function(tc::Testcase)
+        Testcase(
+            tc.order, tc.func, parameters(tc), dependencies(tc), union(tc.tags, Set([tag_name])))
+    end
+end
+
+
+"""
+    tag(::Symbol)
+
+Returns a function that untags a testcase with the given tag.
+"""
+function untag(tag_name::Symbol)
+    function(tc::Testcase)
+        Testcase(
+            tc.order, tc.func, parameters(tc), dependencies(tc), setdiff(tc.tags, Set([tag_name])))
+    end
+end
+
+
+"""
+    <|(f, x) === f(x)
+
+A helper operator that makes applying testcase tags slightly more graceful.
+See [`tag`](@ref Jute.tag) for an example.
+"""
+<|(f, x) = f(x)

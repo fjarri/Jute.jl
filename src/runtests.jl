@@ -170,9 +170,13 @@ function is_testcase_included(run_options::RunOptions, tcpath::TestcasePath)
     full_tag = string(tcpath)
     exclude = run_options.exclude
     include_only = run_options.include_only
+    exclude_tags = Set(run_options.exclude_tags)
+    include_only_tags = Set(run_options.include_only_tags)
     (
         (isnull(exclude) || !ismatch(get(exclude), full_tag))
         && (isnull(include_only) || ismatch(get(include_only), full_tag))
+        && (isempty(exclude_tags) || isempty(intersect(exclude_tags, tcpath.tags)))
+        && (isempty(include_only_tags) || !isempty(intersect(include_only_tags, tcpath.tags)))
         )
 end
 

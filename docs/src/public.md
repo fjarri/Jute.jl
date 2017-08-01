@@ -41,6 +41,15 @@ This is an additional assertion, allowing one to record an arbitrary value as a 
 ```
 
 
+## Testcase tags
+
+```@docs
+tag
+untag
+<|
+```
+
+
 ## Run options
 
 ```@docs

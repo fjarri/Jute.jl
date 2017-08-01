@@ -200,11 +200,45 @@ Note that, unlike a global fixture, a local fixture only produces **one value**.
 Local fixtures can be parametrized by any other type of fixture, including other local fixtures.
 
 
-## Command-line arguments
+## Testcase tags
+
+Testcases can be assigned tags of the type `Symbol`.
+This can be used to establish a secondary grouping, independent of the primary grouping provided by modules.
+For example, one can tag performance tests, tests that run for a long time, unit/integration tests, tests that require a specific resource and so on.
+Testcases can be filtered by tags they have or don't have using [command-line arguments](@ref cmdline_args).
+
+The tagging is performed by the function [`tag()`](@ref Jute.tag) that takes a `Symbol` and returns a function that tags a testcase:
+
+```julia
+tc = tag(:foo)(testcase() do
+    ... something
+end)
+```
+
+It is convenient to use the [`<|`](@ref Jute.:<|) operator:
+
+```julia
+tc =
+    tag(:foo) <|
+    testcase() do
+        ... something
+    end
+```
+
+
+## [Command-line arguments](@id cmdline_args)
 
 `Jute`'s `runtest()` picks up the command-line arguments automatically.
 The following parameters are supported:
 
-* `--include-only` (`-i`): takes a regular expression; tests with full names that do not match it will not be executed
-* `--exclude` (`-e`): takes a regular expression; tests with full names that match it will not be executed
-* `--verbosity` (`-v`): `0`, `1` or `2`, defines the amount of output that will be shown. `1` is the default.
+**`--include-only`** (`-i`): takes a regular expression; tests with full names that do not match it will not be executed.
+
+**`--exclude`** (`-e`): takes a regular expression; tests with full names that match it will not be executed.
+
+**`--verbosity`** (`-v`): `0`, `1` or `2`, defines the amount of output that will be shown. `1` is the default.
+
+**`--include-only-tags`** (`-t`): include only tests with any of the specified tags.
+You can pass several tags to this option, separated by spaces.
+
+**`--exclude-tags`** (`-t`): exclude tests with any of the specified tags.
+You can pass several tags to this option, separated by spaces.

@@ -16,6 +16,9 @@ export local_fixture
 
 include("testcases.jl")
 export testcase
+export tag
+export untag
+export <|
 
 include("inspect.jl")
 

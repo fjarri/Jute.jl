@@ -61,6 +61,7 @@ struct TestcasePath
     group :: GroupPath
     name :: Symbol
     creation_order :: Int
+    tags :: Set{Symbol}
 end
 
 
@@ -120,7 +121,7 @@ function _get_testcases(
                 append!(testcases, module_testcases)
             end
         elseif isa(obj, Testcase)
-            path = TestcasePath(parent_path, name, obj.order)
+            path = TestcasePath(parent_path, name, obj.order, obj.tags)
             push!(testcases, path => obj)
         end
     end

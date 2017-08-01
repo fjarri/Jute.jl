@@ -6,6 +6,8 @@ run_options = RunOptions(Dict(
     :test_file_postfix => ".test.jl",
     :include_only => nothing,
     :exclude => nothing,
+    :include_only_tags => [],
+    :exclude_tags => [],
     :verbosity => 0))
 
 runtests_dir = Jute.get_runtests_dir()
