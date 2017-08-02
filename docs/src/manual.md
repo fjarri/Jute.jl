@@ -242,3 +242,5 @@ You can pass several tags to this option, separated by spaces.
 
 **`--exclude-tags`** (`-t`): exclude tests with any of the specified tags.
 You can pass several tags to this option, separated by spaces.
+
+**`--max-fails`**: stop after the given amount of failed testcases (a testcase is considered failed, if at least one test in it failed, or an unhandeld exception was thrown).

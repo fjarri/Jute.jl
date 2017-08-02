@@ -42,6 +42,11 @@ function parse_commandline(args)
             metavar = "TAGS"
             arg_type = Symbol
             nargs = '+'
+        "--max-fails"
+            help = "stop after a certain amount of failed testcases"
+            metavar = "NUM"
+            arg_type = Int
+            default = 0
         "--verbosity", "-v"
             help = "the output verbosity (0-2)"
             arg_type = Int
@@ -78,6 +83,11 @@ struct RunOptions
     include_only_tags :: Array{Symbol, 1}
     "Testcases with any of these tags will be excluded."
     exclude_tags :: Array{Symbol, 1}
+    """
+    Number of testcase failures after which the test run stops.
+    The default is `0`, which means that all testcases are run regardless of their outcomes.
+    """
+    max_fails :: Int
     "The reporting verbosity."
     verbosity :: Int
 end

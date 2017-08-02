@@ -34,6 +34,12 @@ function run_testcase(tc::Testcase, args)
 end
 
 
+is_failed(::Any) = false
+is_failed(::BT.Fail) = true
+is_failed(::BT.Error) = true
+is_failed(outcome::TestcaseOutcome) = any(map(is_failed, outcome.results))
+
+
 _get_iterable(global_fixtures, fx::GlobalFixture) = global_fixtures[fx]
 _get_iterable(global_fixtures, fx::ConstantFixture) = fx.lvals
 _get_iterable(global_fixtures, fx::LocalFixture) =
@@ -117,6 +123,9 @@ function run_testcases(run_options::RunOptions, tcs)
 
     progress_start!(progress)
 
+    fails_num = 0
+    max_fails_reached = false
+
     for (i, entry) in enumerate(tcs)
 
         tcpath, tc = entry
@@ -152,6 +161,15 @@ function run_testcases(run_options::RunOptions, tcs)
             map(release, dvals)
             push!(test_outcomes, (tcpath, labels, outcome))
             progress_finish_testcase!(progress, tcpath, labels, outcome)
+
+            if is_failed(outcome)
+                fails_num += 1
+            end
+
+            if run_options.max_fails > 0 && fails_num == run_options.max_fails
+                max_fails_reached = true
+                break
+            end
         end
 
         if haskey(for_teardown, i)
@@ -160,6 +178,14 @@ function run_testcases(run_options::RunOptions, tcs)
         end
 
         progress_finish_testcases!(progress, tcpath)
+
+        if max_fails_reached
+            # Call all remaining teardowns
+            for (i, rffs) in for_teardown
+                map(teardown, rffs)
+            end
+            break
+        end
     end
 
     progress_finish!(progress, test_outcomes)
