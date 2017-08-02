@@ -70,8 +70,11 @@ GroupPath() = GroupPath([])
 
 Base.show(io::IO, gpath::GroupPath) = print(io, join(map(string, gpath.path), "/"))
 function Base.show(io::IO, tcpath::TestcasePath)
-    show(io, tcpath.group)
-    print(io, "/", tcpath.name)
+    if !isroot(tcpath.group)
+        show(io, tcpath.group)
+        print(io, "/")
+    end
+    print(io, tcpath.name)
 end
 
 
