@@ -47,6 +47,10 @@ function parse_commandline(args)
             metavar = "NUM"
             arg_type = Int
             default = 0
+        "--capture-output"
+            help = ("capture testcase output and display only the output from failed testcases " *
+                "after all the testcases are finished")
+            nargs = 0
         "--verbosity", "-v"
             help = "the output verbosity (0-2)"
             arg_type = Int
@@ -88,6 +92,11 @@ struct RunOptions
     The default is `0`, which means that all testcases are run regardless of their outcomes.
     """
     max_fails :: Int
+    """
+    If `true`, capture the output and display only the output from the failed testcases
+    after all the testcases are run.
+    """
+    capture_output :: Bool
     "The reporting verbosity."
     verbosity :: Int
 end

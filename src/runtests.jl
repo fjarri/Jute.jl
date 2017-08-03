@@ -16,9 +16,16 @@ end
 function BT.finish(ts::JuteTestSet) end
 
 
-function run_testcase(tc::Testcase, args)
+function run_testcase(tc::Testcase, args, capture_output)
     succeeded = true
     results = BT.Result[]
+
+    if capture_output
+        STDOUT_OLD = STDOUT
+        STDERR_OLD = STDERR
+        rd, wr = redirect_stdout()
+        redirect_stderr(wr)
+    end
 
     tic()
     BT.@testset JuteTestSet results=:($results) begin
@@ -26,11 +33,21 @@ function run_testcase(tc::Testcase, args)
     end
     elapsed_time = toq()
 
+    if capture_output
+        redirect_stdout(STDOUT_OLD)
+        redirect_stderr(STDERR_OLD)
+        close(wr)
+        output = readstring(rd)
+        close(rd)
+    else
+        output = ""
+    end
+
     if length(results) == 0
         push!(results, BT.Pass(:test, nothing, nothing, nothing))
     end
 
-    TestcaseOutcome(results, elapsed_time)
+    TestcaseOutcome(results, elapsed_time, output)
 end
 
 
@@ -157,7 +174,7 @@ function run_testcases(run_options::RunOptions, tcs)
             args = map(unwrap_value, dvals)
             labels = map(unwrap_label, dvals)
             progress_start_testcase!(progress, tcpath, labels)
-            outcome = run_testcase(tc, args)
+            outcome = run_testcase(tc, args, run_options.capture_output)
             map(release, dvals)
             push!(test_outcomes, (tcpath, labels, outcome))
             progress_finish_testcase!(progress, tcpath, labels, outcome)

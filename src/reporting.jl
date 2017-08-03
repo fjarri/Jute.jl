@@ -49,6 +49,7 @@ end
 struct TestcaseOutcome
     results :: Array{BT.Result, 1}
     elapsed_time :: Float64
+    output :: String
 end
 
 
@@ -254,13 +255,16 @@ function progress_finish!(progress::ProgressReporter, outcomes)
         "$(num_results[:error]) errored " *
         "in $full_time_str (total test time $full_test_time_str)")
 
-
-    has_stacktrace(result) = typeof(result) == BT.Fail || typeof(result) == BT.Error
-
     for (tcpath, labels, outcome) in outcomes
-        if any(map(has_stacktrace, outcome.results))
+        if is_failed(outcome)
             println("=" ^ 80)
             println(build_full_tag(tcpath, labels))
+
+            if length(outcome.output) > 0
+                println("Captured output:")
+                println(outcome.output)
+            end
+
             for result in outcome.results
                 tp = typeof(result)
                 if tp == BT.Fail || tp == BT.Error || tp == BT.Broken
