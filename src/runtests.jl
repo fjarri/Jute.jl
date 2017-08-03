@@ -225,6 +225,11 @@ function runtests_internal(run_options, obj_dict)
     testcases = filter_testcases(run_options, all_testcases)
     testcases = sort_testcases(testcases)
 
+    if length(testcases) == 0 && run_options.verbosity > 0
+        println("All $(length(all_testcases)) testcases were filtered out, nothing to run")
+        return 0
+    end
+
     if run_options.verbosity > 0
         println("Running $(length(testcases)) out of $(length(all_testcases)) testcases...")
         println("=" ^ 80)

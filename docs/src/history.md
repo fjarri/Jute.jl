@@ -10,6 +10,7 @@
 * ADDED: testcase tagging (see [`tag()`](@ref Jute.tag)) and filtering by tags.
 * ADDED: `--max-fails` command-line option to stop test run after a certain number of failures.
 * ADDED: showing the version info for Julia and Jute before the test run.
+* FIXED: incorrect handling of the case when all tests are filtered out.
 
 Internals:
 
