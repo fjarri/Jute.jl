@@ -9,6 +9,7 @@ run_options = RunOptions(Dict(
     :include_only_tags => [],
     :exclude_tags => [],
     :max_fails => 0,
+    :capture_output => false,
     :verbosity => 0))
 
 runtests_dir = Jute.get_runtests_dir()
