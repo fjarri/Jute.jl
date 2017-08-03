@@ -211,6 +211,11 @@ end
 
 
 function progress_start!(progress::ProgressReporter)
+    if progress.verbosity > 0
+        println("Platform: Julia $VERSION, Jute $(Pkg.installed("Jute"))")
+        println("-" ^ 80)
+    end
+
     tic()
 end
 
