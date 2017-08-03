@@ -244,3 +244,5 @@ You can pass several tags to this option, separated by spaces.
 You can pass several tags to this option, separated by spaces.
 
 **`--max-fails`**: stop after the given amount of failed testcases (a testcase is considered failed, if at least one test in it failed, or an unhandeld exception was thrown).
+
+**`--capture-output`**: capture all the output from testcases and only show the output of the failed ones in the end of the test run.
