@@ -245,4 +245,17 @@ lf_deps_check = testcase() do
 end
 
 
+tc_with_run_options = testcase(run_options) do ro
+    @test haskey(ro, :verbosity)
+end
+
+fx_with_run_options = fixture(run_options) do produce, ro
+    produce([ro[:verbosity]])
+end
+
+tc_with_fx_with_run_options = testcase(fx_with_run_options) do v
+    @test isa(v, Int)
+end
+
+
 end

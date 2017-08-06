@@ -16,7 +16,7 @@ struct Testcase
     (that is, the global fixtures in the dependency tree
     that are not parametrized themselves).
     """
-    dependencies :: OrderedSet{GlobalFixture}
+    dependencies :: OrderedSet{AbstractGlobalFixture}
     "Testcase tags"
     tags :: Set{Symbol}
 end

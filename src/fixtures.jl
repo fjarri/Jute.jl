@@ -2,6 +2,7 @@ using DataStructures
 
 
 abstract type Fixture end
+abstract type AbstractGlobalFixture <: Fixture end
 
 
 is_iterable(val) = applicable(start, val)
@@ -11,7 +12,7 @@ is_callable(val) = !isempty(methods(val))
 
 
 "Constant fixture type"
-struct ConstantFixture <: Fixture
+struct ConstantFixture <: AbstractGlobalFixture
     name :: String
     lvals :: Array{LabeledValue, 1}
 end
@@ -47,11 +48,11 @@ Base.length(f::ConstantFixture) = length(f.lvals)
 
 
 "Global fixture type"
-struct GlobalFixture <: Fixture
+struct GlobalFixture <: AbstractGlobalFixture
     name :: String
     ff :: FixtureFactory
     parameters :: Array{Fixture, 1}
-    dependencies :: OrderedSet{GlobalFixture}
+    dependencies :: OrderedSet{AbstractGlobalFixture}
 end
 
 
@@ -93,12 +94,26 @@ function fixture(producer, params...; name=nothing, instant_teardown=false)
 end
 
 
+struct RunOptionsFixture <: AbstractGlobalFixture
+end
+
+
+function run_options_fixture()
+    RunOptionsFixture()
+end
+
+
+#function setup(fx::GlobalFixture, args)
+#    setup(fx.ff, args)
+#end
+
+
 "Local fixture type"
 struct LocalFixture <: Fixture
     name :: String
     ff :: FixtureFactory
     parameters :: Array{Fixture, 1}
-    dependencies :: OrderedSet{GlobalFixture}
+    dependencies :: OrderedSet{AbstractGlobalFixture}
 end
 
 
@@ -138,12 +153,13 @@ is_global_fixture(::GlobalFixture) = true
 is_global_fixture(::Any) = false
 
 
-dependencies(::ConstantFixture) = OrderedSet{GlobalFixture}()
+dependencies(::Fixture) = OrderedSet{AbstractGlobalFixture}()
+dependencies(fx::RunOptionsFixture) = OrderedSet{AbstractGlobalFixture}([fx])
 dependencies(fx::GlobalFixture) = fx.dependencies
 dependencies(fx::LocalFixture) = fx.dependencies
 
 
-global_fixtures(fxs) = OrderedSet{GlobalFixture}(filter(is_global_fixture, fxs))
+global_fixtures(fxs) = OrderedSet{AbstractGlobalFixture}(filter(is_global_fixture, fxs))
 
 
 normalize_fixture(f::Fixture) = f
@@ -151,6 +167,6 @@ normalize_fixture(f::Pair) = constant_fixture(f[1], f[2])
 normalize_fixture(f) = constant_fixture(f)
 
 
+parameters(::Fixture) = Array{Fixture, 1}()
 parameters(fixture::LocalFixture) = fixture.parameters
 parameters(fixture::GlobalFixture) = fixture.parameters
-parameters(::ConstantFixture) = Array{Fixture, 1}()

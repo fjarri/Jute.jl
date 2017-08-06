@@ -57,7 +57,7 @@ is_failed(::BT.Error) = true
 is_failed(outcome::TestcaseOutcome) = any(map(is_failed, outcome.results))
 
 
-_get_iterable(global_fixtures, fx::GlobalFixture) = global_fixtures[fx]
+_get_iterable(global_fixtures, fx::AbstractGlobalFixture) = global_fixtures[fx]
 _get_iterable(global_fixtures, fx::ConstantFixture) = fx.lvals
 _get_iterable(global_fixtures, fx::LocalFixture) =
     rowmajor_product([_get_iterable(global_fixtures, param) for param in parameters(fx)]...)
@@ -130,7 +130,7 @@ end
 
 function run_testcases(run_options, tcs)
 
-    global_fixtures = Dict{GlobalFixture, Array{LabeledValue, 1}}()
+    global_fixtures = Dict{AbstractGlobalFixture, Array{LabeledValue, 1}}()
     gi = get_iterable(global_fixtures)
     for_teardown = DefaultDict{Int, Array{RunningFixtureFactory, 1}}(() -> RunningFixtureFactory[])
 
@@ -151,16 +151,19 @@ function run_testcases(run_options, tcs)
 
         for fx in dependencies(tc)
             if !haskey(global_fixtures, fx)
+                if isa(fx, RunOptionsFixture)
+                    global_fixtures[fx] = [LabeledValue(run_options, "run_options")]
+                else
+                    lvals, ftd = instantiate_global(global_fixtures, fx)
+                    global_fixtures[fx] = lvals
 
-                lvals, ftd = instantiate_global(global_fixtures, fx)
-                global_fixtures[fx] = lvals
-
-                if length(ftd) > 0
-                    last_usage_idx = findlast(tcs) do entry
-                        _, tcc = entry
-                        fx in dependencies(tcc)
+                    if length(ftd) > 0
+                        last_usage_idx = findlast(tcs) do entry
+                            _, tcc = entry
+                            fx in dependencies(tcc)
+                        end
+                        append!(for_teardown[last_usage_idx], ftd)
                     end
-                    append!(for_teardown[last_usage_idx], ftd)
                 end
             end
         end

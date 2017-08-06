@@ -234,3 +234,5 @@ Alternatively, they can be set with the `options` keyword argument of [`runtests
 ```@docs
 Jute.build_parser
 ```
+
+Run options can be accessed from a testcase or a fixture via the built-in fixture [`run_options`](@ref Jute.run_options).

@@ -53,6 +53,7 @@ untag
 
 ```@docs
 temporary_dir
+run_options
 ```
 
 
