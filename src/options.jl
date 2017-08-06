@@ -3,7 +3,7 @@ using ArgParse
 
 """
 For every option, the corresponding command-line argument names are given in parentheses.
-If supplied via the `options` keyword argument of [`runtests()`](@ref Jute.runtests),
+If supplied via the `options` keyword argument of [`runtests()`](@ref),
 their type must be as given or `convert()`-able to it.
 
 **`:include_only`**`:: Nullable{Regex}` (`--include-only`, `-i`):

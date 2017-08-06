@@ -21,7 +21,7 @@ end
 """
     constant_fixture(vals[, labels])
 
-Create a [`ConstantFixture`](@ref Jute.ConstantFixture) object.
+Create a [`ConstantFixture`](@ref) object.
 Only called to convert a given value to a fixture internally,
 users can just supply iterables directly as testcase or fixture parameters.
 """
@@ -75,7 +75,7 @@ The rest take the values of the dependent fixtures from `params`.
 `params` are either fixtures (constant of global only),
 iterables or pairs of two iterables used to parametrize the fixture.
 
-Returns a [`GlobalFixture`](@ref Jute.GlobalFixture) object.
+Returns a [`GlobalFixture`](@ref) object.
 """
 function fixture(producer, params...; name=nothing, instant_teardown=false)
     if name === nothing
@@ -131,7 +131,7 @@ The rest take the values of the dependent fixtures from `params`.
 `params` are either fixtures (of any type), iterables or pairs of two iterables
 used to parametrize the fixture.
 
-Returns a [`LocalFixture`](@ref Jute.LocalFixture) object.
+Returns a [`LocalFixture`](@ref) object.
 """
 function local_fixture(producer, params...; name=nothing)
     if name === nothing

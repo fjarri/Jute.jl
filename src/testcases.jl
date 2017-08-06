@@ -38,7 +38,7 @@ used to parametrize the function.
 In the latter case, the first iterable will be used to produce the values,
 and the second one to produce the corresponding labels (for logging).
 
-Returns a [`Testcase`](@ref Jute.Testcase) object.
+Returns a [`Testcase`](@ref) object.
 """
 function testcase(func, params...)
     # gensym() helps preserve the order of definition of testcases in a single file
@@ -66,7 +66,7 @@ Returns a function that tags a testcase with the given tag:
     end)
 
 Testcases can be filtered in/out using run options.
-It is convenient to use the [`<|`](@ref Jute.:<|) operator:
+It is convenient to use the [`<|`](@ref) operator:
 
     tc =
         tag(:foo) <|
@@ -99,6 +99,6 @@ end
     <|(f, x) === f(x)
 
 A helper operator that makes applying testcase tags slightly more graceful.
-See [`tag`](@ref Jute.tag) for an example.
+See [`tag`](@ref) for an example.
 """
 <|(f, x) = f(x)
