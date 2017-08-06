@@ -105,11 +105,19 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "manual.html#cmdline_args-1",
+    "location": "manual.html#Jute.build_parser",
     "page": "Manual",
-    "title": "Command-line arguments",
+    "title": "Jute.build_parser",
+    "category": "Function",
+    "text": "For every option, the corresponding command-line argument names are given in parentheses. If supplied via the options keyword argument of runtests(), their type must be as given or convert()-able to it.\n\n:include_only:: Nullable{Regex} (--include-only, -i): takes a regular expression; tests with full names that do not match it will not be executed.\n\n:exclude:: Nullable{Regex} (--exclude, -e): takes a regular expression; tests with full names that match it will not be executed.\n\n:verbosuty:: Int (--verbosity, -v): 0, 1 or 2, defines the amount of output that will be shown. 1 is the default.\n\n:include_only_tags:: Array{Symbol, 1} (--include-only-tags, -t): include only tests with any of the specified tags. You can pass several tags to this option, separated by spaces.\n\n:exclude_tags:: Array{Symbol, 1} (--exclude-tags, -t): exclude tests with any of the specified tags. You can pass several tags to this option, separated by spaces.\n\n:max_fails:: Int (--max-fails): stop after the given amount of failed testcases (a testcase is considered failed, if at least one test in it failed, or an unhandeld exception was thrown).\n\n:capture_output:: Bool (--capture-output): capture all the output from testcases and only show the output of the failed ones in the end of the test run.\n\n:dont_add_runtests_path::: Bool (`–dont-add-runtests-path): capture testcase output and display only the output from failed testcases after all the testcases are finished.\n\n:test_file_postifx:: String (--test-file-postfix): postfix of the files which will be picked up by the automatic testcase discovery.\n\n:test_module_prefix:: String (--test-module-prefix): prefix of the modules which will be searched for testcases during automatic testcase discovery.\n\n\n\n"
+},
+
+{
+    "location": "manual.html#run_options_manual-1",
+    "page": "Manual",
+    "title": "Run options",
     "category": "section",
-    "text": "Jute's runtest() picks up the command-line arguments automatically. The following parameters are supported:--include-only (-i): takes a regular expression; tests with full names that do not match it will not be executed.--exclude (-e): takes a regular expression; tests with full names that match it will not be executed.--verbosity (-v): 0, 1 or 2, defines the amount of output that will be shown. 1 is the default.--include-only-tags (-t): include only tests with any of the specified tags. You can pass several tags to this option, separated by spaces.--exclude-tags (-t): exclude tests with any of the specified tags. You can pass several tags to this option, separated by spaces.--max-fails: stop after the given amount of failed testcases (a testcase is considered failed, if at least one test in it failed, or an unhandeld exception was thrown).--capture-output: capture all the output from testcases and only show the output of the failed ones in the end of the test run."
+    "text": "Jute's runtest() picks up the options from the command line by default. Alternatively, they can be set with the options keyword argument of runtests().Jute.build_parserRun options can be accessed from a testcase or a fixture via the built-in fixture run_options."
 },
 
 {
@@ -133,7 +141,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public API",
     "title": "Jute.runtests",
     "category": "Function",
-    "text": "runtests()\n\nRun the test suite.\n\nThis function has several side effects:\n\nit parses the command-line arguments, using them to build the RunOptions object;\nit picks up and includes the test files, selected according to the options.\n\nReturns 0 if there are no failed tests, 1 otherwise.\n\n\n\n"
+    "text": "runtests(; options=nothing)\n\nRun the test suite.\n\nThis function has several side effects:\n\nit parses the command-line arguments, using them to build the dictionary of run options (see Run options in the manual for the list);\nit picks up and includes the test files, selected according to the options.\n\noptions must be a dictionary with the keys corresponding to some of the options from the above list. If options is given, command-line arguments are not parsed.\n\nReturns 0 if there are no failed tests, 1 otherwise.\n\n\n\n"
 },
 
 {
@@ -257,30 +265,6 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "public.html#Jute.RunOptions",
-    "page": "Public API",
-    "title": "Jute.RunOptions",
-    "category": "Type",
-    "text": "A set of options for running the test suite.\n\n\n\n"
-},
-
-{
-    "location": "public.html#Run-options-1",
-    "page": "Public API",
-    "title": "Run options",
-    "category": "section",
-    "text": "RunOptionsSee also the builtin fixture run_options if you want to access the options in a testcase."
-},
-
-{
-    "location": "public.html#Jute.run_options",
-    "page": "Public API",
-    "title": "Jute.run_options",
-    "category": "Constant",
-    "text": "A global fixture that contains the current RunOptions object\n\n\n\n"
-},
-
-{
     "location": "public.html#Jute.temporary_dir",
     "page": "Public API",
     "title": "Jute.temporary_dir",
@@ -289,11 +273,19 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "public.html#Jute.run_options",
+    "page": "Public API",
+    "title": "Jute.run_options",
+    "category": "Constant",
+    "text": "A global fixture that returns the dictionary with the current run options (see Run options in the manual for the full list.\n\n\n\n"
+},
+
+{
     "location": "public.html#Built-in-fixtures-1",
     "page": "Public API",
     "title": "Built-in fixtures",
     "category": "section",
-    "text": "run_optionstemporary_dir"
+    "text": "temporary_dir\nrun_options"
 },
 
 {
@@ -381,7 +373,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Version history",
     "title": "Current development version",
     "category": "section",
-    "text": "CHANGED: the abstract type TestcaseReturn was removed, @test_result can return any value now.\nCHANGED: delayed_teardown option of fixture() was changed to instant_teardown (false by default), since delayed teardown is the most common behavior.\nADDED: documentation\nADDED: displaying the testcase tag before proceeding to run it; looks a bit better for long-running testcases\nADDED: testcase tagging (see tag()) and filtering by tags.\nADDED: --max-fails command-line option to stop test run after a certain number of failures.\nADDED: showing the version info for Julia and Jute before the test run.\nADDED: --capture-output command-line option to capture all the output from testcases and only show the output from the failed ones in the end.\nFIXED: incorrect handling of the case when all tests are filtered out.Internals:Removed the unused dependency on IterTools"
+    "text": "CHANGED: the abstract type TestcaseReturn was removed, @test_result can return any value now.\nCHANGED: delayed_teardown option of fixture() was changed to instant_teardown (false by default), since delayed teardown is the most common behavior.\nADDED: documentation\nADDED: displaying the testcase tag before proceeding to run it; looks a bit better for long-running testcases\nADDED: testcase tagging (see tag()) and filtering by tags.\nADDED: --max-fails command-line option to stop test run after a certain number of failures.\nADDED: showing the version info for Julia and Jute before the test run.\nADDED: --capture-output command-line option to capture all the output from testcases and only show the output from the failed ones in the end.\nADDED: runtests() now takes an options keyword that allows one to supply run options programmatically instead of through the command line.\nFIXED: incorrect handling of the case when all tests are filtered out.Internals:Removed the unused dependency on IterTools"
 },
 
 {
