@@ -272,9 +272,8 @@ This function has several side effects:
   (see [Run options](@ref run_options_manual) in the manual for the list);
 * it picks up and includes the test files, selected according to the options.
 
-`options` must be a dictionary with the keys corresponding to some of the options \
-from the above list.
-If `options` is given, command-line arguments are not parsed.
+`options` must be a dictionary with the keys corresponding to some of the options
+from the above list. If `options` is given, command-line arguments are not parsed.
 
 Returns `0` if there are no failed tests, `1` otherwise.
 """
