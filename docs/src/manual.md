@@ -205,7 +205,7 @@ Local fixtures can be parametrized by any other type of fixture, including other
 Testcases can be assigned tags of the type `Symbol`.
 This can be used to establish a secondary grouping, independent of the primary grouping provided by modules.
 For example, one can tag performance tests, tests that run for a long time, unit/integration tests, tests that require a specific resource and so on.
-Testcases can be filtered by tags they have or don't have using [command-line arguments](@ref run_options).
+Testcases can be filtered by tags they have or don't have using [command-line arguments](@ref run_options_manual).
 
 The tagging is performed by the function [`tag()`](@ref Jute.tag) that takes a `Symbol` and returns a function that tags a testcase:
 
@@ -226,7 +226,7 @@ tc =
 ```
 
 
-## [Run options](@id run_options)
+## [Run options](@id run_options_manual)
 
 `Jute`'s [`runtest()`](@ref Jute.runtests) picks up the options from the command line by default.
 Alternatively, they can be set with the `options` keyword argument of [`runtests()`](@ref Jute.runtests).

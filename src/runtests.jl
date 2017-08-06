@@ -266,7 +266,7 @@ Run the test suite.
 This function has several side effects:
 
 * it parses the command-line arguments, using them to build the dictionary of run options
-  (see [Run options](@ref run_options) in the manual for the list);
+  (see [Run options](@ref run_options_manual) in the manual for the list);
 * it picks up and includes the test files, selected according to the options.
 
 `options` must be a dictionary with the keys corresponding to some of the options \
