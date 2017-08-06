@@ -205,7 +205,7 @@ Local fixtures can be parametrized by any other type of fixture, including other
 Testcases can be assigned tags of the type `Symbol`.
 This can be used to establish a secondary grouping, independent of the primary grouping provided by modules.
 For example, one can tag performance tests, tests that run for a long time, unit/integration tests, tests that require a specific resource and so on.
-Testcases can be filtered by tags they have or don't have using [command-line arguments](@ref cmdline_args).
+Testcases can be filtered by tags they have or don't have using [command-line arguments](@ref run_options).
 
 The tagging is performed by the function [`tag()`](@ref Jute.tag) that takes a `Symbol` and returns a function that tags a testcase:
 
@@ -226,23 +226,11 @@ tc =
 ```
 
 
-## [Command-line arguments](@id cmdline_args)
+## [Run options](@id run_options)
 
-`Jute`'s `runtest()` picks up the command-line arguments automatically.
-The following parameters are supported:
+`Jute`'s [`runtest()`](@ref Jute.runtests) picks up the options from the command line by default.
+Alternatively, they can be set with the `options` keyword argument of [`runtests()`](@ref Jute.runtests).
 
-**`--include-only`** (`-i`): takes a regular expression; tests with full names that do not match it will not be executed.
-
-**`--exclude`** (`-e`): takes a regular expression; tests with full names that match it will not be executed.
-
-**`--verbosity`** (`-v`): `0`, `1` or `2`, defines the amount of output that will be shown. `1` is the default.
-
-**`--include-only-tags`** (`-t`): include only tests with any of the specified tags.
-You can pass several tags to this option, separated by spaces.
-
-**`--exclude-tags`** (`-t`): exclude tests with any of the specified tags.
-You can pass several tags to this option, separated by spaces.
-
-**`--max-fails`**: stop after the given amount of failed testcases (a testcase is considered failed, if at least one test in it failed, or an unhandeld exception was thrown).
-
-**`--capture-output`**: capture all the output from testcases and only show the output of the failed ones in the end of the test run.
+```@docs
+Jute.build_parser
+```

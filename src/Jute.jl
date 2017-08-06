@@ -6,7 +6,7 @@ include("rowmajor_product.jl")
 export rowmajor_product
 
 include("options.jl")
-export RunOptions
+export build_run_options
 
 include("fixture_factory.jl")
 

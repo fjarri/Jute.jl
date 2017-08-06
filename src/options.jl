@@ -1,37 +1,57 @@
 using ArgParse
 
 
-# Avoiding an addition of a method for a function we don't own for types we don't own.
-# Hence, we need a wrapper type.
-struct MaybeRegex
-    regex :: Nullable{Regex}
-end
+"""
+For every option, the corresponding command-line argument names are given in parentheses.
+If supplied via the `options` keyword argument of [`runtests()`](@ref Jute.runtests),
+their type must be as given or `convert()`-able to it.
 
+**`:include_only`**`:: Nullable{Regex}` (`--include-only`, `-i`):
+takes a regular expression; tests with full names that do not match it will not be executed.
 
-Base.convert(::Type{Nullable{Regex}}, x::MaybeRegex) = x.regex
+**`:exclude`**`:: Nullable{Regex}` (`--exclude`, `-e`):
+takes a regular expression; tests with full names that match it will not be executed.
 
+**`:verbosuty`**`:: Int` (`--verbosity`, `-v`):
+`0`, `1` or `2`, defines the amount of output that will be shown. `1` is the default.
 
-function ArgParse.parse_item(::Type{MaybeRegex}, x::AbstractString)
-    if length(x) == 0
-        MaybeRegex(Nullable{Regex}())
-    else
-        MaybeRegex(Nullable{Regex}(Regex(x)))
-    end
-end
+**`:include_only_tags`**`:: Array{Symbol, 1}` (`--include-only-tags`, `-t`):
+include only tests with any of the specified tags.
+You can pass several tags to this option, separated by spaces.
 
+**`:exclude_tags`**`:: Array{Symbol, 1}` (`--exclude-tags`, `-t`):
+exclude tests with any of the specified tags.
+You can pass several tags to this option, separated by spaces.
 
-function parse_commandline(args)
+**`:max_fails`**`:: Int` (`--max-fails`):
+stop after the given amount of failed testcases
+(a testcase is considered failed, if at least one test in it failed,
+or an unhandeld exception was thrown).
+
+**`:capture_output`**`:: Bool` (`--capture-output`):
+capture all the output from testcases
+and only show the output of the failed ones in the end of the test run.
+
+**`:dont_add_runtests_path`**:`:: Bool` (`--dont-add-runtests-path):
+capture testcase output and display only the output from failed testcases
+after all the testcases are finished.
+
+**`:test_file_postifx`**`:: String` (`--test-file-postfix`):
+postfix of the files which will be picked up by the automatic testcase discovery.
+
+**`:test_module_prefix`**`:: String` (`--test-module-prefix`):
+prefix of the modules which will be searched for testcases during automatic testcase discovery.
+"""
+function build_parser()
     s = ArgParseSettings(; autofix_names=true)
 
     @add_arg_table s begin
         "--include-only", "-i"
             help = "include only tests (by path/name)"
             metavar = "REGEX"
-            arg_type = MaybeRegex
         "--exclude", "-e"
             help = "exclude tests (by path/name)"
             metavar = "REGEX"
-            arg_type = MaybeRegex
         "--include-only-tags", "-t"
             help = "include only tests (by tag)"
             metavar = "TAGS"
@@ -55,61 +75,66 @@ function parse_commandline(args)
             help = "the output verbosity (0-2)"
             arg_type = Int
             default = 1
+        "--dont-add-runtests-path"
+            help = "do not push the test root path into `LOAD_PATH` before including test files."
+            nargs = 0
+        "--test-file-postfix"
+            help = ("postfix of the files which will be picked up " *
+                "by the automatic testcase discovery.")
+            metavar = "STR"
+            arg_type = String
+            default = ".test.jl"
+        "--test-module-prefix"
+            help = ("prefix of the modules which will be searched for testcases " *
+                "during automatic testcase discovery.")
+            metavar = "STR"
+            arg_type = String
+            default = ""
     end
 
-    parse_args(args, s; as_symbols=true)
+    s
 end
 
 
-function parse_inifile()
-    # TODO: in future these will be set through an ini file
-    return Dict(
-        :dont_add_runtests_path => false,
-        :test_file_postfix => ".test.jl",
-        :test_module_prefix => "",
-        )
+function normalize_options(run_options)
+
+    run_options = deepcopy(run_options)
+
+    maybe_regex(s) = s === nothing ? Nullable{Regex}() : Nullable{Regex}(Regex(s))
+
+    run_options[:include_only] = maybe_regex(run_options[:include_only])
+    run_options[:exclude] = maybe_regex(run_options[:exclude])
+
+    run_options
 end
 
 
-"A set of options for running the test suite."
-struct RunOptions
-    "If `true`, do not push the test root path into `LOAD_PATH` before including test files."
-    dont_add_runtests_path :: Bool
-    "The prefix of modules containing testcases; used during the test discovery stage."
-    test_module_prefix :: String
-    "The postfix of files containing testcases; used during the test discovery stage."
-    test_file_postfix :: String
-    "The regexp specifying the testcases to include (applied to the full tag)."
-    include_only :: Nullable{Regex}
-    "The regexp specifying the testcases to exclude (applied to the full tag)."
-    exclude :: Nullable{Regex}
-    "Only testcases with any of these tags will be included."
-    include_only_tags :: Array{Symbol, 1}
-    "Testcases with any of these tags will be excluded."
-    exclude_tags :: Array{Symbol, 1}
-    """
-    Number of testcase failures after which the test run stops.
-    The default is `0`, which means that all testcases are run regardless of their outcomes.
-    """
-    max_fails :: Int
-    """
-    If `true`, capture the output and display only the output from the failed testcases
-    after all the testcases are run.
-    """
-    capture_output :: Bool
-    "The reporting verbosity."
-    verbosity :: Int
+function build_run_options_from_commandline(args)
+    s = build_parser()
+    normalize_options(parse_args(args, s; as_symbols=true))
 end
 
 
-function RunOptions(vals_dict)
-    args = [vals_dict[fname] for fname in fieldnames(RunOptions)]
-    RunOptions(args...)
+function build_run_options_from_userdict(options)
+    s = build_parser()
+    run_options = parse_args([], s; as_symbols=true)
+    run_options = normalize_options(run_options)
+    for (key, val) in options
+        if !haskey(run_options, key)
+            error("Unknown option: $key")
+        end
+        run_options[key] = convert(typeof(run_options[key]), val)
+    end
+    run_options
 end
 
 
-function build_run_options(args)
-    inifile_opts = parse_inifile()
-    cmdline_opts = parse_commandline(args)
-    RunOptions(merge(inifile_opts, cmdline_opts))
+function build_run_options(; args=nothing, options=nothing)
+    if options === nothing && args === nothing
+        build_run_options_from_commandline([])
+    elseif options === nothing
+        build_run_options_from_commandline(args)
+    else
+        build_run_options_from_userdict(options)
+    end
 end

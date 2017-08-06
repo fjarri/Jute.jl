@@ -128,7 +128,7 @@ function instantiate_global(global_fixtures, fx::GlobalFixture)
 end
 
 
-function run_testcases(run_options::RunOptions, tcs)
+function run_testcases(run_options, tcs)
 
     global_fixtures = Dict{GlobalFixture, Array{LabeledValue, 1}}()
     gi = get_iterable(global_fixtures)
@@ -136,11 +136,13 @@ function run_testcases(run_options::RunOptions, tcs)
 
     test_outcomes = []
 
-    progress = progress_reporter([tcpath for (tcpath, tc) in tcs], run_options.verbosity)
+    progress = progress_reporter([tcpath for (tcpath, tc) in tcs], run_options[:verbosity])
 
     progress_start!(progress)
 
+    capture_output = run_options[:capture_output] :: Bool
     fails_num = 0
+    max_fails = run_options[:max_fails] :: Int
     max_fails_reached = false
 
     for (i, entry) in enumerate(tcs)
@@ -174,7 +176,7 @@ function run_testcases(run_options::RunOptions, tcs)
             args = map(unwrap_value, dvals)
             labels = map(unwrap_label, dvals)
             progress_start_testcase!(progress, tcpath, labels)
-            outcome = run_testcase(tc, args, run_options.capture_output)
+            outcome = run_testcase(tc, args, capture_output)
             map(release, dvals)
             push!(test_outcomes, (tcpath, labels, outcome))
             progress_finish_testcase!(progress, tcpath, labels, outcome)
@@ -183,7 +185,7 @@ function run_testcases(run_options::RunOptions, tcs)
                 fails_num += 1
             end
 
-            if run_options.max_fails > 0 && fails_num == run_options.max_fails
+            if max_fails > 0 && fails_num == max_fails
                 max_fails_reached = true
                 break
             end
@@ -209,23 +211,23 @@ function run_testcases(run_options::RunOptions, tcs)
 end
 
 
-function is_testcase_included(run_options::RunOptions, tcpath::TestcasePath)
+function is_testcase_included(e_paths, i_paths, e_tags, i_tags, tcpath::TestcasePath)
     full_tag = string(tcpath)
-    exclude = run_options.exclude
-    include_only = run_options.include_only
-    exclude_tags = Set(run_options.exclude_tags)
-    include_only_tags = Set(run_options.include_only_tags)
     (
-        (isnull(exclude) || !ismatch(get(exclude), full_tag))
-        && (isnull(include_only) || ismatch(get(include_only), full_tag))
-        && (isempty(exclude_tags) || isempty(intersect(exclude_tags, tcpath.tags)))
-        && (isempty(include_only_tags) || !isempty(intersect(include_only_tags, tcpath.tags)))
+        (isnull(e_paths) || !ismatch(get(e_paths), full_tag))
+        && (isnull(i_paths) || ismatch(get(i_paths), full_tag))
+        && (isempty(e_tags) || isempty(intersect(e_tags, tcpath.tags)))
+        && (isempty(i_tags) || !isempty(intersect(i_tags, tcpath.tags)))
         )
 end
 
 
-function filter_testcases(run_options::RunOptions, tcs)
-    filter(p -> is_testcase_included(run_options, p[1]), tcs)
+function filter_testcases(run_options, tcs)
+    e_paths = run_options[:exclude]
+    i_paths = run_options[:include_only]
+    e_tags = Set(run_options[:exclude_tags])
+    i_tags = Set(run_options[:include_only_tags])
+    filter(p -> is_testcase_included(e_paths, i_paths, e_tags, i_tags, p[1]), tcs)
 end
 
 
@@ -235,19 +237,19 @@ end
 
 
 function runtests_internal(run_options, obj_dict)
-    if run_options.verbosity > 0
+    if run_options[:verbosity] > 0
         println("Collecting testcases...")
     end
-    all_testcases = get_testcases(run_options, obj_dict)
+    all_testcases = get_testcases(obj_dict, run_options[:test_module_prefix])
     testcases = filter_testcases(run_options, all_testcases)
     testcases = sort_testcases(testcases)
 
-    if length(testcases) == 0 && run_options.verbosity > 0
+    if length(testcases) == 0 && run_options[:verbosity] > 0
         println("All $(length(all_testcases)) testcases were filtered out, nothing to run")
         return 0
     end
 
-    if run_options.verbosity > 0
+    if run_options[:verbosity] > 0
         println("Running $(length(testcases)) out of $(length(all_testcases)) testcases...")
         println("=" ^ 80)
     end
@@ -257,28 +259,33 @@ end
 
 
 """
-    runtests()
+    runtests(; options=nothing)
 
 Run the test suite.
 
 This function has several side effects:
 
-* it parses the command-line arguments, using them to build the
-  [`RunOptions`](@ref Jute.RunOptions) object;
+* it parses the command-line arguments, using them to build the dictionary of run options
+  (see [Run options](@ref run_options) in the manual for the list);
 * it picks up and includes the test files, selected according to the options.
+
+`options` must be a dictionary with the keys corresponding to some of the options \
+from the above list.
+If `options` is given, command-line arguments are not parsed.
 
 Returns `0` if there are no failed tests, `1` otherwise.
 """
-function runtests()
-    run_options = build_run_options(ARGS)
-    runtests_dir = get_runtests_dir()
-    test_files = find_test_files(runtests_dir, run_options.test_file_postfix)
+function runtests(; options=nothing)
+    run_options = build_run_options(args=ARGS, options=options)
 
-    if run_options.verbosity > 0
+    runtests_dir = get_runtests_dir()
+    test_files = find_test_files(runtests_dir, run_options[:test_file_postfix])
+
+    if run_options[:verbosity] > 0
         println("Loading test files...")
     end
     obj_dict = include_test_files!(
-        test_files, run_options.dont_add_runtests_path ? nothing : runtests_dir)
+        test_files, run_options[:dont_add_runtests_path] ? nothing : runtests_dir)
 
     runtests_internal(run_options, obj_dict)
 end

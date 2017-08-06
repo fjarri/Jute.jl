@@ -49,21 +49,7 @@ untag
 <|
 ```
 
-
-## Run options
-
-```@docs
-RunOptions
-```
-
-See also the builtin fixture [`run_options`](@ref Jute.run_options) if you want to access the options in a testcase.
-
-
 ## Built-in fixtures
-
-```@docs
-run_options
-```
 
 ```@docs
 temporary_dir

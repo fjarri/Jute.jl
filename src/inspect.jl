@@ -132,6 +132,6 @@ function _get_testcases(
 end
 
 
-function get_testcases(run_options::RunOptions, obj_dict)
-    _get_testcases(obj_dict, run_options.test_module_prefix)
+function get_testcases(obj_dict, test_module_prefix)
+    _get_testcases(obj_dict, test_module_prefix)
 end
