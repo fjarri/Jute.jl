@@ -140,3 +140,40 @@ end
 
 
 Base.done(::RowMajorProduct, state) = state[2] === nothing
+
+
+
+"""
+    with_output_capture(func, pass_through=false)
+
+Execute the callable `func` and capture its output (both `STDOUT` and `STDERR`) in a string.
+Returns a tuple of the `func`'s return value and its output.
+If `pass_through` is `true`, does not capture anything
+and returns an empty string instead of the output.
+"""
+function with_output_capture(func, pass_through::Bool=false)
+
+    if pass_through
+        return func(), ""
+    end
+
+    STDOUT_OLD = STDOUT
+    STDERR_OLD = STDERR
+
+    rd, wr = redirect_stdout()
+    redirect_stderr(wr)
+
+    ret = nothing
+    output = ""
+    try
+        ret = func()
+    finally
+        redirect_stdout(STDOUT_OLD)
+        redirect_stderr(STDERR_OLD)
+        close(wr)
+        output = readstring(rd)
+        close(rd)
+    end
+
+    ret, output
+end

@@ -16,34 +16,6 @@ end
 function BT.finish(ts::JuteTestSet) end
 
 
-function with_output_capture(func, pass_through::Bool=false)
-
-    if pass_through
-        return func(), ""
-    end
-
-    STDOUT_OLD = STDOUT
-    STDERR_OLD = STDERR
-
-    rd, wr = redirect_stdout()
-    redirect_stderr(wr)
-
-    ret = nothing
-    output = ""
-    try
-        ret = func()
-    finally
-        redirect_stdout(STDOUT_OLD)
-        redirect_stderr(STDERR_OLD)
-        close(wr)
-        output = readstring(rd)
-        close(rd)
-    end
-
-    ret, output
-end
-
-
 function run_testcase(tc::Testcase, args, capture_output)
     succeeded = true
     results = BT.Result[]

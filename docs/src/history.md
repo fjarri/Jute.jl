@@ -12,6 +12,7 @@
 * ADDED: showing the version info for Julia and Jute before the test run.
 * ADDED: `--capture-output` command-line option to capture all the output from testcases and only show the output from the failed ones in the end.
 * ADDED: `runtests()` now takes an `options` keyword that allows one to supply run options programmatically instead of through the command line.
+* ADDED: exporting `with_output_capture()` function (mostly to use in tests).
 * FIXED: incorrect handling of the case when all tests are filtered out.
 * FIXED: incorrect pretty printing of times smaller than 1 microsecond.
 
