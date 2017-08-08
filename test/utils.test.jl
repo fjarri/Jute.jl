@@ -3,7 +3,7 @@ module Utils
 using Jute
 
 
-pprint_time_strings = testcase() do
+pprint_time_test = testcase() do
     # normal operation for large times
     @test pprint_time(32 * 24 * 3600 + 12 * 3600 + 6 * 60 + 7) == "32d 12h 6m 7s"
     @test pprint_time(12 * 3600 + 6 * 60 + 7) == "12h 6m 7s"
@@ -28,6 +28,14 @@ pprint_time_strings = testcase() do
 
     # small times with meaningful_digts==0 (default)
     @test pprint_time(55.345 * 1e-3) == "55ms"
+end
+
+
+rowmajor_product_test = testcase() do
+    @test collect(rowmajor_product()) == [()]
+    @test collect(rowmajor_product(1:2)) == [(1,), (2,)]
+    @test collect(rowmajor_product(1:2, [])) == []
+    @test collect(rowmajor_product(1:2, 3:4)) == [(1, 3), (1, 4), (2, 3), (2, 4)]
 end
 
 

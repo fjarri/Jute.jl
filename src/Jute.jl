@@ -4,8 +4,6 @@ module Jute
 
 include("utils.jl")
 export pprint_time
-
-include("rowmajor_product.jl")
 export rowmajor_product
 
 include("options.jl")
