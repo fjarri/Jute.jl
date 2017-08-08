@@ -61,8 +61,6 @@ run_options
 
 ```@docs
 rowmajor_product
-```
-
-```@docs
 pprint_time
+with_output_capture
 ```
