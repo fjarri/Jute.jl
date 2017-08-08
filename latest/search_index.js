@@ -301,7 +301,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public API",
     "title": "Jute.pprint_time",
     "category": "Function",
-    "text": "Returns a string that represents a given time (in seconds) as a value scaled to the appropriate unit (minutes, hours, milliseconds etc) and rounded to a given number of meaningful digits. If the latter is 0, the result is rounded to an integer.\n\n\n\n"
+    "text": "Returns a string that represents a given time (in seconds) as a value scaled to the appropriate unit (minutes, hours, milliseconds etc) and rounded to a given number of meaningful digits (if it is smaller than a minute). If the latter is 0, the result is rounded to an integer at all times.\n\n\n\n"
 },
 
 {
@@ -373,7 +373,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Version history",
     "title": "Current development version",
     "category": "section",
-    "text": "CHANGED: the abstract type TestcaseReturn was removed, @test_result can return any value now.\nCHANGED: delayed_teardown option of fixture() was changed to instant_teardown (false by default), since delayed teardown is the most common behavior.\nADDED: documentation\nADDED: displaying the testcase tag before proceeding to run it; looks a bit better for long-running testcases\nADDED: testcase tagging (see tag()) and filtering by tags.\nADDED: --max-fails command-line option to stop test run after a certain number of failures.\nADDED: showing the version info for Julia and Jute before the test run.\nADDED: --capture-output command-line option to capture all the output from testcases and only show the output from the failed ones in the end.\nADDED: runtests() now takes an options keyword that allows one to supply run options programmatically instead of through the command line.\nFIXED: incorrect handling of the case when all tests are filtered out.Internals:Removed the unused dependency on IterTools"
+    "text": "CHANGED: the abstract type TestcaseReturn was removed, @test_result can return any value now.\nCHANGED: delayed_teardown option of fixture() was changed to instant_teardown (false by default), since delayed teardown is the most common behavior.\nADDED: documentation\nADDED: displaying the testcase tag before proceeding to run it; looks a bit better for long-running testcases\nADDED: testcase tagging (see tag()) and filtering by tags.\nADDED: --max-fails command-line option to stop test run after a certain number of failures.\nADDED: showing the version info for Julia and Jute before the test run.\nADDED: --capture-output command-line option to capture all the output from testcases and only show the output from the failed ones in the end.\nADDED: runtests() now takes an options keyword that allows one to supply run options programmatically instead of through the command line.\nFIXED: incorrect handling of the case when all tests are filtered out.\nFIXED: incorrect pretty printing of times smaller than 1 microsecond.Internals:Removed the unused dependency on IterTools"
 },
 
 {
