@@ -1,4 +1,6 @@
 """
+    pprint_time(s; meaningful_digits=0)
+
 Returns a string that represents a given time (in seconds)
 as a value scaled to the appropriate unit (minutes, hours, milliseconds etc)
 and rounded to a given number of meaningful digits (if it is smaller than a minute).
