@@ -2,6 +2,9 @@ __precompile__()
 
 module Jute
 
+include("utils.jl")
+export pprint_time
+
 include("rowmajor_product.jl")
 export rowmajor_product
 
@@ -24,7 +27,6 @@ include("inspect.jl")
 
 include("reporting.jl")
 export @test_result
-export pprint_time
 
 include("runtests.jl")
 export @test

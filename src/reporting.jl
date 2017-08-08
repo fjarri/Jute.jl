@@ -2,50 +2,6 @@ using Base.Test: @test, @test_throws, @test_broken, @test_skip
 const BT = Base.Test
 
 
-"Round a given number to a certain number of meaningful digits."
-function round_to_meaningful(s::Float64, meaningful_digits)
-    multiplier = 10.0^(meaningful_digits - 1 - convert(Integer, floor(log10(s))))
-    round(s * multiplier) / multiplier
-end
-
-
-"""
-Returns a string that represents a given time (in seconds)
-as a value scaled to the appropriate unit (minutes, hours, milliseconds etc)
-and rounded to a given number of meaningful digits.
-If the latter is `0`, the result is rounded to an integer.
-"""
-function pprint_time(s::Float64; meaningful_digits::Int=0)
-    limits = [
-        (24 * 3600.0, "d"),
-        (3600.0, "hr"),
-        (60.0, "m"),
-        (1.0, "s"),
-        (1e-3, "ms"),
-        (1e-6, "us"),
-        (1e-9, "ns")
-    ]
-
-    function build_str(s, unit)
-        if meaningful_digits == 0
-            rounded_s = convert(Int, round(s))
-        else
-            rounded_s = round_to_meaningful(s, meaningful_digits)
-        end
-        string(rounded_s) * " " * unit
-    end
-
-    for (limit, unit) in limits[1:end-1]
-        if s >= limit
-            return build_str(s / limit, unit)
-        end
-    end
-
-    limit, unit = limits[end]
-    build_str(limit, unit)
-end
-
-
 struct TestcaseOutcome
     results :: Array{BT.Result, 1}
     elapsed_time :: Float64
