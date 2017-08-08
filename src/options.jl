@@ -45,52 +45,66 @@ prefix of the modules which will be searched for testcases during automatic test
 function build_parser()
     s = ArgParseSettings(; autofix_names=true)
 
-    @add_arg_table s begin
-        "--include-only", "-i"
-            help = "include only tests (by path/name)"
-            metavar = "REGEX"
-        "--exclude", "-e"
-            help = "exclude tests (by path/name)"
-            metavar = "REGEX"
-        "--include-only-tags", "-t"
-            help = "include only tests (by tag)"
-            metavar = "TAGS"
-            arg_type = Symbol
-            nargs = '+'
-        "--exclude-tags", "-n"
-            help = "exclude tests (by tag)"
-            metavar = "TAGS"
-            arg_type = Symbol
-            nargs = '+'
-        "--max-fails"
-            help = "stop after a certain amount of failed testcases"
-            metavar = "NUM"
-            arg_type = Int
-            default = 0
-        "--capture-output"
-            help = ("capture testcase output and display only the output from failed testcases " *
-                "after all the testcases are finished")
-            nargs = 0
-        "--verbosity", "-v"
-            help = "the output verbosity (0-2)"
-            arg_type = Int
-            default = 1
-        "--dont-add-runtests-path"
-            help = "do not push the test root path into `LOAD_PATH` before including test files."
-            nargs = 0
-        "--test-file-postfix"
-            help = ("postfix of the files which will be picked up " *
-                "by the automatic testcase discovery.")
-            metavar = "STR"
-            arg_type = String
-            default = ".test.jl"
-        "--test-module-prefix"
-            help = ("prefix of the modules which will be searched for testcases " *
-                "during automatic testcase discovery.")
-            metavar = "STR"
-            arg_type = String
-            default = ""
-    end
+    add_arg_table(
+        s,
+        ["--include-only", "-i"],
+        Dict(
+            :help => "include only tests (by path/name)",
+            :metavar => "REGEX"),
+        ["--exclude", "-e"],
+        Dict(
+            :help => "exclude tests (by path/name)",
+            :metavar => "REGEX"),
+        ["--include-only-tags", "-t"],
+        Dict(
+            :help => "include only tests (by tag)",
+            :metavar => "TAGS",
+            :arg_type => Symbol,
+            :nargs => '+'),
+        ["--exclude-tags", "-n"],
+        Dict(
+            :help => "exclude tests (by tag)",
+            :metavar => "TAGS",
+            :arg_type => Symbol,
+            :nargs => '+'),
+        "--max-fails",
+        Dict(
+            :help => "stop after a certain amount of failed testcases",
+            :metavar => "NUM",
+            :arg_type => Int,
+            :default => 0),
+        "--capture-output",
+        Dict(
+            :help =>
+                "capture testcase output and display only the output from failed testcases " *
+                "after all the testcases are finished",
+            :nargs => 0),
+        ["--verbosity", "-v"],
+        Dict(
+            :help => "the output verbosity (0-2)",
+            :arg_type => Int,
+            :default => 1),
+        "--dont-add-runtests-path",
+        Dict(
+            :help => "do not push the test root path into `LOAD_PATH` before including test files.",
+            :nargs => 0),
+        "--test-file-postfix",
+        Dict(
+            :help =>
+                "postfix of the files which will be picked up " *
+                "by the automatic testcase discovery.",
+            :metavar => "STR",
+            :arg_type => String,
+            :default => ".test.jl"),
+        "--test-module-prefix",
+        Dict(
+            :help =>
+                "prefix of the modules which will be searched for testcases " *
+                "during automatic testcase discovery.",
+            :metavar => "STR",
+            :arg_type => String,
+            :default => "")
+        )
 
     s
 end
