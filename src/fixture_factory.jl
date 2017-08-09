@@ -23,7 +23,14 @@ end
 labeled_value(value, label=nothing) =
     LabeledValue(value, label === nothing ? string(value) : label)
 
+
+Base.:(==)(lval1::LabeledValue, lval2::LabeledValue) =
+    (lval1.value == lval2.value) && (lval1.label == lval2.label)
+
+
 unwrap_value(lval::LabeledValue) = lval.value
+
+
 unwrap_label(lval::LabeledValue) = lval.label
 
 
