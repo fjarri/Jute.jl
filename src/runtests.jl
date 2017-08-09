@@ -43,7 +43,7 @@ is_failed(outcome::TestcaseOutcome) = any(map(is_failed, outcome.results))
 
 
 _get_iterable(global_fixtures, fx::AbstractGlobalFixture) = global_fixtures[fx]
-_get_iterable(global_fixtures, fx::ConstantFixture) = fx.lvals
+_get_iterable(global_fixtures, fx::ConstantFixture) = setup(fx)
 _get_iterable(global_fixtures, fx::LocalFixture) =
     rowmajor_product([_get_iterable(global_fixtures, param) for param in parameters(fx)]...)
 

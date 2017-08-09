@@ -41,6 +41,7 @@ function constant_fixture(vals, labels=nothing)
 end
 
 
+setup(fx::ConstantFixture) = fx.lvals
 
 
 "Global fixture type"
