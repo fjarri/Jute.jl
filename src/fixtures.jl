@@ -31,10 +31,16 @@ function constant_fixture(vals, labels=nothing)
         error("`vals` must be an iterable")
     end
 
+    c_vals = collect(vals)[:]
+
     if labels === nothing
-        labeled_vals = map(labeled_value, vals)
+        labeled_vals = map(labeled_value, c_vals)
     else
-        labeled_vals = map(labeled_value, vals, labels)
+        if !is_iterable(labels)
+            error("`labels` must be an iterable")
+        end
+        c_labels = collect(labels)[:]
+        labeled_vals = map(labeled_value, c_vals, c_labels)
     end
 
     ConstantFixture(gensym("constant"), labeled_vals)
