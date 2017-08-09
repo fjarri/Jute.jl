@@ -23,6 +23,9 @@ end
 labeled_value(value, label=nothing) =
     LabeledValue(value, label === nothing ? string(value) : label)
 
+unwrap_value(lval::LabeledValue) = lval.value
+unwrap_label(lval::LabeledValue) = lval.label
+
 
 function fixture_factory(producer_func; instant_teardown=false, returns_iterable=false)
     channel_func = function(c, args)

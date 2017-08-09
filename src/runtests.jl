@@ -83,9 +83,8 @@ function release(val::DelayedTeardownValue)
 end
 
 
-unwrap_value(val::DelayedTeardownValue) = val.lval.value
-unwrap_label(val::DelayedTeardownValue) = val.lval.label
-unwrap_value(val::LabeledValue) = val.value
+unwrap_value(val::DelayedTeardownValue) = unwrap_value(val.lval)
+unwrap_label(val::DelayedTeardownValue) = unwral_label(val.lval)
 
 instantiate(fx::LocalFixture, lval) = setup(fx, lval)
 instantiate(fx, lval) = DelayedTeardownValue(lval, nothing, DelayedTeardownValue[])
