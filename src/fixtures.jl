@@ -41,10 +41,6 @@ function constant_fixture(vals, labels=nothing)
 end
 
 
-Base.start(f::ConstantFixture) = start(f.lvals)
-Base.next(f::ConstantFixture, state) = next(f.lvals, state)
-Base.done(f::ConstantFixture, state) = done(f.lvals, state)
-Base.length(f::ConstantFixture) = length(f.lvals)
 
 
 "Global fixture type"
@@ -101,11 +97,6 @@ end
 function run_options_fixture()
     RunOptionsFixture()
 end
-
-
-#function setup(fx::GlobalFixture, args)
-#    setup(fx.ff, args)
-#end
 
 
 "Local fixture type"
@@ -167,6 +158,5 @@ normalize_fixture(f::Pair) = constant_fixture(f[1], f[2])
 normalize_fixture(f) = constant_fixture(f)
 
 
-parameters(::Fixture) = Array{Fixture, 1}()
 parameters(fixture::LocalFixture) = fixture.parameters
 parameters(fixture::GlobalFixture) = fixture.parameters
