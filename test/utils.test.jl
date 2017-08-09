@@ -39,6 +39,7 @@ rowmajor_product_test = testcase() do
 end
 
 
+# Check that both STDOUT and STDERR are captured and joined in the correct order
 capture_all = testcase() do
     ret, out = with_output_capture() do
         println(STDOUT, "stdout 1")
@@ -53,7 +54,10 @@ capture_all = testcase() do
 end
 
 
+# Check that if pass_through=true, the output is not captured
 pass_through = testcase() do
+    # In order to see that the output is not captured,
+    # we still need to capture it one level higher.
     with_output_capture() do
         ret, out = with_output_capture(true) do
             println(STDOUT, "stdout 1")
@@ -67,6 +71,8 @@ pass_through = testcase() do
 end
 
 
+# Check that the handles are restored to previous values
+# if an exception is thrown in the function.
 restore_on_error = testcase() do
     try
         with_output_capture() do
