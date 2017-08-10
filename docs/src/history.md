@@ -15,6 +15,7 @@
 * ADDED: exporting `with_output_capture()` function (mostly to use in tests).
 * FIXED: incorrect handling of the case when all tests are filtered out.
 * FIXED: incorrect pretty printing of times smaller than 1 microsecond.
+* FIXED: incorrect behavior of multiple tagging and untagging commands.
 
 Internals:
 

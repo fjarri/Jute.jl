@@ -56,6 +56,29 @@ parameters(tc::Testcase) = tc.parameters
 dependencies(tc::Testcase) = tc.dependencies
 
 
+tags(tc::Testcase) = tc.tags
+
+
+struct Tagger
+    tags :: Array{Pair{Symbol, Bool}, 1}
+end
+
+
+function (tagger::Tagger)(tc::Testcase)
+    new_tags = copy(tc.tags)
+    for (tag, add) in reverse(tagger.tags)
+        if add
+            push!(new_tags, tag)
+        else
+            delete!(new_tags, tag)
+        end
+    end
+    Testcase(tc.order, tc.func, parameters(tc), dependencies(tc), new_tags)
+end
+
+(tagger::Tagger)(other_tagger::Tagger) = Tagger(vcat(tagger.tags, other_tagger.tags))
+
+
 """
     tag(::Symbol)
 
@@ -65,7 +88,7 @@ Returns a function that tags a testcase with the given tag:
         ... something
     end)
 
-Testcases can be filtered in/out using run options.
+Testcases can be filtered in/out using [run options](@ref run_options_manual).
 It is convenient to use the [`<|`](@ref) operator:
 
     tc =
@@ -73,25 +96,22 @@ It is convenient to use the [`<|`](@ref) operator:
         testcase() do
             ... something
         end
+
+Note that [`tag`](@ref) and [`untag`](@ref) commands are applied from inner to outer.
 """
 function tag(tag_name::Symbol)
-    function(tc::Testcase)
-        Testcase(
-            tc.order, tc.func, parameters(tc), dependencies(tc), union(tc.tags, Set([tag_name])))
-    end
+    Tagger([tag_name => true])
 end
 
 
 """
-    tag(::Symbol)
+    untag(::Symbol)
 
 Returns a function that untags a testcase with the given tag.
+See [`tag`](@ref) for more details.
 """
 function untag(tag_name::Symbol)
-    function(tc::Testcase)
-        Testcase(
-            tc.order, tc.func, parameters(tc), dependencies(tc), setdiff(tc.tags, Set([tag_name])))
-    end
+    Tagger([tag_name => false])
 end
 
 

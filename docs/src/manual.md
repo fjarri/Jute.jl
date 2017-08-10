@@ -225,6 +225,22 @@ tc =
     end
 ```
 
+A tag can be removed from a testcase using [`untag`](@ref Jute.untag).
+Note that tagging and untagging commands are applied from inner to outer, so, for example, the following code
+
+```julia
+tc =
+    tag(:foo) <|
+    untag(:bar) <|
+    untag(:foo) <|
+    tag(:bar) <|
+    testcase() do
+        ... something
+    end
+```
+
+will leave `tc` with the tag `:foo`, but without the tag `:bar`.
+
 
 ## [Run options](@id run_options_manual)
 
