@@ -39,26 +39,26 @@ rowmajor_product_test = testcase() do
 end
 
 
-# Check that if pass_through=true, the output is not captured
-pass_through = testcase() do
-    # In order to see that the output is not captured,
-    # we still need to capture it one level higher.
-    with_output_capture() do
-        ret, out = with_output_capture(true) do
-            println(STDOUT, "stdout 1")
-            println(STDERR, "stderr 1")
-            1
-        end
-
-        @test ret == 1
-        @test out == ""
-    end
-end
-
-
 # Output redirection hangs on Windows and Julia 0.6, see Julia issue 23198
 # Temporarily disabling these tests.
 if !Sys.is_windows() || VERSION == "0.6.0"
+    # Check that if pass_through=true, the output is not captured
+    pass_through = testcase() do
+        # In order to see that the output is not captured,
+        # we still need to capture it one level higher.
+        with_output_capture() do
+            ret, out = with_output_capture(true) do
+                println(STDOUT, "stdout 1")
+                println(STDERR, "stderr 1")
+                1
+            end
+
+            @test ret == 1
+            @test out == ""
+        end
+    end
+
+
     # Check that both STDOUT and STDERR are captured and joined in the correct order
     capture_all = testcase() do
         ret, out = with_output_capture() do
