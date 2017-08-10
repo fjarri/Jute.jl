@@ -39,21 +39,6 @@ rowmajor_product_test = testcase() do
 end
 
 
-# Check that both STDOUT and STDERR are captured and joined in the correct order
-capture_all = testcase() do
-    ret, out = with_output_capture() do
-        println(STDOUT, "stdout 1")
-        println(STDERR, "stderr 1")
-        println(STDOUT, "stdout 2")
-        println(STDERR, "stderr 2")
-        1
-    end
-
-    @test ret == 1
-    @test out == "stdout 1\nstderr 1\nstdout 2\nstderr 2\n"
-end
-
-
 # Check that if pass_through=true, the output is not captured
 pass_through = testcase() do
     # In order to see that the output is not captured,
@@ -71,22 +56,41 @@ pass_through = testcase() do
 end
 
 
-# Check that the handles are restored to previous values
-# if an exception is thrown in the function.
-restore_on_error = testcase() do
-    try
-        with_output_capture() do
+# Output redirection hangs on Windows and Julia 0.6, see Julia issue 23198
+# Temporarily disabling these tests.
+if !Sys.is_windows() || VERSION == "0.6.0"
+    # Check that both STDOUT and STDERR are captured and joined in the correct order
+    capture_all = testcase() do
+        ret, out = with_output_capture() do
             println(STDOUT, "stdout 1")
             println(STDERR, "stderr 1")
-            error("error")
+            println(STDOUT, "stdout 2")
+            println(STDERR, "stderr 2")
             1
         end
-    catch e
-        @test isa(e, ErrorException)
+
+        @test ret == 1
+        @test out == "stdout 1\nstderr 1\nstdout 2\nstderr 2\n"
     end
 
-    # TODO: how do we check that the output is back to normal?
-    # (besides eyeballing the test output, of course)
+
+    # Check that the handles are restored to previous values
+    # if an exception is thrown in the function.
+    restore_on_error = testcase() do
+        try
+            with_output_capture() do
+                println(STDOUT, "stdout 1")
+                println(STDERR, "stderr 1")
+                error("error")
+                1
+            end
+        catch e
+            @test isa(e, ErrorException)
+        end
+
+        # TODO: how do we check that the output is back to normal?
+        # (besides eyeballing the test output, of course)
+    end
 end
 
 
