@@ -101,7 +101,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Manual",
     "title": "Testcase tags",
     "category": "section",
-    "text": "Testcases can be assigned tags of the type Symbol. This can be used to establish a secondary grouping, independent of the primary grouping provided by modules. For example, one can tag performance tests, tests that run for a long time, unit/integration tests, tests that require a specific resource and so on. Testcases can be filtered by tags they have or don't have using command-line arguments.The tagging is performed by the function tag() that takes a Symbol and returns a function that tags a testcase:tc = tag(:foo)(testcase() do\n    ... something\nend)It is convenient to use the <| operator:tc =\n    tag(:foo) <|\n    testcase() do\n        ... something\n    end"
+    "text": "Testcases can be assigned tags of the type Symbol. This can be used to establish a secondary grouping, independent of the primary grouping provided by modules. For example, one can tag performance tests, tests that run for a long time, unit/integration tests, tests that require a specific resource and so on. Testcases can be filtered by tags they have or don't have using command-line arguments.The tagging is performed by the function tag() that takes a Symbol and returns a function that tags a testcase:tc = tag(:foo)(testcase() do\n    ... something\nend)It is convenient to use the <| operator:tc =\n    tag(:foo) <|\n    testcase() do\n        ... something\n    endA tag can be removed from a testcase using untag. Note that tagging and untagging commands are applied from inner to outer, so, for example, the following codetc =\n    tag(:foo) <|\n    untag(:bar) <|\n    untag(:foo) <|\n    tag(:bar) <|\n    testcase() do\n        ... something\n    endwill leave tc with the tag :foo, but without the tag :bar."
 },
 
 {
@@ -237,7 +237,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public API",
     "title": "Jute.tag",
     "category": "Function",
-    "text": "tag(::Symbol)\n\nReturns a function that tags a testcase with the given tag:\n\ntc = tag(:foo)(testcase() do\n    ... something\nend)\n\nTestcases can be filtered in/out using run options. It is convenient to use the <| operator:\n\ntc =\n    tag(:foo) <|\n    testcase() do\n        ... something\n    end\n\n\n\n"
+    "text": "tag(::Symbol)\n\nReturns a function that tags a testcase with the given tag:\n\ntc = tag(:foo)(testcase() do\n    ... something\nend)\n\nTestcases can be filtered in/out using run options. It is convenient to use the <| operator:\n\ntc =\n    tag(:foo) <|\n    testcase() do\n        ... something\n    end\n\nNote that tag and untag commands are applied from inner to outer.\n\n\n\n"
 },
 
 {
@@ -245,7 +245,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public API",
     "title": "Jute.untag",
     "category": "Function",
-    "text": "tag(::Symbol)\n\nReturns a function that untags a testcase with the given tag.\n\n\n\n"
+    "text": "untag(::Symbol)\n\nReturns a function that untags a testcase with the given tag. See tag for more details.\n\n\n\n"
 },
 
 {
@@ -381,7 +381,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Version history",
     "title": "Current development version",
     "category": "section",
-    "text": "CHANGED: the abstract type TestcaseReturn was removed, @test_result can return any value now.\nCHANGED: delayed_teardown option of fixture() was changed to instant_teardown (false by default), since delayed teardown is the most common behavior.\nADDED: documentation\nADDED: displaying the testcase tag before proceeding to run it; looks a bit better for long-running testcases\nADDED: testcase tagging (see tag()) and filtering by tags.\nADDED: --max-fails command-line option to stop test run after a certain number of failures.\nADDED: showing the version info for Julia and Jute before the test run.\nADDED: --capture-output command-line option to capture all the output from testcases and only show the output from the failed ones in the end.\nADDED: runtests() now takes an options keyword that allows one to supply run options programmatically instead of through the command line.\nADDED: exporting with_output_capture() function (mostly to use in tests).\nFIXED: incorrect handling of the case when all tests are filtered out.\nFIXED: incorrect pretty printing of times smaller than 1 microsecond.Internals:Removed the unused dependency on IterTools"
+    "text": "CHANGED: the abstract type TestcaseReturn was removed, @test_result can return any value now.\nCHANGED: delayed_teardown option of fixture() was changed to instant_teardown (false by default), since delayed teardown is the most common behavior.\nADDED: documentation\nADDED: displaying the testcase tag before proceeding to run it; looks a bit better for long-running testcases\nADDED: testcase tagging (see tag()) and filtering by tags.\nADDED: --max-fails command-line option to stop test run after a certain number of failures.\nADDED: showing the version info for Julia and Jute before the test run.\nADDED: --capture-output command-line option to capture all the output from testcases and only show the output from the failed ones in the end.\nADDED: runtests() now takes an options keyword that allows one to supply run options programmatically instead of through the command line.\nADDED: exporting with_output_capture() function (mostly to use in tests).\nFIXED: incorrect handling of the case when all tests are filtered out.\nFIXED: incorrect pretty printing of times smaller than 1 microsecond.\nFIXED: incorrect behavior of multiple tagging and untagging commands.Internals:Removed the unused dependency on IterTools"
 },
 
 {
