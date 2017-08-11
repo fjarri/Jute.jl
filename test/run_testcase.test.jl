@@ -1,4 +1,4 @@
-module RunTestcases
+module RunTestcase
 
 using Jute
 
