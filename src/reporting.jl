@@ -1,30 +1,4 @@
-using Base.Test: @test, @test_throws, @test_broken, @test_skip
 const BT = Base.Test
-
-
-struct TestcaseOutcome
-    results :: Array{BT.Result, 1}
-    elapsed_time :: Float64
-    output :: String
-end
-
-
-struct ReturnValue{T} <: BT.Result
-    value :: T
-end
-
-
-"""
-    @test_result expr
-
-Records a result from the test.
-The result of `expr` will be displayed in the report by calling `string()` on it.
-"""
-macro test_result(expr)
-    quote
-        BT.record(BT.get_testset(), ReturnValue($(esc(expr))))
-    end
-end
 
 
 result_color(::BT.Pass, verbosity) = verbosity > 1 ? :green : :default

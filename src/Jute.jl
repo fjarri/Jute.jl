@@ -24,14 +24,16 @@ export <|
 
 include("inspect.jl")
 
-include("reporting.jl")
-export @test_result
-
-include("runtests.jl")
+include("run_testcase.jl")
 export @test
 export @test_throws
 export @test_broken
 export @test_skip
+export @test_result
+
+include("reporting.jl")
+
+include("runtests.jl")
 export runtests
 
 include("builtin_fixtures.jl")
