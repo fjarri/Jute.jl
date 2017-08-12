@@ -272,7 +272,7 @@ test_max_fails = testcase() do
         tc3_executed = true
     end
 
-    exitcode, output = run_testcases([tc1, tc2, tc3], Dict(:max_fails => 1))
+    exitcode = nested_run([tc1, tc2, tc3], Dict(:max_fails => 1))
     @test tc1_executed
     @test teardown_called
     @test !tc3_executed
@@ -296,7 +296,7 @@ test_instant_teardown = testcase() do
         tc1_executed = true
     end
 
-    exitcode, output = run_testcases([tc1])
+    exitcode = nested_run([tc1])
     @test teardown_called
     @test tc1_executed
     @test exitcode == 0
@@ -305,7 +305,7 @@ end
 
 # Checks that the case of no testcases to run is handled appropriately.
 test_no_testcases = testcase() do
-    exitcode, output = run_testcases([])
+    exitcode = nested_run([])
     @test exitcode == 0
 end
 

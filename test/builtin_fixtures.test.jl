@@ -11,7 +11,7 @@ test_run_options = testcase() do
 
     # FIXME: when custom options are available, we will need to use one of those instead.
     # Meanwhile, we will use an option that will not affect the nested test run.
-    exitcode, output = run_testcases([tc], Dict(:test_file_postfix => ".test2.jl"))
+    exitcode = nested_run([tc], Dict(:test_file_postfix => ".test2.jl"))
     @test exitcode == 0
 end
 
@@ -32,7 +32,7 @@ test_temporary_dir = testcase() do
         @test !isdir(tdir) # check that the directory was deleted
     end
 
-    exitcode, output = run_testcases([tc1, tc2])
+    exitcode = nested_run([tc1, tc2])
     @test exitcode == 0
 end
 
