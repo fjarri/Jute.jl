@@ -157,9 +157,7 @@ function progress_finish!(progress::ProgressReporter, outcomes)
 
     outcome_objs = [outcome for (tcpath, labels, outcome) in outcomes]
 
-    full_test_time = mapreduce(outcome -> outcome.elapsed_time, +, outcome_objs)
-
-    all_results = mapreduce(outcome -> outcome.results, vcat, outcome_objs)
+    all_results = mapreduce(outcome -> outcome.results, vcat, [], outcome_objs)
     num_results = Dict(
         key => length(filter(result -> isa(result, tp), all_results))
         for (key, tp) in [
@@ -175,6 +173,7 @@ function progress_finish!(progress::ProgressReporter, outcomes)
         println()
     end
 
+    full_test_time = mapreduce(outcome -> outcome.elapsed_time, +, outcome_objs)
     full_time_str = pprint_time(full_time, meaningful_digits=3)
     full_test_time_str = pprint_time(full_test_time, meaningful_digits=3)
 
