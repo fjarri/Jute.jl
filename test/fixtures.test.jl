@@ -1,5 +1,6 @@
 module Fixtures
 
+using DataStructures
 using Jute
 
 
@@ -56,6 +57,35 @@ constant_fx_from_pair = testcase() do
     end
     constant_fx = Jute.parameters(fx)[1]
     @test Jute.setup(constant_fx) == map(Jute.labeled_value, [1, 2], ["one", "two"])
+end
+
+
+fixture_dependencies = testcase() do
+    fx1 = fixture() do produce
+        produce([1])
+    end
+
+    fx2 = fixture(fx1) do produce, x
+        produce([x])
+    end
+
+    fx3 = fixture(fx1) do produce, x
+        produce([x])
+    end
+
+    fx4 = local_fixture(fx3, fx2) do produce, x, y
+        produce(x + y)
+    end
+
+    fx5 = fixture(fx3, fx2) do produce, x, y
+        produce([x + y])
+    end
+
+    @test Jute.dependencies(fx4) == OrderedSet([fx1, fx3, fx2])
+    @test Jute.parameters(fx4) == [fx3, fx2]
+
+    @test Jute.dependencies(fx5) == OrderedSet([fx1, fx3, fx2])
+    @test Jute.parameters(fx5) == [fx3, fx2]
 end
 
 
