@@ -41,7 +41,7 @@ end
 
 # Output redirection hangs on Windows and Julia 0.6, see Julia issue 23198
 # Temporarily disabling these tests.
-if !(Sys.is_windows() && VERSION == "0.6.0")
+if !(Sys.is_windows() && VERSION == v"0.6.0")
     # Check that if pass_through=true, the output is not captured
     pass_through = testcase() do
         # In order to see that the output is not captured,
