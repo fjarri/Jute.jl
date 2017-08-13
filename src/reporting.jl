@@ -155,24 +155,22 @@ function progress_finish!(progress::ProgressReporter, outcomes)
 
     all_success = (num_results[:fail] + num_results[:error] == 0)
 
-    if progress.verbosity == 0
-        return all_success
-    end
-
     if progress.verbosity == 1
         println()
     end
 
-    full_test_time = mapreduce(outcome -> outcome.elapsed_time, +, outcome_objs)
-    full_time_str = pprint_time(full_time, meaningful_digits=3)
-    full_test_time_str = pprint_time(full_test_time, meaningful_digits=3)
+    if progress.verbosity >= 1
+        full_test_time = mapreduce(outcome -> outcome.elapsed_time, +, outcome_objs)
+        full_time_str = pprint_time(full_time, meaningful_digits=3)
+        full_test_time_str = pprint_time(full_test_time, meaningful_digits=3)
 
-    println("-" ^ 80)
-    println(
-        "$(num_results[:pass]) tests passed, " *
-        "$(num_results[:fail]) failed, " *
-        "$(num_results[:error]) errored " *
-        "in $full_time_str (total test time $full_test_time_str)")
+        println("-" ^ 80)
+        println(
+            "$(num_results[:pass]) tests passed, " *
+            "$(num_results[:fail]) failed, " *
+            "$(num_results[:error]) errored " *
+            "in $full_time_str (total test time $full_test_time_str)")
+    end
 
     for (tcpath, labels, outcome) in outcomes
         if is_failed(outcome)

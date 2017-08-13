@@ -60,7 +60,29 @@ TESTCASES = Dict(
 verbosity0 = testcase() do
     exitcode, output = nested_run_with_output(TESTCASES, Dict(:verbosity => 0))
     @test exitcode == 1
-    @test strip(output) == ""
+
+    template = """
+        ================================================================================
+        multiple_tests_and_one_failure
+        Test Failed
+          Expression: 2 == 1
+           Evaluated: 2 == 1
+        ================================================================================
+        uncaught_exception
+        Error During Test
+          Got an exception of type ErrorException outside of a @test
+          Uncaught exception
+          Stacktrace:
+        <<<MULTILINE>>>
+        ================================================================================
+        unexpected_pass
+        Error During Test
+         Unexpected Pass
+         Expression: 1 == 1
+         Got correct result, please change to @test if no longer broken.
+    """
+
+    @test match_text(template, output)
 end
 
 
