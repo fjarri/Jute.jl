@@ -168,4 +168,37 @@ verbosity2 = testcase() do
 end
 
 
+captured_output = testcase() do
+    testcases = Dict(
+        :passing_tc => testcase() do
+            println(STDOUT, "stdout from passing testcase")
+            println(STDERR, "stderr from passing testcase")
+        end,
+
+        :failing_tc => testcase() do
+            println(STDOUT, "stdout from failing testcase")
+            @test 1 == 2
+            println(STDERR, "stderr from failing testcase")
+        end,
+        )
+
+    exitcode, output = nested_run_with_output(
+        testcases, Dict(:verbosity => 0, :capture_output => true))
+
+    template = """
+        ================================================================================
+        failing_tc
+        Captured output:
+        stdout from failing testcase
+        stderr from failing testcase
+
+        Test Failed
+          Expression: 1 == 2
+           Evaluated: 1 == 2
+    """
+
+    @test match_text(template, output)
+end
+
+
 end
