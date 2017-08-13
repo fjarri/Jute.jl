@@ -1,7 +1,7 @@
 # Version history
 
 
-## Current development version
+## v0.0.3 (13 Aug 2017)
 
 * **CHANGED:** the abstract type `TestcaseReturn` was removed, [`@test_result`](@ref Jute.@test_result) can return any value now.
 * **CHANGED:** `delayed_teardown` option of [`fixture()`](@ref Jute.fixture) was changed to `instant_teardown` (`false` by default), since delayed teardown is the most common behavior.
