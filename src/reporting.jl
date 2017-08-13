@@ -1,58 +1,30 @@
 const BT = Base.Test
 
 
-result_color(::BT.Pass, verbosity) = verbosity > 1 ? :green : :default
-result_color(::BT.Fail, verbosity) = :red
-result_color(::BT.Error, verbosity) = :yellow
-result_color(::BT.Broken, verbosity) = verbosity > 1 ? :green : :default
-result_color(::ReturnValue, verbosity) = verbosity > 1 ? :blue : :default
-
-
-function result_show(::BT.Pass, verbosity)
-    if verbosity == 1
-        "."
-    else
-        "PASS"
-    end
+struct Verbosity{T}
 end
 
 
-function result_show(::BT.Broken, verbosity)
-    if verbosity == 1
-        "B"
-    else
-        "BROKEN"
-    end
-end
+result_color(::Any, ::Any) = :default
+result_color(::BT.Pass, ::Verbosity{2}) = :green
+result_color(::BT.Fail, ::Any) = :red
+result_color(::BT.Error, ::Any) = :yellow
+result_color(::BT.Broken, ::Verbosity{2}) = :green
+result_color(::ReturnValue, ::Verbosity{2}) = :blue
 
 
-function result_show(result::ReturnValue, verbosity)
-    if verbosity == 1
-        "*"
-    else
-        # Since the `show` method for the result type will probably be defined in the test file,
-        # we need to use `invokelatest` here for it to be picked up.
-        Base.invokelatest(string, result.value)
-    end
-end
-
-
-function result_show(::BT.Fail, verbosity)
-    if verbosity == 1
-        "F"
-    else
-        "FAIL"
-    end
-end
-
-
-function result_show(::BT.Error, verbosity)
-    if verbosity == 1
-        "E"
-    else
-        "ERROR"
-    end
-end
+result_show(::BT.Pass, ::Verbosity{1}) = "."
+result_show(::BT.Pass, ::Verbosity{2}) = "PASS"
+result_show(::BT.Broken, ::Verbosity{1}) = "B"
+result_show(::BT.Broken, ::Verbosity{2}) = "BROKEN"
+result_show(::ReturnValue, ::Verbosity{1}) = "*"
+# Since the `show` method for the result type will probably be defined in the test file,
+# we need to use `invokelatest` here for it to be picked up.
+result_show(result::ReturnValue, ::Verbosity{2}) = Base.invokelatest(string, result.value)
+result_show(::BT.Fail, ::Verbosity{1}) = "F"
+result_show(::BT.Fail, ::Verbosity{2}) = "FAIL"
+result_show(::BT.Error, ::Verbosity{1}) = "E"
+result_show(::BT.Error, ::Verbosity{2}) = "ERROR"
 
 
 function build_full_tag(tcpath::TestcasePath, labels)
@@ -109,16 +81,20 @@ function progress_finish_testcase!(
     verbosity = progress.verbosity
     if verbosity == 1
         for result in outcome.results
-            print_with_color(result_color(result, verbosity), result_show(result, verbosity))
+            print_with_color(
+                result_color(result, Verbosity{verbosity}()),
+                result_show(result, Verbosity{verbosity}()))
         end
-    elseif progress.verbosity >= 2
+    elseif verbosity >= 2
         elapsed_time = pprint_time(outcome.elapsed_time)
 
         print("($elapsed_time)")
 
         for result in outcome.results
-            result_str = result_show(result, progress.verbosity)
-            print_with_color(result_color(result, verbosity), " [$result_str]")
+            result_str = result_show(result, Verbosity{verbosity}())
+            print_with_color(
+                result_color(result, Verbosity{verbosity}()),
+                " [$result_str]")
         end
         println()
     end
@@ -128,7 +104,6 @@ end
 function progress_finish_testcases!(progress::ProgressReporter, tcpath::TestcasePath)
 
 end
-
 
 
 function progress_start!(progress::ProgressReporter)
@@ -183,8 +158,7 @@ function progress_finish!(progress::ProgressReporter, outcomes)
             end
 
             for result in outcome.results
-                tp = typeof(result)
-                if tp == BT.Fail || tp == BT.Error || tp == BT.Broken
+                if is_failed(result)
                     println(result)
                 end
             end
