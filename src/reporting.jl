@@ -9,9 +9,7 @@ result_color(::ReturnValue, verbosity) = verbosity > 1 ? :blue : :default
 
 
 function result_show(::BT.Pass, verbosity)
-    if verbosity == 0
-        ""
-    elseif verbosity == 1
+    if verbosity == 1
         "."
     else
         "PASS"
@@ -20,9 +18,7 @@ end
 
 
 function result_show(::BT.Broken, verbosity)
-    if verbosity == 0
-        ""
-    elseif verbosity == 1
+    if verbosity == 1
         "B"
     else
         "BROKEN"
@@ -31,9 +27,7 @@ end
 
 
 function result_show(result::ReturnValue, verbosity)
-    if verbosity == 0
-        ""
-    elseif verbosity == 1
+    if verbosity == 1
         "*"
     else
         # Since the `show` method for the result type will probably be defined in the test file,
@@ -44,9 +38,7 @@ end
 
 
 function result_show(::BT.Fail, verbosity)
-    if verbosity == 0
-        ""
-    elseif verbosity == 1
+    if verbosity == 1
         "F"
     else
         "FAIL"
@@ -55,9 +47,7 @@ end
 
 
 function result_show(::BT.Error, verbosity)
-    if verbosity == 0
-        ""
-    elseif verbosity == 1
+    if verbosity == 1
         "E"
     else
         "ERROR"
