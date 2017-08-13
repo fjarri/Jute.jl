@@ -101,6 +101,8 @@ struct RunOptionsFixture <: AbstractGlobalFixture
 end
 
 
+# Shown as non-covered because `__precompile__()` optimizes out the only call
+# to this function in `builtin_fixtures.jl`.
 function run_options_fixture()
     RunOptionsFixture()
 end
