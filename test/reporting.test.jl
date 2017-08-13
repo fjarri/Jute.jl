@@ -51,6 +51,9 @@ TESTCASES = Dict(
         @test_broken 1 == 1
         @test 1 == 1
     end,
+
+    :with_fixtures => testcase([1], [2]) do x, y
+    end
     )
 
 
@@ -67,13 +70,13 @@ verbosity1 = testcase() do
 
     template = """
         Collecting testcases...
-        Running 8 out of 8 testcases...
+        Running 9 out of 9 testcases...
         ================================================================================
         Platform: Julia <<<julia_version>>>, Jute <<<jute_version>>>
         --------------------------------------------------------------------------------
-        ....*.F..E....B..B..E.
+        ....*.F..E....B..B..E..
         --------------------------------------------------------------------------------
-        17 tests passed, 1 failed, 2 errored in <<<full_time>>> (total test time <<<test_time>>>)
+        18 tests passed, 1 failed, 2 errored in <<<full_time>>> (total test time <<<test_time>>>)
         ================================================================================
         multiple_tests_and_one_failure
         Test Failed
@@ -104,7 +107,7 @@ verbosity2 = testcase() do
 
     template = """
         Collecting testcases...
-        Running 8 out of 8 testcases...
+        Running 9 out of 9 testcases...
         ================================================================================
         Platform: Julia <<<julia_version>>>, Jute <<<jute_version>>>
         --------------------------------------------------------------------------------
@@ -116,8 +119,9 @@ verbosity2 = testcase() do
         skip_test (<<<time>>>) [PASS] [BROKEN] [PASS]
         expected_failure (<<<time>>>) [PASS] [BROKEN] [PASS]
         unexpected_pass (<<<time>>>) [PASS] [ERROR] [PASS]
+        with_fixtures[1,2] (<<<time>>>) [PASS]
         --------------------------------------------------------------------------------
-        17 tests passed, 1 failed, 2 errored in <<<full_time>>> (total test time <<<test_time>>>)
+        18 tests passed, 1 failed, 2 errored in <<<full_time>>> (total test time <<<test_time>>>)
         ================================================================================
         multiple_tests_and_one_failure
         Test Failed
