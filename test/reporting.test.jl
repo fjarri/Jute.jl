@@ -58,7 +58,7 @@ TESTCASES = Dict(
 
 # Output redirection hangs on Windows and Julia 0.6, see Julia issue 23198
 # Temporarily disabling these tests.
-if !(Sys.is_windows() && VERSION == v"0.6.0")
+if !(Sys.is_windows() && Base.thisminor(VERSION) < v"0.7")
 
 verbosity0 = testcase() do
     exitcode, output = nested_run_with_output(TESTCASES, Dict(:verbosity => 0))
