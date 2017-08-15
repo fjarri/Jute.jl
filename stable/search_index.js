@@ -377,6 +377,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "history.html#Current-development-version-1",
+    "page": "Version history",
+    "title": "Current development version",
+    "category": "section",
+    "text": "Under construction."
+},
+
+{
     "location": "history.html#v0.0.3-(13-Aug-2017)-1",
     "page": "Version history",
     "title": "v0.0.3 (13 Aug 2017)",
