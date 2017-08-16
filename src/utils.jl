@@ -142,6 +142,14 @@ end
 Base.done(::RowMajorProduct, state) = state[2] === nothing
 
 
+function read_stream(s)
+    if Base.thisminor(VERSION) < v"0.7"
+        readstring(s)
+    else
+        read(s, String)
+    end
+end
+
 
 """
     with_output_capture(func, pass_through=false)
@@ -162,11 +170,7 @@ function with_output_capture(func, pass_through::Bool=false)
 
     rd, wr = redirect_stdout()
     redirect_stderr(wr)
-    if Base.thisminor(VERSION) < v"0.7"
-        reader = @async readstring(rd)
-    else
-        reader = @async read(rd, String)
-    end
+    reader = @async read_stream(rd)
 
     ret = nothing
     output = ""

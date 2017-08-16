@@ -24,7 +24,7 @@ function time_test_run(test_include_only::Bool)
     julia = Base.julia_cmd()
     benchmark = joinpath(runtests_dir, "performance", "runtests_benchmark.jl")
     cmd = `$julia $benchmark $(test_include_only ? "test_include_only" : "")`
-    parse(Float64, strip(readstring(cmd)))
+    parse(Float64, strip(Jute.read_stream(cmd)))
 end
 
 
