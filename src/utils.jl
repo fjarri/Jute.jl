@@ -162,7 +162,11 @@ function with_output_capture(func, pass_through::Bool=false)
 
     rd, wr = redirect_stdout()
     redirect_stderr(wr)
-    reader = @async readstring(rd)
+    if Base.thisminor(VERSION) < v"0.7"
+        reader = @async readstring(rd)
+    else
+        reader = @async read(rd, String)
+    end
 
     ret = nothing
     output = ""
