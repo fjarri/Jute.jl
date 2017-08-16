@@ -3,11 +3,10 @@ using DataStructures
 
 module ImportSandbox
 
-    export include_test_files!, get_module_contents
+    export include_test_files!
+    export TESTCASE_ACCUM_ID
 
-    function get_module_contents(module_obj)
-        Dict(name => getfield(module_obj, name) for name in names(module_obj, true))
-    end
+    const TESTCASE_ACCUM_ID = :__JUTE_TESTCASES__
 
     function include_test_files!(test_files, add_load_path=nothing)
         if !(add_load_path === nothing)
@@ -15,16 +14,12 @@ module ImportSandbox
         end
 
         eval(quote
+            using Jute
+            task_local_storage(TESTCASE_ACCUM_ID, Any[])
             $((:(include($test_file)) for test_file in test_files)...)
         end)
 
-        # FIXME: is it possible to avoid repeating the name of ImportSandbox?
-        obj_dict = get_module_contents(ImportSandbox)
-
-        # Remove the reference of the root module to itself
-        delete!(obj_dict, :ImportSandbox)
-
-        obj_dict
+        task_local_storage(TESTCASE_ACCUM_ID)
     end
 
 end
@@ -53,13 +48,13 @@ end
 
 
 struct GroupPath
-    path :: Array{Symbol, 1}
+    path :: Array{String, 1}
 end
 
 
 struct TestcasePath
     group :: GroupPath
-    name :: Symbol
+    name :: String
     creation_order :: Int
     tags :: Set{Symbol}
 end
@@ -78,7 +73,7 @@ function Base.show(io::IO, tcpath::TestcasePath)
 end
 
 
-join_group_path(gpath::GroupPath, name::Symbol) = GroupPath([gpath.path; name])
+join_group_path(gpath::GroupPath, name::String) = GroupPath([gpath.path; name])
 
 
 isroot(gpath::GroupPath) = isempty(gpath.path)
@@ -105,33 +100,25 @@ end
 group_path(tcpath::TestcasePath) = tcpath.group
 
 
-function _get_testcases(
-        obj_dict, test_module_prefix, this_module=nothing, parent_path=GroupPath())
-
-    prefix_len = length(test_module_prefix)
+function _get_testcases(obj_dict, parent_path=GroupPath())
     testcases = []
-    for (name, obj) in obj_dict
-        if isa(obj, Module) && obj != this_module
-            if startswith(string(name), test_module_prefix)
-                # Drop the common test module prefix
-                test_module_name = Symbol(string(name)[prefix_len+1:end])
 
-                module_testcases = _get_testcases(
-                    get_module_contents(obj),
-                    test_module_prefix,
-                    obj,
-                    join_group_path(parent_path, test_module_name))
-                append!(testcases, module_testcases)
-            end
+    for obj in obj_dict
+        if isa(obj, TestGroup)
+            group_testcases = _get_testcases(
+                get_testcases(obj),
+                join_group_path(parent_path, obj.name))
+            append!(testcases, group_testcases)
         elseif isa(obj, Testcase)
-            path = TestcasePath(parent_path, name, obj.order, obj.tags)
+            path = TestcasePath(parent_path, obj.name, obj.order, obj.tags)
             push!(testcases, path => obj)
         end
     end
+
     testcases
 end
 
 
-function get_testcases(obj_dict, test_module_prefix)
-    _get_testcases(obj_dict, test_module_prefix)
+function get_testcases(obj_dict)
+    _get_testcases(obj_dict)
 end

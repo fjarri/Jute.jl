@@ -1,10 +1,9 @@
-module Testcases
-
-using Jute
 using DataStructures
 
+@testgroup "testcases" begin
 
-testcase_dependencies = testcase() do
+
+@testcase "testcase dependencies" begin
     fx1 = fixture() do produce
         produce([1])
     end
@@ -26,7 +25,7 @@ testcase_dependencies = testcase() do
 end
 
 
-simple_tagging = testcase() do
+@testcase "simple tagging" begin
     tc = testcase() do
     end
 
@@ -46,7 +45,7 @@ simple_tagging = testcase() do
 end
 
 
-tag_untag_mixture = testcase() do
+@testcase "tag-untag mixture" begin
     tc = testcase() do
     end
 

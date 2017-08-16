@@ -1,9 +1,7 @@
-module Options
-
-using Jute
+@testgroup "options" begin
 
 
-empty_options = testcase() do
+@testcase "empty options" begin
     opts = build_run_options()
 
     # test some default option
@@ -11,7 +9,7 @@ empty_options = testcase() do
 end
 
 
-command_line_options = testcase() do
+@testcase "commandline options" begin
     opts = build_run_options(; args=["--verbosity", "2"])
 
     # test some default option
@@ -19,7 +17,7 @@ command_line_options = testcase() do
 end
 
 
-userdict_options = testcase() do
+@testcase "userdict options" begin
     opts = build_run_options(; options=Dict(:verbosity => 2))
 
     # test some default option
@@ -27,7 +25,7 @@ userdict_options = testcase() do
 end
 
 
-userdict_unknown_option = testcase() do
+@testcase "unknown option in userdict" begin
     @test_throws ErrorException build_run_options(; options=Dict(:foobar => 0))
 end
 

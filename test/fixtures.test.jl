@@ -1,10 +1,9 @@
-module Fixtures
-
 using DataStructures
-using Jute
+
+@testgroup "fixtures" begin
 
 
-tc_with_run_options = testcase(run_options) do ro
+@testcase "testcase with run_options" for ro in run_options
     @test haskey(ro, :verbosity)
 end
 
@@ -12,12 +11,12 @@ fx_with_run_options = fixture(run_options) do produce, ro
     produce([ro[:verbosity]])
 end
 
-tc_with_fx_with_run_options = testcase(fx_with_run_options) do v
+@testcase "testcase with a fixture with run_options" for v in fx_with_run_options
     @test isa(v, Int)
 end
 
 
-constant_fx_non_1D_iterable = testcase() do
+@testcase "constant fixture with non-1D iterable" begin
     fx = Jute.constant_fixture(1)
     @test Jute.setup(fx) == [Jute.labeled_value(1)]
 
@@ -29,29 +28,29 @@ constant_fx_non_1D_iterable = testcase() do
 end
 
 
-constant_fx_labels = testcase() do
+@testcase "constant fixture with labels" begin
     fx = Jute.constant_fixture([1], ["one"])
     @test Jute.setup(fx) == [Jute.labeled_value(1, "one")]
 end
 
 
-constant_fx_checks_for_iterable = testcase() do
+@testcase "constant fixture checks for iterable" begin
     @test_throws ErrorException Jute.constant_fixture(:a)
     @test_throws ErrorException Jute.constant_fixture([1], :a)
 end
 
 
-global_fx_checks_for_callable = testcase() do
+@testcase "global fixture checks for callable" begin
     @test_throws ErrorException fixture(1)
 end
 
 
-local_fx_checks_for_callable = testcase() do
+@testcase "local fixture checks for callable" begin
     @test_throws ErrorException local_fixture(1)
 end
 
 
-constant_fx_from_pair = testcase() do
+@testcase "constant fixture from a pair" begin
     fx = fixture([1, 2] => ["one", "two"]) do produce, x
         produce(x)
     end
@@ -60,7 +59,7 @@ constant_fx_from_pair = testcase() do
 end
 
 
-fixture_dependencies = testcase() do
+@testcase "fixture dependencies" begin
     fx1 = fixture() do produce
         produce([1])
     end

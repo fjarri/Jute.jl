@@ -1,10 +1,8 @@
-module BuiltinFixtures
-
-using Jute
 using TestUtils
 
+@testgroup "builtin_fixtures" begin
 
-test_run_options = testcase() do
+@testcase "run_options" begin
     tc = testcase(run_options) do opts
         @test opts[:test_file_postfix] == ".test2.jl"
     end
@@ -16,7 +14,7 @@ test_run_options = testcase() do
 end
 
 
-test_temporary_dir = testcase() do
+@testcase "temporary_dir" begin
 
     tdir = ""
 
@@ -35,6 +33,5 @@ test_temporary_dir = testcase() do
     exitcode = nested_run([tc1, tc2])
     @test exitcode == 0
 end
-
 
 end

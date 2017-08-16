@@ -12,13 +12,8 @@ strip_colors(s) = replace(s, r"\e\[\d+m", "")
 
 function _nested_run(tcs, options, output_pass_through)
     run_options = build_run_options(options=options)
-    if isa(tcs, Array)
-        obj_dict = Dict(gensym("testcase") => tc for tc in tcs)
-    else
-        obj_dict = tcs
-    end
     exitcode, output = with_output_capture(output_pass_through) do
-        Jute.runtests_internal(run_options, obj_dict)
+        Jute.runtests_internal(run_options, tcs)
     end
     exitcode, strip_colors(output)
 end

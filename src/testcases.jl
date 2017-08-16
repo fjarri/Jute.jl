@@ -5,6 +5,7 @@ using DataStructures
 Testcase type.
 """
 struct Testcase
+    name :: String
     "Remembered creation order, used for test execution."
     order :: Int
     "Testcase function"
@@ -40,14 +41,17 @@ and the second one to produce the corresponding labels (for logging).
 
 Returns a [`Testcase`](@ref) object.
 """
-function testcase(func, params...)
+function testcase(func, name::String, params...)
     # gensym() helps preserve the order of definition of testcases in a single file
     # A bit hacky, but we need an integer, since "9" > "10".
     order = parse(Int, string(gensym())[3:end])
     params = collect(map(normalize_fixture, params))
     deps = union(map(dependencies, params)..., global_fixtures(params))
-    Testcase(order, func, params, deps, Set())
+    Testcase(name, order, func, params, deps, Set())
 end
+
+# Temporary stub for testing.
+testcase(func, params...) = testcase(func, string(gensym("testcase")), params...)
 
 
 parameters(tc::Testcase) = tc.parameters
@@ -73,7 +77,7 @@ function (tagger::Tagger)(tc::Testcase)
             delete!(new_tags, tag)
         end
     end
-    Testcase(tc.order, tc.func, parameters(tc), dependencies(tc), new_tags)
+    Testcase(tc.name, tc.order, tc.func, parameters(tc), dependencies(tc), new_tags)
 end
 
 (tagger::Tagger)(other_tagger::Tagger) = Tagger(vcat(tagger.tags, other_tagger.tags))
@@ -122,3 +126,65 @@ A helper operator that makes applying testcase tags slightly more graceful.
 See [`tag`](@ref) for an example.
 """
 <|(f, x) = f(x)
+
+
+macro testcase(name, expr)
+    if expr.head == :for
+        iterators = expr.args[1]
+        body = expr.args[2]
+        if iterators.head == :block
+            fixtures = [assignment.args[2] for assignment in iterators.args]
+            vars = [assignment.args[1] for assignment in iterators.args]
+        else
+            fixtures = [iterators.args[2]]
+            vars = [iterators.args[1]]
+        end
+    else
+        fixtures = []
+        vars = []
+        body = expr
+    end
+
+    vars = map(esc, vars)
+    fixtures = map(esc, fixtures)
+
+    res = quote
+        push!(
+            task_local_storage(:__JUTE_TESTCASES__),
+            testcase($(esc(name)), $(fixtures...)) do $(vars...)
+                $(esc(body))
+            end)
+    end
+
+    res
+end
+
+
+struct TestGroup
+    name :: String
+    func
+end
+
+
+function testgroup(func, name)
+    TestGroup(name, func)
+end
+
+
+function get_testcases(group::TestGroup)
+    task_local_storage(TESTCASE_ACCUM_ID, Any[]) do
+        Base.invokelatest(group.func)
+        task_local_storage(TESTCASE_ACCUM_ID)
+    end
+end
+
+
+macro testgroup(name, body)
+    quote
+        push!(
+            task_local_storage(TESTCASE_ACCUM_ID),
+            testgroup($(esc(name))) do
+                $(esc(body))
+            end)
+    end
+end

@@ -1,14 +1,12 @@
-module Performance
-
-using Jute
-
-
 struct TimeReturn
     seconds
 end
 
 
 Base.show(io::IO, tr::TimeReturn) = print(io, pprint_time(tr.seconds, meaningful_digits=3))
+
+
+@testgroup "performance" begin
 
 
 # Usually when testing performance in Julia one makes some
@@ -28,22 +26,18 @@ function time_test_run(test_include_only::Bool)
 end
 
 
-full_run =
-    tag(:perf) <|
-    testcase() do
-        times = [time_test_run(false) for i in 1:5]
-        @test_result TimeReturn(minimum(times))
-    end
+@testcase "full run" begin
+    times = [time_test_run(false) for i in 1:5]
+    @test_result TimeReturn(minimum(times))
+end
 
 
 # Only measure the time it takes to include the test files.
 # TODO: in future we will collect the separate timings in a single run.
-include_only =
-    tag(:perf) <|
-    testcase() do
-        times = [time_test_run(true) for i in 1:5]
-        @test_result TimeReturn(minimum(times))
-    end
+@testcase "include only" begin
+    times = [time_test_run(true) for i in 1:5]
+    @test_result TimeReturn(minimum(times))
+end
 
 
 end

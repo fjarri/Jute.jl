@@ -3,6 +3,8 @@
 
 ## v0.1.0 (current development version)
 
+* **CHANGED**: testcase groups are no longer defined by modules; `@testgroup` or `testgroup()` should be used instead. Consequently, the option `:test_module_prefix` was removed.
+* ADDED: `@testcase` and `@testgroup` macros.
 * FIXED: output capture problems in Julia 0.6 on Windows.
 
 

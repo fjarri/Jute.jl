@@ -1,9 +1,7 @@
-module Utils
-
-using Jute
+@testgroup "utils" begin
 
 
-pprint_time_test = testcase() do
+@testcase "pprint_time()" begin
     # normal operation for large times
     @test pprint_time(32 * 24 * 3600 + 12 * 3600 + 6 * 60 + 7) == "32d 12h 6m 7s"
     @test pprint_time(12 * 3600 + 6 * 60 + 7) == "12h 6m 7s"
@@ -31,7 +29,7 @@ pprint_time_test = testcase() do
 end
 
 
-rowmajor_product_test = testcase() do
+@testcase "rowmajor_product()" begin
     @test collect(rowmajor_product()) == [()]
     @test collect(rowmajor_product(1:2)) == [(1,), (2,)]
     @test collect(rowmajor_product(1:2, [])) == []

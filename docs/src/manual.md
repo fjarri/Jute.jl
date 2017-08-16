@@ -11,17 +11,16 @@ exit(runtests())
 ```
 
 The test runner picks up any file with the name ending in `.test.jl` in the directory where the entry-point file is located, or in any subdirectories.
-All those files are included at the same level, and module-scoped variables are extracted.
-Anything not of the type [`Testcase`](@ref Jute.Testcase) is ignored.
-The testcase name is the name of the variable it was found in, plus the names of the modules it is located in.
+All those files are included at the same level (with `using Jute` at the start), and all the [`@testcase`](@ref Jute.@testcase) and [`@testgroup`](@ref Jute.@testgroup) definitions are picked up.
+The [`@testgroup`](@ref Jute.@testgroup) definitions can contain other [`@testgroup`](@ref Jute.@testgroup) definitions and [`@testcase`](@ref Jute.@testcase) definitions.
 
 The `exit()` call is required to signal about any test failures to the processes that initiate the execution of the test suite, for instance CI tools.
 [`runtests()`](@ref Jute.runtests) returns `1` if there were failed tests, `0` otherwise.
 
-The [`Testcase`](@ref Jute.Testcase) objects are returned by [`testcase()`](@ref Jute.testcase), that takes the testcase function as the first argument:
+The [`@testcase`](@ref Jute.@testcase) macro takes the testcase name and body:
 
 ```julia
-simple_testcase = testcase() do
+@testcase "simple testcase" begin
     @test 1 == 1
 end
 ```
@@ -37,23 +36,23 @@ If the testcase does not call any assertions and does not throw any exceptions, 
 
 ## Grouping tests
 
-Tests are grouped based on the modules in which they are encountered in test files.
-The names or locations of the files themselves do not affect the grouping.
-For example, for the following files:
+Testcases can be grouped using [`@testgroup`](@ref Jute.@testgroup) definitions.
+For example:
 
 ```julia
-# one.test.jl
-tc1 = testcase() do end
-
-module Group
-tc2 = testcase() do end
+@testcase "tc1" begin
 end
 
-# two.test.jl
-module Group2
-module Subgroup
-tc3 = testcase() do end
+@testgroup "group" begin
+    @testcase "tc2" begin
+    end
 end
+
+@testgroup "group2" begin
+    @testgroup "subgroup" begin
+        @testcase "tc3" begin
+        end
+    end
 end
 ```
 
@@ -65,11 +64,11 @@ Group/tc2
 Group2/Subgroup/tc3
 ```
 
-For each file the order of [`Testcase`](@ref Jute.Testcase) object creation in it is preserved.
+The order of testcase definition is preserved.
 In other words, the testcases will be executed in the same order in which they were defined.
 
 
-## Parametrizing tests
+## Parametrizing testcases
 
 
 ### Constant fixtures
@@ -77,42 +76,42 @@ In other words, the testcases will be executed in the same order in which they w
 The simplest method to parametrize a test is to supply it with an iterable:
 
 ```julia
-parameterized_testcase = testcase([1, 2, 3]) do x
+@testcase "parametrized testcase" for x in [1, 2, 3]
     @test x == 1
 end
 
 # Output:
-# parameterized_testcase[1]: [PASS]
-# parameterized_testcase[2]: [FAIL]
-# parameterized_testcase[3]: [FAIL]
+# parametrized testcase[1]: [PASS]
+# parametrized testcase[2]: [FAIL]
+# parametrized testcase[3]: [FAIL]
 ```
 
 By default, `Jute` uses `string()` to convert a fixture value to a string for reporting purposes.
 One can assign custom labels to fixtures by passing a `Pair` of iterables instead:
 
 ```julia
-parameterized_testcase = testcase([1, 2, 3] => ["one", "two", "three"]) do x
+@testcase "parametrized testcase" for x in [1, 2, 3] => ["one", "two", "three"]
     @test x == 1
 end
 
 # Output:
-# parameterized_testcase[one]: [PASS]
-# parameterized_testcase[two]: [FAIL]
-# parameterized_testcase[three]: [FAIL]
+# parametrized testcase[one]: [PASS]
+# parametrized testcase[two]: [FAIL]
+# parametrized testcase[three]: [FAIL]
 ```
 
 A testcase can use several fixtures, in which case `Jute` will run the testcase function will all possible combinations of them:
 
 ```julia
-parameterized_testcase = testcase([1, 2], [3, 4]) do x, y
+@testcase "parametrized testcase" for x in [1, 2], y in [3, 4]
     @test x + y == y + x
 end
 
 # Output:
-# parameterized_testcase[1, 3]: [PASS]
-# parameterized_testcase[1, 4]: [PASS]
-# parameterized_testcase[2, 3]: [PASS]
-# parameterized_testcase[2, 4]: [PASS]
+# parametrized testcase[1, 3]: [PASS]
+# parametrized testcase[1, 4]: [PASS]
+# parametrized testcase[2, 3]: [PASS]
+# parametrized testcase[2, 4]: [PASS]
 ```
 
 
@@ -167,7 +166,7 @@ fx2 = fixture(1:2, fx1) do produce, x, y
     produce([(x, y)])
 end
 
-tc = testcase(fx2) do x
+@testcase "tc" for x in fx2
     @test length(x) == 2
 end
 
@@ -191,7 +190,7 @@ temporary_dir = local_fixture() do produce
     rm(dir, recursive=true)
 end
 
-temdir_test = testcase(temporary_dir) do dir
+@testcase "tempdir test" for dir in temporary_dir
     open(joinpath(dir, "somefile"), "w")
 end
 ```
@@ -201,6 +200,10 @@ Local fixtures can be parametrized by any other type of fixture, including other
 
 
 ## Testcase tags
+
+!!! warning
+
+    Tagging implementation is a work in progress for testcase macros.
 
 Testcases can be assigned tags of the type `Symbol`.
 This can be used to establish a secondary grouping, independent of the primary grouping provided by modules.

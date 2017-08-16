@@ -38,9 +38,6 @@ after all the testcases are finished.
 
 **`:test_file_postifx`**`:: String` (`--test-file-postfix`):
 postfix of the files which will be picked up by the automatic testcase discovery.
-
-**`:test_module_prefix`**`:: String` (`--test-module-prefix`):
-prefix of the modules which will be searched for testcases during automatic testcase discovery.
 """
 function build_parser()
     s = ArgParseSettings(; autofix_names=true)
@@ -96,14 +93,6 @@ function build_parser()
             :metavar => "STR",
             :arg_type => String,
             :default => ".test.jl"),
-        "--test-module-prefix",
-        Dict(
-            :help =>
-                "prefix of the modules which will be searched for testcases " *
-                "during automatic testcase discovery.",
-            :metavar => "STR",
-            :arg_type => String,
-            :default => "")
         )
 
     s

@@ -1,6 +1,4 @@
-module RunTestcase
-
-using Jute
+@testgroup "run_testcase" begin
 
 
 function get_results(func)

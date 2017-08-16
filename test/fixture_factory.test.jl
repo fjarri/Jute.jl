@@ -1,8 +1,3 @@
-module FixtureFactory
-
-using Jute
-
-
 struct MyType
     x :: Int
 end
@@ -10,8 +5,11 @@ end
 Base.show(io::IO, val::MyType) = print(io, "MyType($(val.x))")
 
 
+@testgroup "fixture_factory" begin
+
+
 # Return one value, create label automatically
-return_value = testcase() do
+@testcase "return a value" begin
     ff = Jute.fixture_factory(; instant_teardown=true) do produce, v
         produce(v)
     end
@@ -23,7 +21,7 @@ end
 
 
 # Return one value with a custom label
-return_value_and_label = testcase() do
+@testcase "return a value and a label" begin
     ff = Jute.fixture_factory(; instant_teardown=true) do produce, v
         produce(v, "one")
     end
@@ -35,7 +33,7 @@ end
 
 
 # Return several values, create labels automatically
-return_values = testcase() do
+@testcase "return values" begin
     ff = Jute.fixture_factory(; returns_iterable=true, instant_teardown=true) do produce, v1, v2
         produce([v1, v2])
     end
@@ -48,7 +46,7 @@ end
 
 
 # Return several values with custom labels
-return_values_and_labels = testcase() do
+@testcase "return values and labels" begin
     ff = Jute.fixture_factory(; returns_iterable=true, instant_teardown=true) do produce, v1, v2
         produce([v1, v2], ["one", "two"])
     end
@@ -61,7 +59,7 @@ end
 
 
 # Check that if delayed_teardown=true, teardown is not called right away
-delayed_teardown = testcase() do
+@testcase "delayed teardown" begin
     teardown_started = false
     ff = Jute.fixture_factory() do produce, v
         produce(v)
@@ -77,7 +75,7 @@ end
 
 # Check that if delayed_teardown=true, and the teardown part takes a long time,
 # teardown() waits for it to finish.
-long_delayed_teardown = testcase() do
+@testcase "long delayed teardown" begin
     teardown_ended = false
     ff = Jute.fixture_factory() do produce, v
         produce(v)

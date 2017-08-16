@@ -21,6 +21,8 @@ export testcase
 export tag
 export untag
 export <|
+export @testcase
+export @testgroup
 
 include("inspect.jl")
 

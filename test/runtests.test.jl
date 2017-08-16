@@ -1,7 +1,6 @@
-module Runtests
-
-using Jute
 using TestUtils
+
+@testgroup "runtests" begin
 
 
 constant_fixture1 = 1:2
@@ -11,11 +10,9 @@ global_fixture1_setup = false
 global_fixture1_torndown = false
 global_fixture1_vals = [10, 20]
 global_fixture1 = fixture() do produce
-    global global_fixture1_setup
     @assert !global_fixture1_setup
     global_fixture1_setup = true
     produce(global_fixture1_vals)
-    global global_fixture1_torndown
     global_fixture1_setup = false
     global_fixture1_torndown = true
 end
@@ -24,11 +21,9 @@ global_fixture2_setup = false
 global_fixture2_torndown = false
 global_fixture2_vals = ["x", "y"]
 global_fixture2 = fixture() do produce
-    global global_fixture2_setup
     @assert !global_fixture2_setup
     global_fixture2_setup = true
     produce(global_fixture2_vals)
-    global global_fixture2_torndown
     global_fixture2_setup = false
     global_fixture2_torndown = true
 end
@@ -37,11 +32,11 @@ end
 # Constant + constant
 
 c12_results = []
-c12 = testcase(constant_fixture1, constant_fixture2) do x1, x2
+@testcase "c12" for x1 in constant_fixture1, x2 in constant_fixture2
     push!(c12_results, (x1, x2))
 end
 
-check_c12 = testcase() do
+@testcase "check c12" begin
     @test c12_results == collect(rowmajor_product(constant_fixture1, constant_fixture2))
 end
 
@@ -50,21 +45,21 @@ end
 
 g1_results = []
 
-check_g1_setup = testcase() do
+@testcase "check g1 setup" begin
     @test !global_fixture1_setup
     @test !global_fixture1_torndown
 end
 
-g1 = testcase(global_fixture1) do x1
+@testcase "g1" for x1 in global_fixture1
     @test global_fixture1_setup
     push!(g1_results, x1)
 end
 
-check_g1 = testcase() do
+@testcase "check g1" begin
     @test g1_results == collect(global_fixture1_vals)
 end
 
-check_g1_still_there = testcase() do
+@testcase "check g1 is still there" begin
     @test global_fixture1_setup
     @test !global_fixture1_torndown
 end
@@ -74,28 +69,28 @@ end
 
 g12_results = []
 
-check_g2_setup = testcase() do
+@testcase "check g2 setup" begin
     @test !global_fixture2_setup
     @test !global_fixture2_torndown
 end
 
-g12 = testcase(global_fixture1, global_fixture2) do x1, x2
+@testcase "g12" for x1 in global_fixture1, x2 in global_fixture2
     @test global_fixture1_setup
     @test global_fixture2_setup
     push!(g12_results, (x1, x2))
 end
 
-check_g1_destroyed = testcase() do
+@testcase "check g1 destroyed" begin
     @test !global_fixture1_setup
     @test global_fixture1_torndown
 end
 
-check_g2_still_there = testcase() do
+@testcase "check g2 is still there" begin
     @test global_fixture2_setup
     @test !global_fixture2_torndown
 end
 
-check_g12 = testcase() do
+@testcase "check g12" begin
     @test g12_results == collect(rowmajor_product(global_fixture1_vals, global_fixture2_vals))
 end
 
@@ -103,16 +98,16 @@ end
 # Using only global fixture 2
 g2_results = []
 
-g2 = testcase(global_fixture2) do x2
+@testcase "g2" for x2 in global_fixture2
     @test global_fixture2_setup
     push!(g2_results, x2)
 end
 
-check_g2 = testcase() do
+@testcase "check g2" begin
     @test g2_results == collect(global_fixture2_vals)
 end
 
-check_g2_destroyed = testcase() do
+@testcase "check g2 is destroyed" begin
     @test !global_fixture2_setup
     @test global_fixture2_torndown
 end
@@ -166,18 +161,18 @@ end
 
 combination_results = Array{Tuple{String, String}, 1}()
 
-combination = testcase(gf_ds, gf_bs) do d, b
+@testcase "combination" for d in gf_ds, b in gf_bs
     push!(combination_results, (d, b))
 end
 
-check_combination = testcase() do
+@testcase "check combination" begin
     cbs = [combine_ab(a, b) for (a, b) in rowmajor_product(as, bs)]
     ccs = [combine_ac(a, c) for (a, c) in rowmajor_product(as, cs)]
     cds = [combine_bc(b, c) for (b, c) in rowmajor_product(cbs, ccs)]
     @test combination_results == collect(rowmajor_product(cds, cbs))
 end
 
-check_all_cleaned = testcase() do
+@testcase "check all cleaned" begin
     @test all([gfs_state[key] == 0 for key in keys(gfs_state)])
 end
 
@@ -193,11 +188,11 @@ lf_nodeps = local_fixture() do produce
     push!(lf_sequence, "teardown")
 end
 
-lf_nodeps_test = testcase(lf_nodeps) do x
+@testcase "lf nodeps test" for x in lf_nodeps
     push!(lf_sequence, "testcase $x")
 end
 
-lf_nodeps_check = testcase() do
+@testcase "lf nodeps check" begin
     @test lf_sequence == ["setup", "testcase 1", "teardown"]
 end
 
@@ -222,11 +217,11 @@ lf_deps = local_fixture(lf_nodeps, 3:4, gf_for_lf) do produce, x, y, z
     push!(lf_sequence2, "lf_deps $x $y $z teardown")
 end
 
-lf_deps_test = testcase(lf_deps, lf_nodeps) do x, y
+@testcase "lf deps test" for x in lf_deps, y in lf_nodeps
     push!(lf_sequence2, "testcase $x $y")
 end
 
-lf_deps_check = testcase() do
+@testcase "lf deps check" begin
     lf_sequence_ref = []
     push!(lf_sequence_ref, "gf setup")
     for i in 3:4
@@ -249,7 +244,7 @@ end
 # Checks that the max_fails option works.
 # Also checks that all remaining teardowns are called
 # if runtests exists prematurely because max_fails was reached.
-test_max_fails = testcase() do
+@testcase "test max fails" begin
 
     teardown_called = false
     tc1_executed = false
@@ -272,7 +267,7 @@ test_max_fails = testcase() do
         tc3_executed = true
     end
 
-    exitcode = nested_run([tc1, tc2, tc3], Dict(:max_fails => 1))
+    exitcode, output = nested_run_with_output([tc1, tc2, tc3], Dict(:max_fails => 1))
     @test tc1_executed
     @test teardown_called
     @test !tc3_executed
@@ -282,7 +277,7 @@ end
 
 # Checks that the instant teardown global fixture
 # is actually torn down right after instantiation.
-test_instant_teardown = testcase() do
+@testcase "test instant teardown" begin
     teardown_called = false
     tc1_executed = false
 
@@ -304,7 +299,7 @@ end
 
 
 # Checks that the case of no testcases to run is handled appropriately.
-test_no_testcases = testcase() do
+@testcase "test no testcases" begin
     exitcode = nested_run([])
     @test exitcode == 0
 end

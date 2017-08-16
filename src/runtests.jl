@@ -179,11 +179,11 @@ function sort_testcases(tcs)
 end
 
 
-function runtests_internal(run_options, obj_dict)
+function runtests_internal(run_options, tcs)
     if run_options[:verbosity] > 0
         println("Collecting testcases...")
     end
-    all_testcases = get_testcases(obj_dict, run_options[:test_module_prefix])
+    all_testcases = get_testcases(tcs)
     testcases = filter_testcases(run_options, all_testcases)
     testcases = sort_testcases(testcases)
 
@@ -226,8 +226,8 @@ function runtests(; options=nothing)
     if run_options[:verbosity] > 0
         println("Loading test files...")
     end
-    obj_dict = include_test_files!(
+    tcs = include_test_files!(
         test_files, run_options[:dont_add_runtests_path] ? nothing : runtests_dir)
 
-    runtests_internal(run_options, obj_dict)
+    runtests_internal(run_options, tcs)
 end
