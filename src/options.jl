@@ -32,11 +32,6 @@ or an unhandeld exception was thrown).
 capture all the output from testcases
 and only show the output of the failed ones in the end of the test run.
 
-!!! warning
-
-    At the moment, output capture does not work in Julia 0.6 on Windows.
-    See [Julia issue 23198](https://github.com/JuliaLang/julia/issues/23198) for details.
-
 **`:dont_add_runtests_path`**:`:: Bool` (`--dont-add-runtests-path):
 capture testcase output and display only the output from failed testcases
 after all the testcases are finished.

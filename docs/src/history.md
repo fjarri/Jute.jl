@@ -1,9 +1,9 @@
 # Version history
 
 
-## Current development version
+## v0.1.0 (current development version)
 
-Under construction.
+* FIXED: output capture problems in Julia 0.6 on Windows.
 
 
 ## v0.0.3 (13 Aug 2017)
