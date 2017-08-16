@@ -162,6 +162,7 @@ function with_output_capture(func, pass_through::Bool=false)
 
     rd, wr = redirect_stdout()
     redirect_stderr(wr)
+    reader = @async readstring(rd)
 
     ret = nothing
     output = ""
@@ -171,7 +172,7 @@ function with_output_capture(func, pass_through::Bool=false)
         redirect_stdout(STDOUT_OLD)
         redirect_stderr(STDERR_OLD)
         close(wr)
-        output = readstring(rd)
+        output = wait(reader)
         close(rd)
     end
 
