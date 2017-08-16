@@ -85,10 +85,10 @@ struct RowMajorProduct{T<:Tuple}
 end
 
 
-Base.iteratorsize{T<:RowMajorProduct}(::Type{T}) = Base.SizeUnknown()
+Base.iteratorsize(::Type{T}) where T<:RowMajorProduct = Base.SizeUnknown()
 
 
-Base.eltype{T}(::Type{RowMajorProduct{T}}) = Tuple{map(eltype, T.parameters)...}
+Base.eltype(::Type{RowMajorProduct{T}}) where T = Tuple{map(eltype, T.parameters)...}
 
 
 Base.length(p::RowMajorProduct) = mapreduce(length, *, 1, p.xss)
