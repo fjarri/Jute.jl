@@ -1,15 +1,24 @@
 @testgroup "run_testcase" begin
 
 
+function get_outcome(func)
+    tcs = Jute.collect_testobjs() do
+        @testcase "tc" begin
+            func()
+        end
+    end
+    tc = tcs[1]
+    Jute.run_testcase(tc, [])
+end
+
+
 function get_results(func)
-    tc = testcase(func)
-    outcome = Jute.run_testcase(tc, [])
-    outcome.results
+    return get_outcome(func).results
 end
 
 
 # Check that if a testcase calls no assertions, a single Pass gets added to the results.
-no_assertions = testcase() do
+@testcase "no assertions" begin
     results = get_results() do
     end
     @test length(results) == 1
@@ -17,7 +26,7 @@ no_assertions = testcase() do
 end
 
 
-report_value = testcase() do
+@testcase "report value" begin
     results = get_results() do
         @test 1 == 1
         @test_result 1
@@ -31,7 +40,7 @@ report_value = testcase() do
 end
 
 
-multiple_fails = testcase() do
+@testcase "multiple fails" begin
     results = get_results() do
         @test 1 == 1
         @test 1 == 2 # first fail, execution should not stop
@@ -52,7 +61,7 @@ multiple_fails = testcase() do
 end
 
 
-check_test_throws = testcase() do
+@testcase "@test_throws" begin
     results = get_results() do
         @test 1 == 1
         @test_throws ErrorException error("Caught exception")
@@ -66,7 +75,7 @@ check_test_throws = testcase() do
 end
 
 
-check_test_skip = testcase() do
+@testcase "@test_skip" begin
     results = get_results() do
         @test 1 == 1
         @test_skip 1 == 2
@@ -80,7 +89,7 @@ check_test_skip = testcase() do
 end
 
 
-check_test_broken = testcase() do
+@testcase "@test_broken" begin
     results = get_results() do
         @test 1 == 1
         @test_broken 1 == 2
@@ -94,7 +103,7 @@ check_test_broken = testcase() do
 end
 
 
-check_unexpected_pass = testcase() do
+@testcase "unexpected pass" begin
     results = get_results() do
         @test 1 == 1
         @test_broken 1 == 1 # marked as broken, but succeeds
@@ -108,47 +117,41 @@ check_unexpected_pass = testcase() do
 end
 
 
-check_is_failed = testcase() do
-    tc = testcase() do
+@testcase "is_failed()" begin
+    outcome = get_outcome() do
         @test 1 == 1
         @test 2 == 2
     end
-    outcome = Jute.run_testcase(tc, [])
     @test !Jute.is_failed(outcome)
 
-    tc = testcase() do
+    outcome = get_outcome() do
         @test 1 == 1
         @test 1 == 2
     end
-    outcome = Jute.run_testcase(tc, [])
     @test Jute.is_failed(outcome)
 
-    tc = testcase() do
+    outcome = get_outcome() do
         @test 1 == 1
         error("uncaught")
     end
-    outcome = Jute.run_testcase(tc, [])
     @test Jute.is_failed(outcome)
 
-    tc = testcase() do
+    outcome = get_outcome() do
         @test 1 == 1
         @test_broken 1 == 2
     end
-    outcome = Jute.run_testcase(tc, [])
     @test !Jute.is_failed(outcome)
 
-    tc = testcase() do
+    outcome = get_outcome() do
         @test 1 == 1
         @test_broken 1 == 1
     end
-    outcome = Jute.run_testcase(tc, [])
     @test Jute.is_failed(outcome)
 
-    tc = testcase() do
+    outcome = get_outcome() do
         @test 1 == 1
         @test_result 1
     end
-    outcome = Jute.run_testcase(tc, [])
     @test !Jute.is_failed(outcome)
 end
 

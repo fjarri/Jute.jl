@@ -38,7 +38,7 @@ end
 
 
 # Check that if pass_through=true, the output is not captured
-pass_through = testcase() do
+@testcase "pass_through" begin
     # In order to see that the output is not captured,
     # we still need to capture it one level higher.
     with_output_capture() do
@@ -55,7 +55,7 @@ end
 
 
 # Check that both STDOUT and STDERR are captured and joined in the correct order
-capture_all = testcase() do
+@testcase "capture all" begin
     ret, out = with_output_capture() do
         println(STDOUT, "stdout 1")
         println(STDERR, "stderr 1")
@@ -71,7 +71,7 @@ end
 
 # Check that the handles are restored to previous values
 # if an exception is thrown in the function.
-restore_on_error = testcase() do
+@testcase "restore on error" begin
     try
         with_output_capture() do
             println(STDOUT, "stdout 1")

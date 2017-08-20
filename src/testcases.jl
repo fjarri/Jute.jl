@@ -24,7 +24,7 @@ end
 
 
 """
-    testcase(func, params...)
+    testcase(func, params...; tags=[])
 
 Define a testcase.
 
@@ -39,19 +39,20 @@ used to parametrize the function.
 In the latter case, the first iterable will be used to produce the values,
 and the second one to produce the corresponding labels (for logging).
 
+`tags` is an array of `Symbol`s.
+Testcases can be filtered in or out by tags,
+see [run options](@ref run_options_manual) for details.
+
 Returns a [`Testcase`](@ref) object.
 """
-function testcase(func, name::String, params...)
+function testcase(func, name::String, params...; tags::Array{Symbol, 1}=Symbol[])
     # gensym() helps preserve the order of definition of testcases in a single file
     # A bit hacky, but we need an integer, since "9" > "10".
     order = parse(Int, string(gensym())[3:end])
     params = collect(map(normalize_fixture, params))
     deps = union(map(dependencies, params)..., global_fixtures(params))
-    Testcase(name, order, func, params, deps, Set())
+    Testcase(name, order, func, params, deps, Set(tags))
 end
-
-# Temporary stub for testing.
-testcase(func, params...) = testcase(func, string(gensym("testcase")), params...)
 
 
 parameters(tc::Testcase) = tc.parameters
@@ -61,103 +62,6 @@ dependencies(tc::Testcase) = tc.dependencies
 
 
 tags(tc::Testcase) = tc.tags
-
-
-struct Tagger
-    tags :: Array{Pair{Symbol, Bool}, 1}
-end
-
-
-function (tagger::Tagger)(tc::Testcase)
-    new_tags = copy(tc.tags)
-    for (tag, add) in reverse(tagger.tags)
-        if add
-            push!(new_tags, tag)
-        else
-            delete!(new_tags, tag)
-        end
-    end
-    Testcase(tc.name, tc.order, tc.func, parameters(tc), dependencies(tc), new_tags)
-end
-
-(tagger::Tagger)(other_tagger::Tagger) = Tagger(vcat(tagger.tags, other_tagger.tags))
-
-
-"""
-    tag(::Symbol)
-
-Returns a function that tags a testcase with the given tag:
-
-    tc = tag(:foo)(testcase() do
-        ... something
-    end)
-
-Testcases can be filtered in/out using [run options](@ref run_options_manual).
-It is convenient to use the [`<|`](@ref) operator:
-
-    tc =
-        tag(:foo) <|
-        testcase() do
-            ... something
-        end
-
-Note that [`tag`](@ref) and [`untag`](@ref) commands are applied from inner to outer.
-"""
-function tag(tag_name::Symbol)
-    Tagger([tag_name => true])
-end
-
-
-"""
-    untag(::Symbol)
-
-Returns a function that untags a testcase with the given tag.
-See [`tag`](@ref) for more details.
-"""
-function untag(tag_name::Symbol)
-    Tagger([tag_name => false])
-end
-
-
-"""
-    <|(f, x) === f(x)
-
-A helper operator that makes applying testcase tags slightly more graceful.
-See [`tag`](@ref) for an example.
-"""
-<|(f, x) = f(x)
-
-
-macro testcase(name, expr)
-    if expr.head == :for
-        iterators = expr.args[1]
-        body = expr.args[2]
-        if iterators.head == :block
-            fixtures = [assignment.args[2] for assignment in iterators.args]
-            vars = [assignment.args[1] for assignment in iterators.args]
-        else
-            fixtures = [iterators.args[2]]
-            vars = [iterators.args[1]]
-        end
-    else
-        fixtures = []
-        vars = []
-        body = expr
-    end
-
-    vars = map(esc, vars)
-    fixtures = map(esc, fixtures)
-
-    res = quote
-        push!(
-            task_local_storage(:__JUTE_TESTCASES__),
-            testcase($(esc(name)), $(fixtures...)) do $(vars...)
-                $(esc(body))
-            end)
-    end
-
-    res
-end
 
 
 struct TestGroup
@@ -171,18 +75,109 @@ function testgroup(func, name)
 end
 
 
-function get_testcases(group::TestGroup)
+register_testobj(obj) = push!(task_local_storage(TESTCASE_ACCUM_ID), obj)
+
+
+function collect_testobjs(func)
     task_local_storage(TESTCASE_ACCUM_ID, Any[]) do
-        Base.invokelatest(group.func)
+        func()
         task_local_storage(TESTCASE_ACCUM_ID)
     end
 end
 
 
+function get_testcases(group::TestGroup)
+    collect_testobjs() do
+        Base.invokelatest(group.func)
+    end
+end
+
+
+"""
+    @testcase [option=val ...] <name> begin ... end
+    @testcase [option=val ...] <name> for x in fx1, y in fx2 ... end
+
+Create a testcase object and add it to the current test group.
+Equivalent to
+
+    register_testobj(testcase(<name>; option=val, ...) do ... end)
+    register_testobj(testcase(<name>, fx1, fx2; option=val, ...) do x, y ... end)
+"""
+macro testcase(args...)
+
+    options_expr = args[1:end-2]
+    name = esc(args[end-1])
+    vars, fixtures, body = parse_body(args[end])
+
+    if length(options_expr) > 0
+        options = parse_options(options_expr)
+        tc_call = quote
+            testcase($name, $(fixtures...); $options...) do $(vars...)
+                $body
+            end
+        end
+    else
+        tc_call = quote
+            testcase($name, $(fixtures...)) do $(vars...)
+                $body
+            end
+        end
+    end
+
+    :( register_testobj($tc_call) )
+end
+
+
+function parse_body(body_expr)
+    if body_expr.head == :for
+        iterators = body_expr.args[1]
+        body = body_expr.args[2]
+        if iterators.head == :block
+            fixtures = [assignment.args[2] for assignment in iterators.args]
+            vars = [assignment.args[1] for assignment in iterators.args]
+        else
+            fixtures = [iterators.args[2]]
+            vars = [iterators.args[1]]
+        end
+    else
+        fixtures = []
+        vars = []
+        body = body_expr
+    end
+
+    body = esc(body)
+    vars = map(esc, vars)
+    fixtures = map(esc, fixtures)
+
+    vars, fixtures, body
+end
+
+
+# Taken from Base.Test and simplified
+function parse_options(options_expr)
+    options = :(Dict{Symbol, Any}())
+    for arg in options_expr
+        if isa(arg, Expr) && arg.head == :(=)
+            # we're building up a Dict literal here
+            key = Expr(:quote, arg.args[1])
+            push!(options.args, Expr(:call, :(=>), key, esc(arg.args[2])))
+        else
+            error("Unexpected argument $arg to @testcase")
+        end
+    end
+    options
+end
+
+
+"""
+    @testgroup <name> begin ... end
+
+Create a test group.
+The body can contain other [`@testgroup`](@ref) or [`@testcase`](@ref) declarations.
+"""
 macro testgroup(name, body)
     quote
-        push!(
-            task_local_storage(TESTCASE_ACCUM_ID),
+        register_testobj(
             testgroup($(esc(name))) do
                 $(esc(body))
             end)

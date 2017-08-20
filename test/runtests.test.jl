@@ -255,19 +255,21 @@ end
         teardown_called = true
     end
 
-    tc1 = testcase(gfx) do x
-        tc1_executed = true
+    tcs = Jute.collect_testobjs() do
+        @testcase "tc1" for x in gfx
+            tc1_executed = true
+        end
+
+        @testcase "tc2" begin
+            @test 1 == 2
+        end
+
+        @testcase "tc3" for x in gfx
+            tc3_executed = true
+        end
     end
 
-    tc2 = testcase() do
-        @test 1 == 2
-    end
-
-    tc3 = testcase(gfx) do x
-        tc3_executed = true
-    end
-
-    exitcode, output = nested_run_with_output([tc1, tc2, tc3], Dict(:max_fails => 1))
+    exitcode, output = nested_run_with_output(tcs, Dict(:max_fails => 1))
     @test tc1_executed
     @test teardown_called
     @test !tc3_executed
@@ -286,12 +288,14 @@ end
         teardown_called = true
     end
 
-    tc1 = testcase(gfx) do x
-        @test teardown_called
-        tc1_executed = true
+    tcs = Jute.collect_testobjs() do
+        @testcase "tc1" for x in gfx
+            @test teardown_called
+            tc1_executed = true
+        end
     end
 
-    exitcode = nested_run([tc1])
+    exitcode = nested_run(tcs)
     @test teardown_called
     @test tc1_executed
     @test exitcode == 0

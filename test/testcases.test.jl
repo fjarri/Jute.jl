@@ -4,6 +4,7 @@ using DataStructures
 
 
 @testcase "testcase dependencies" begin
+
     fx1 = fixture() do produce
         produce([1])
     end
@@ -16,48 +17,29 @@ using DataStructures
         produce(x)
     end
 
-    tc = testcase(fx2, fx3) do
-        @test 1 == 1
+    tcs = Jute.collect_testobjs() do
+        @testcase "tc" for x in fx2, y in fx3
+            @test 1 == 1
+        end
     end
+    tc = tcs[1]
 
     @test Jute.dependencies(tc) == OrderedSet([fx1, fx2])
     @test Jute.parameters(tc) == [fx2, fx3]
 end
 
 
-@testcase "simple tagging" begin
-    tc = testcase() do
+@testcase "tagging" begin
+    tcs = Jute.collect_testobjs() do
+        @testcase "no tags" begin
+        end
+
+        @testcase tags=[:tag1, :tag2] "some tags" begin
+        end
     end
 
-    @test Jute.tags(tc) == Set([])
-
-    tc =
-        tag(:tag1) <|
-        tag(:tag2) <|
-        tag(:tag1) <|
-        tc
-    @test Jute.tags(tc) == Set([:tag1, :tag2])
-
-    tc =
-        untag(:tag1) <|
-        tc
-    @test Jute.tags(tc) == Set([:tag2])
-end
-
-
-@testcase "tag-untag mixture" begin
-    tc = testcase() do
-    end
-
-    # tagging commands are applied from inner to outer
-    tc =
-        tag(:tag1) <|
-        untag(:tag2) <|
-        untag(:tag1) <|
-        tag(:tag2) <|
-        tc
-
-    @test Jute.tags(tc) == Set([:tag1])
+    @test Jute.tags(tcs[1]) == Set([])
+    @test Jute.tags(tcs[2]) == Set([:tag1, :tag2])
 end
 
 

@@ -26,7 +26,7 @@ function time_test_run(test_include_only::Bool)
 end
 
 
-@testcase "full run" begin
+@testcase tags=[:perf] "full run" begin
     times = [time_test_run(false) for i in 1:5]
     @test_result TimeReturn(minimum(times))
 end
@@ -34,7 +34,7 @@ end
 
 # Only measure the time it takes to include the test files.
 # TODO: in future we will collect the separate timings in a single run.
-@testcase "include only" begin
+@testcase tags=[:perf] "include only" begin
     times = [time_test_run(true) for i in 1:5]
     @test_result TimeReturn(minimum(times))
 end

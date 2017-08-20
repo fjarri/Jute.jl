@@ -4,57 +4,57 @@ using TestUtils
 @testgroup "reporting" begin
 
 
-TESTCASES = [
-    testcase("multiple tests") do
+TESTCASES = Jute.collect_testobjs() do
+    @testcase "multiple tests" begin
         @test 1 == 1
         @test 2 == 2
         @test 3 == 3
-    end,
+    end
 
-    testcase("returning value") do
+    @testcase "returning value" begin
         @test 1 == 1
         @test_result 10
-    end,
+    end
 
-    testcase("multiple tests and one failure") do
+    @testcase "multiple tests and one failure" begin
         @test 1 == 1
         @test 2 == 1
         @test 3 == 3
-    end,
+    end
 
-    testcase("uncaught exception") do
+    @testcase "uncaught exception" begin
         @test 1 == 1
         error("Uncaught exception")
         @test 1 == 1
-    end,
+    end
 
-    testcase("caught exception") do
+    @testcase "caught exception" begin
         @test 1 == 1
         @test_throws ErrorException error("Caught exception")
         @test 1 == 1
-    end,
+    end
 
-    testcase("skip test") do
+    @testcase "skip test" begin
         @test 1 == 1
         @test_skip 1 == 2
         @test 1 == 1
-    end,
+    end
 
-    testcase("expected failure") do
+    @testcase "expected failure" begin
         @test 1 == 1
         @test_broken 1 == 2
         @test 1 == 1
-    end,
+    end
 
-    testcase("unexpected pass") do
+    @testcase "unexpected pass" begin
         @test 1 == 1
         @test_broken 1 == 1
         @test 1 == 1
-    end,
+    end
 
-    testcase("with fixtures", [1], [2]) do x, y
-    end,
-    ]
+    @testcase "with fixtures" for x in [1], y in [2]
+    end
+end
 
 
 @testcase "verbosity0" begin
@@ -169,18 +169,18 @@ end
 
 
 @testcase "captured_output" begin
-    testcases = [
-        testcase("passing testcase") do
+    testcases = Jute.collect_testobjs() do
+        @testcase "passing testcase" begin
             println(STDOUT, "stdout from passing testcase")
             println(STDERR, "stderr from passing testcase")
-        end,
+        end
 
-        testcase("failing testcase") do
+        @testcase "failing testcase" begin
             println(STDOUT, "stdout from failing testcase")
             @test 1 == 2
             println(STDERR, "stderr from failing testcase")
-        end,
-        ]
+        end
+    end
 
     exitcode, output = nested_run_with_output(
         testcases, Dict(:verbosity => 0, :capture_output => true))

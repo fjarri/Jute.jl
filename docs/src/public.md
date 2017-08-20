@@ -11,6 +11,8 @@ runtests
 ## Testcases and fixtures
 
 ```@docs
+@testcase
+@testgroup
 testcase
 ```
 
