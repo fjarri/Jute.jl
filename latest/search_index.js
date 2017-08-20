@@ -153,11 +153,27 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "public.html#Jute.@testcase",
+    "page": "Public API",
+    "title": "Jute.@testcase",
+    "category": "Macro",
+    "text": "@testcase [option=val ...] <name> begin ... end\n@testcase [option=val ...] <name> for x in fx1, y in fx2 ... end\n\nCreate a testcase object and add it to the current test group. Equivalent to\n\nregister_testobj(testcase(<name>; option=val, ...) do ... end)\nregister_testobj(testcase(<name>, fx1, fx2; option=val, ...) do x, y ... end)\n\n\n\n"
+},
+
+{
+    "location": "public.html#Jute.@testgroup",
+    "page": "Public API",
+    "title": "Jute.@testgroup",
+    "category": "Macro",
+    "text": "@testgroup <name> begin ... end\n\nCreate a test group. The body can contain other @testgroup or @testcase declarations.\n\n\n\n"
+},
+
+{
     "location": "public.html#Jute.testcase",
     "page": "Public API",
     "title": "Jute.testcase",
     "category": "Function",
-    "text": "testcase(func, params...)\n\nDefine a testcase.\n\nfunc is a testcase function. The number of function parameters must be equal to the number of parametrizing fixtures given in params. This function will be called with all combinations of values of fixtures from params.\n\nparams are either fixtures, iterables or pairs of two iterables used to parametrize the function. In the latter case, the first iterable will be used to produce the values, and the second one to produce the corresponding labels (for logging).\n\nReturns a Testcase object.\n\n\n\n"
+    "text": "testcase(func, params...; tags=[])\n\nDefine a testcase.\n\nfunc is a testcase function. The number of function parameters must be equal to the number of parametrizing fixtures given in params. This function will be called with all combinations of values of fixtures from params.\n\nparams are either fixtures, iterables or pairs of two iterables used to parametrize the function. In the latter case, the first iterable will be used to produce the values, and the second one to produce the corresponding labels (for logging).\n\ntags is an array of Symbols. Testcases can be filtered in or out by tags, see run options for details.\n\nReturns a Testcase object.\n\n\n\n"
 },
 
 {
@@ -181,7 +197,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public API",
     "title": "Testcases and fixtures",
     "category": "section",
-    "text": "testcasefixturelocal_fixture"
+    "text": "@testcase\n@testgroup\ntestcasefixturelocal_fixture"
 },
 
 {
@@ -230,30 +246,6 @@ var documenterSearchIndex = {"docs": [
     "title": "Assertions",
     "category": "section",
     "text": "The following assertions are re-exported from Base.Test and can be used inside Jute testcases.@test\n@test_throws\n@test_broken\n@test_skipThis is an additional assertion, allowing one to record an arbitrary value as a test result.@test_result"
-},
-
-{
-    "location": "public.html#Jute.tag",
-    "page": "Public API",
-    "title": "Jute.tag",
-    "category": "Function",
-    "text": "tag(::Symbol)\n\nReturns a function that tags a testcase with the given tag:\n\ntc = tag(:foo)(testcase() do\n    ... something\nend)\n\nTestcases can be filtered in/out using run options. It is convenient to use the <| operator:\n\ntc =\n    tag(:foo) <|\n    testcase() do\n        ... something\n    end\n\nNote that tag and untag commands are applied from inner to outer.\n\n\n\n"
-},
-
-{
-    "location": "public.html#Jute.untag",
-    "page": "Public API",
-    "title": "Jute.untag",
-    "category": "Function",
-    "text": "untag(::Symbol)\n\nReturns a function that untags a testcase with the given tag. See tag for more details.\n\n\n\n"
-},
-
-{
-    "location": "public.html#Jute.:<|",
-    "page": "Public API",
-    "title": "Jute.:<|",
-    "category": "Function",
-    "text": "<|(f, x) === f(x)\n\nA helper operator that makes applying testcase tags slightly more graceful. See tag for an example.\n\n\n\n"
 },
 
 {
