@@ -98,10 +98,6 @@ end
     @testcase [option=val ...] <name> for x in fx1, y in fx2 ... end
 
 Create a testcase object and add it to the current test group.
-Equivalent to
-
-    register_testobj(testcase(<name>; option=val, ...) do ... end)
-    register_testobj(testcase(<name>, fx1, fx2; option=val, ...) do x, y ... end)
 """
 macro testcase(args...)
 
