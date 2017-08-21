@@ -3,12 +3,8 @@ __precompile__()
 module Jute
 
 include("utils.jl")
-export pprint_time
-export rowmajor_product
-export with_output_capture
 
 include("options.jl")
-export build_run_options
 
 include("fixture_factory.jl")
 

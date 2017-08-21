@@ -5,7 +5,7 @@ test_files = [joinpath(runtests_dir, "runtests_benchmark_testcases.jl")]
 
 test_include_only = (ARGS[1] == "test_include_only")
 
-run_options = build_run_options(options=Dict(:verbosity => 0))
+run_options = Jute.build_run_options(options=Dict(:verbosity => 0))
 
 tic()
 obj_dict = Jute.include_test_files!(test_files)

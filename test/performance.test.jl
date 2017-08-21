@@ -3,7 +3,7 @@ struct TimeReturn
 end
 
 
-Base.show(io::IO, tr::TimeReturn) = print(io, pprint_time(tr.seconds, meaningful_digits=3))
+Base.show(io::IO, tr::TimeReturn) = print(io, Jute.pprint_time(tr.seconds, meaningful_digits=3))
 
 
 @testgroup "performance" begin

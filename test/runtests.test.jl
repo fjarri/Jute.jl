@@ -37,7 +37,7 @@ c12_results = []
 end
 
 @testcase "check c12" begin
-    @test c12_results == collect(rowmajor_product(constant_fixture1, constant_fixture2))
+    @test c12_results == collect(Jute.rowmajor_product(constant_fixture1, constant_fixture2))
 end
 
 
@@ -91,7 +91,7 @@ end
 end
 
 @testcase "check g12" begin
-    @test g12_results == collect(rowmajor_product(global_fixture1_vals, global_fixture2_vals))
+    @test g12_results == collect(Jute.rowmajor_product(global_fixture1_vals, global_fixture2_vals))
 end
 
 
@@ -166,10 +166,10 @@ combination_results = Array{Tuple{String, String}, 1}()
 end
 
 @testcase "check combination" begin
-    cbs = [combine_ab(a, b) for (a, b) in rowmajor_product(as, bs)]
-    ccs = [combine_ac(a, c) for (a, c) in rowmajor_product(as, cs)]
-    cds = [combine_bc(b, c) for (b, c) in rowmajor_product(cbs, ccs)]
-    @test combination_results == collect(rowmajor_product(cds, cbs))
+    cbs = [combine_ab(a, b) for (a, b) in Jute.rowmajor_product(as, bs)]
+    ccs = [combine_ac(a, c) for (a, c) in Jute.rowmajor_product(as, cs)]
+    cds = [combine_bc(b, c) for (b, c) in Jute.rowmajor_product(cbs, ccs)]
+    @test combination_results == collect(Jute.rowmajor_product(cds, cbs))
 end
 
 @testcase "check all cleaned" begin

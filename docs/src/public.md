@@ -42,12 +42,3 @@ This is an additional assertion, allowing one to record an arbitrary value as a 
 temporary_dir
 run_options
 ```
-
-
-## Utilities
-
-```@docs
-rowmajor_product
-pprint_time
-with_output_capture
-```
