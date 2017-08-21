@@ -57,6 +57,26 @@ TESTCASES = Jute.collect_testobjs() do
 end
 
 
+TESTCASES_WITH_GROUPS = Jute.collect_testobjs() do
+    @testcase "root testcase 1" begin end
+    @testgroup "group 1" begin
+        @testcase "group 1 testcase 1" begin end
+        @testcase "group 1 testcase 2" begin end
+        @testgroup "subgroup 1" begin
+            @testgroup "subsubgroup 1" begin
+                @testcase "subsubgroup 1 testcase 1" begin end
+                @testcase "subsubgroup 1 testcase 2" begin end
+            end
+        end
+    end
+    @testgroup "group 2" begin
+        @testcase "group 2 testcase 1" begin end
+        @testcase "group 2 testcase 2" begin end
+    end
+    @testcase "root testcase 2" begin end
+end
+
+
 @testcase "verbosity0" begin
     exitcode, output = nested_run_with_output(TESTCASES, Dict(:verbosity => 0))
     @test exitcode == 1
@@ -162,6 +182,60 @@ end
          Unexpected Pass
          Expression: 1 == 1
          Got correct result, please change to @test if no longer broken.
+    """
+
+    @test match_text(template, output)
+end
+
+
+@testcase "verbosity1 with groups" begin
+    exitcode, output = nested_run_with_output(TESTCASES_WITH_GROUPS, Dict(:verbosity => 1))
+    @test exitcode == 0
+
+    template = """
+        Collecting testcases...
+        Running 8 out of 8 testcases...
+        ================================================================================
+        Platform: Julia <<<julia_version>>>, Jute <<<jute_version>>>
+        --------------------------------------------------------------------------------
+        .
+        group 1: ..
+          subgroup 1:
+            subsubgroup 1: ..
+        group 2: ..
+        .
+        --------------------------------------------------------------------------------
+        8 tests passed, 0 failed, 0 errored in <<<full_time>>> (total test time <<<test_time>>>)
+    """
+
+    @test match_text(template, output)
+end
+
+
+@testcase "verbosity2 with groups" begin
+    exitcode, output = nested_run_with_output(TESTCASES_WITH_GROUPS, Dict(:verbosity => 2))
+    @test exitcode == 0
+
+    template = """
+        Collecting testcases...
+        Running 8 out of 8 testcases...
+        ================================================================================
+        Platform: Julia <<<julia_version>>>, Jute <<<jute_version>>>
+        --------------------------------------------------------------------------------
+        root testcase 1 (<<<time>>>) [PASS]
+        group 1/
+          group 1 testcase 1 (<<<time>>>) [PASS]
+          group 1 testcase 2 (<<<time>>>) [PASS]
+          subgroup 1/
+            subsubgroup 1/
+              subsubgroup 1 testcase 1 (<<<time>>>) [PASS]
+              subsubgroup 1 testcase 2 (<<<time>>>) [PASS]
+        group 2/
+          group 2 testcase 1 (<<<time>>>) [PASS]
+          group 2 testcase 2 (<<<time>>>) [PASS]
+        root testcase 2 (<<<time>>>) [PASS]
+        --------------------------------------------------------------------------------
+        8 tests passed, 0 failed, 0 errored in <<<full_time>>> (total test time <<<test_time>>>)
     """
 
     @test match_text(template, output)
