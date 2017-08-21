@@ -49,7 +49,7 @@ end
 
 # testcase - will be picked up automatically
 # and run for all the combinations of fixture values
-tc = testcase(fx1, fx2, fx3) do x, y, z
+@testcase "tc" for x in fx1, y in fx2, z in fx3
     @test x + y == 2
     @test x + y + z == z + y + x
 end

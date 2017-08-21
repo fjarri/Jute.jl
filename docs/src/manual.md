@@ -201,48 +201,18 @@ Local fixtures can be parametrized by any other type of fixture, including other
 
 ## Testcase tags
 
-!!! warning
-
-    Tagging implementation is a work in progress for testcase macros.
-
 Testcases can be assigned tags of the type `Symbol`.
 This can be used to establish a secondary grouping, independent of the primary grouping provided by modules.
 For example, one can tag performance tests, tests that run for a long time, unit/integration tests, tests that require a specific resource and so on.
 Testcases can be filtered by tags they have or don't have using [command-line arguments](@ref run_options_manual).
 
-The tagging is performed by the function [`tag()`](@ref Jute.tag) that takes a `Symbol` and returns a function that tags a testcase:
+The tagging is performed by an optional paramter `tag` to the macro [`@testcase`](@ref Jute.@testcase) that takes a list of `Symbol`s:
 
 ```julia
-tc = tag(:foo)(testcase() do
+@testcase tags=[:foo] "tc" begin
     ... something
 end)
 ```
-
-It is convenient to use the [`<|`](@ref Jute.:<|) operator:
-
-```julia
-tc =
-    tag(:foo) <|
-    testcase() do
-        ... something
-    end
-```
-
-A tag can be removed from a testcase using [`untag`](@ref Jute.untag).
-Note that tagging and untagging commands are applied from inner to outer, so, for example, the following code
-
-```julia
-tc =
-    tag(:foo) <|
-    untag(:bar) <|
-    untag(:foo) <|
-    tag(:bar) <|
-    testcase() do
-        ... something
-    end
-```
-
-will leave `tc` with the tag `:foo`, but without the tag `:bar`.
 
 
 ## [Run options](@id run_options_manual)

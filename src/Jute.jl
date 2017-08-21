@@ -17,10 +17,6 @@ export fixture
 export local_fixture
 
 include("testcases.jl")
-export testcase
-export tag
-export untag
-export <|
 export @testcase
 export @testgroup
 

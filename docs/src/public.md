@@ -13,21 +13,14 @@ runtests
 ```@docs
 @testcase
 @testgroup
-testcase
-```
-
-```@docs
 fixture
-```
-
-```@docs
 local_fixture
 ```
 
 
 ## Assertions
 
-The following assertions are re-exported from `Base.Test` and can be used inside `Jute` testcases.
+The following assertions are re-exported from [`Base.Test`](https://docs.julialang.org/en/stable/stdlib/test/) and can be used inside `Jute` testcases.
 
 ```@docs
 @test
@@ -42,14 +35,6 @@ This is an additional assertion, allowing one to record an arbitrary value as a 
 @test_result
 ```
 
-
-## Testcase tags
-
-```@docs
-tag
-untag
-<|
-```
 
 ## Built-in fixtures
 
