@@ -76,7 +76,7 @@ function run_testcases(run_options, tcs)
 
     test_outcomes = []
 
-    progress = progress_reporter([tcpath for (tcpath, tc) in tcs], run_options[:verbosity])
+    progress = progress_reporter([tcinfo for (tcinfo, tc) in tcs], run_options[:verbosity])
 
     progress_start!(progress)
 
@@ -87,7 +87,7 @@ function run_testcases(run_options, tcs)
 
     for (i, entry) in enumerate(tcs)
 
-        tcpath, tc = entry
+        tcinfo, tc = entry
 
         for fx in dependencies(tc)
             if !haskey(global_fixtures, fx)
@@ -112,17 +112,17 @@ function run_testcases(run_options, tcs)
         fixture_iterables = map(gi, parameters(tc))
         iterable_permutations = rowmajor_product(fixture_iterables...)
 
-        progress_start_testcases!(progress, tcpath, length(iterable_permutations))
+        progress_start_testcases!(progress, tcinfo, length(iterable_permutations))
 
         for lvals in iterable_permutations
             dvals = map(instantiate, parameters(tc), lvals)
             args = map(unwrap_value, dvals)
             labels = map(unwrap_label, dvals)
-            progress_start_testcase!(progress, tcpath, labels)
+            progress_start_testcase!(progress, tcinfo, labels)
             outcome = run_testcase(tc, args, capture_output)
             map(release, dvals)
-            push!(test_outcomes, (tcpath, labels, outcome))
-            progress_finish_testcase!(progress, tcpath, labels, outcome)
+            push!(test_outcomes, (tcinfo, labels, outcome))
+            progress_finish_testcase!(progress, tcinfo, labels, outcome)
 
             if is_failed(outcome)
                 fails_num += 1
@@ -139,7 +139,7 @@ function run_testcases(run_options, tcs)
             delete!(for_teardown, i)
         end
 
-        progress_finish_testcases!(progress, tcpath)
+        progress_finish_testcases!(progress, tcinfo)
 
         if max_fails_reached
             # Call all remaining teardowns
@@ -154,13 +154,13 @@ function run_testcases(run_options, tcs)
 end
 
 
-function is_testcase_included(e_paths, i_paths, e_tags, i_tags, tcpath::TestcasePath)
-    full_tag = string(tcpath)
+function is_testcase_included(e_paths, i_paths, e_tags, i_tags, tcinfo::TestcaseInfo)
+    full_tag = string(tcinfo)
     (
         (isnull(e_paths) || !ismatch(get(e_paths), full_tag))
         && (isnull(i_paths) || ismatch(get(i_paths), full_tag))
-        && (isempty(e_tags) || isempty(intersect(e_tags, tcpath.tags)))
-        && (isempty(i_tags) || !isempty(intersect(i_tags, tcpath.tags)))
+        && (isempty(e_tags) || isempty(intersect(e_tags, tcinfo.tags)))
+        && (isempty(i_tags) || !isempty(intersect(i_tags, tcinfo.tags)))
         )
 end
 
@@ -174,18 +174,12 @@ function filter_testcases(run_options, tcs)
 end
 
 
-function sort_testcases(tcs)
-    sort(tcs, by=p -> p[1])
-end
-
-
 function runtests_internal(run_options, tcs)
     if run_options[:verbosity] > 0
         println("Collecting testcases...")
     end
     all_testcases = get_testcases(tcs)
     testcases = filter_testcases(run_options, all_testcases)
-    testcases = sort_testcases(testcases)
 
     if length(testcases) == 0 && run_options[:verbosity] > 0
         println("All $(length(all_testcases)) testcases were filtered out, nothing to run")

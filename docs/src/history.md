@@ -7,6 +7,7 @@
 * **CHANGED**: testcases must be defined via the `@testgroup` macro instead of the `testcase()` function.
 * **CHANGED**: not exporting `rowmajor_product()`, `pprint_time()`, `with_output_capture()` and `build_run_options()` anymore, since they are only used in self-tests.
 * ADDED: `@testcase` and `@testgroup` macros.
+* ADDED: progress reporting is now more suitable for long group and testcase names.
 * FIXED: output capture problems in Julia 0.6 on Windows.
 
 

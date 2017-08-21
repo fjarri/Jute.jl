@@ -7,8 +7,6 @@ Testcase type.
 struct Testcase
     name :: String
     "Remembered creation order, used for test execution."
-    order :: Int
-    "Testcase function"
     func
     "Testcase parameters"
     parameters :: Array{Fixture, 1}
@@ -46,12 +44,9 @@ see [run options](@ref run_options_manual) for details.
 Returns a [`Testcase`](@ref) object.
 """
 function testcase(func, name::String, params...; tags::Array{Symbol, 1}=Symbol[])
-    # gensym() helps preserve the order of definition of testcases in a single file
-    # A bit hacky, but we need an integer, since "9" > "10".
-    order = parse(Int, string(gensym())[3:end])
     params = collect(map(normalize_fixture, params))
     deps = union(map(dependencies, params)..., global_fixtures(params))
-    Testcase(name, order, func, params, deps, Set(tags))
+    Testcase(name, func, params, deps, Set(tags))
 end
 
 

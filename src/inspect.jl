@@ -47,71 +47,39 @@ function get_runtests_dir()
 end
 
 
-struct GroupPath
+struct TestcaseInfo
     path :: Array{String, 1}
-end
-
-
-struct TestcasePath
-    group :: GroupPath
     name :: String
-    creation_order :: Int
     tags :: Set{Symbol}
 end
 
 
-GroupPath() = GroupPath([])
+path_pair(tcinfo::TestcaseInfo) = tcinfo.path, tcinfo.name
 
 
-Base.show(io::IO, gpath::GroupPath) = print(io, join(map(string, gpath.path), "/"))
-function Base.show(io::IO, tcpath::TestcasePath)
-    if !isroot(tcpath.group)
-        show(io, tcpath.group)
-        print(io, "/")
-    end
-    print(io, tcpath.name)
-end
+path_string(tcinfo::TestcaseInfo) = join([tcinfo.path; tcinfo.name], "/")
 
 
-join_group_path(gpath::GroupPath, name::String) = GroupPath([gpath.path; name])
-
-
-isroot(gpath::GroupPath) = isempty(gpath.path)
-
-
-function Base.isless(gpath1::GroupPath, gpath2::GroupPath)
-    p1 = gpath1.path
-    p2 = gpath2.path
-    if length(p1) != length(p2)
-        isless(length(p1), length(p2))
+function tag_string(tcinfo::TestcaseInfo, labels)
+    fixtures_tag = join(labels, ",")
+    if length(labels) > 0
+        tcinfo.name * "[" * fixtures_tag * "]"
     else
-        isless(tuple(p1...), tuple(p2...))
-    end
-end
-function Base.isless(tcpath1::TestcasePath, tcpath2::TestcasePath)
-    if tcpath1.group != tcpath2.group
-        isless(tcpath1.group, tcpath2.group)
-    else
-        isless(tcpath1.creation_order, tcpath2.creation_order)
+        tcinfo.name
     end
 end
 
 
-group_path(tcpath::TestcasePath) = tcpath.group
-
-
-function _get_testcases(obj_dict, parent_path=GroupPath())
+function _get_testcases(obj_dict, parent_path=String[])
     testcases = []
 
     for obj in obj_dict
         if isa(obj, TestGroup)
-            group_testcases = _get_testcases(
-                get_testcases(obj),
-                join_group_path(parent_path, obj.name))
+            group_testcases = _get_testcases(get_testcases(obj), [parent_path; obj.name])
             append!(testcases, group_testcases)
         elseif isa(obj, Testcase)
-            path = TestcasePath(parent_path, obj.name, obj.order, obj.tags)
-            push!(testcases, path => obj)
+            tcinfo = TestcaseInfo(parent_path, obj.name, obj.tags)
+            push!(testcases, tcinfo => obj)
         end
     end
 

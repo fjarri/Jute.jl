@@ -27,56 +27,74 @@ result_show(::BT.Error, ::Verbosity{1}) = "E"
 result_show(::BT.Error, ::Verbosity{2}) = "ERROR"
 
 
-function build_full_tag(tcpath::TestcasePath, labels)
-    tc_name = string(tcpath)
-    fixtures_tag = join(labels, ",")
-    if length(labels) > 0
-        tc_name * "[" * fixtures_tag * "]"
-    else
-        tc_name
-    end
-end
-
-
 mutable struct ProgressReporter
     verbosity :: Int
     just_started :: Bool
-    current_group :: GroupPath
+    current_group :: Array{String, 1}
 end
 
 
-function progress_reporter(tcpaths, verbosity)
-    ProgressReporter(verbosity, true, GroupPath())
+function progress_reporter(tcinfos, verbosity)
+    ProgressReporter(verbosity, true, String[])
 end
 
 
-function progress_start_testcases!(progress::ProgressReporter, tcpath::TestcasePath, fixtures_num)
-    if progress.verbosity == 1
-        tc_group = group_path(tcpath)
-        if tc_group != progress.current_group
-            if !progress.just_started
-                println()
-            end
-            if !isroot(tc_group)
-                print(string(tc_group), ": ")
-            end
-            progress.current_group = tc_group
+function common_elems_num(l1, l2)
+    res = 0
+    for i in 1:min(length(l1), length(l2))
+        if l1[i] != l2[i]
+            return res
         end
-        progress.just_started = false
+        res = i
     end
+    return res
 end
 
 
-function progress_start_testcase!(progress::ProgressReporter, tcpath::TestcasePath, labels)
+function progress_start_testcases!(progress::ProgressReporter, tcinfo::TestcaseInfo, fixtures_num)
+    path, name = path_pair(tcinfo)
+    verbosity = progress.verbosity
+
+    if verbosity > 0 && path != progress.current_group
+
+        if verbosity == 1 && !progress.just_started
+            println()
+        end
+
+        if length(path) > 0
+            cn = common_elems_num(progress.current_group, path)
+            for i in cn+1:length(path)
+                print("  " ^ (i - 1), path[i], verbosity == 1 ? ":" : "/")
+                if verbosity == 1
+                    if i != length(path)
+                        print("\n")
+                    else
+                        print(" ")
+                    end
+                elseif verbosity == 2
+                    print("\n")
+                end
+            end
+        end
+
+        progress.current_group = path
+    end
+
+    progress.just_started = false
+end
+
+
+function progress_start_testcase!(progress::ProgressReporter, tcinfo::TestcaseInfo, labels)
     if progress.verbosity >= 2
-        full_tag = build_full_tag(tcpath, labels)
-        print("$full_tag ")
+        tctag = tag_string(tcinfo, labels)
+        path, name = path_pair(tcinfo)
+        print("  " ^ length(path), tctag, " ")
     end
 end
 
 
 function progress_finish_testcase!(
-        progress::ProgressReporter, tcpath::TestcasePath, labels, outcome)
+        progress::ProgressReporter, tcinfo::TestcaseInfo, labels, outcome)
 
     verbosity = progress.verbosity
     if verbosity == 1
@@ -101,7 +119,7 @@ function progress_finish_testcase!(
 end
 
 
-function progress_finish_testcases!(progress::ProgressReporter, tcpath::TestcasePath)
+function progress_finish_testcases!(progress::ProgressReporter, tcinfo::TestcaseInfo)
 
 end
 
@@ -120,7 +138,7 @@ function progress_finish!(progress::ProgressReporter, outcomes)
 
     full_time = toq()
 
-    outcome_objs = [outcome for (tcpath, labels, outcome) in outcomes]
+    outcome_objs = [outcome for (tcinfo, labels, outcome) in outcomes]
 
     all_results = mapreduce(outcome -> outcome.results, vcat, [], outcome_objs)
     num_results = Dict(
@@ -147,10 +165,10 @@ function progress_finish!(progress::ProgressReporter, outcomes)
             "in $full_time_str (total test time $full_test_time_str)")
     end
 
-    for (tcpath, labels, outcome) in outcomes
+    for (tcinfo, labels, outcome) in outcomes
         if is_failed(outcome)
             println("=" ^ 80)
-            println(build_full_tag(tcpath, labels))
+            println(tag_string(tcinfo, labels))
 
             if length(outcome.output) > 0
                 println("Captured output:")
