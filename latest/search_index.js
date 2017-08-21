@@ -21,7 +21,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "A quick example",
     "category": "section",
-    "text": "Directory structure:test/\n    foo.test.jl # tests are here\n    runtests.jl # the entry pointruntests.jl:using Jute\nexit(runtests())foo.test.jl:using Jute\n\n# constant fixture - any iterable\nfx1 = 1:3\n\n# global fixture - the setup/teardown function is run once\nfx2 = fixture() do produce\n    x = 1\n    y = 2\n    produce([x, y], [\"random1\", \"random2\"]) # must produce a list of values\nend\n\n# local fixture - the setup/teardown function is run for each testcase\n# and each value produced by `fx2`\nfx3 = local_fixture(fx2) do produce, x\n    produce(x + 1) # must produce a single value\nend\n\n# testcase - will be picked up automatically\n# and run for all the combinations of fixture values\ntc = testcase(fx1, fx2, fx3) do x, y, z\n    @test x + y == 2\n    @test x + y + z == z + y + x\nend"
+    "text": "Directory structure:test/\n    foo.test.jl # tests are here\n    runtests.jl # the entry pointruntests.jl:using Jute\nexit(runtests())foo.test.jl:using Jute\n\n# constant fixture - any iterable\nfx1 = 1:3\n\n# global fixture - the setup/teardown function is run once\nfx2 = fixture() do produce\n    x = 1\n    y = 2\n    produce([x, y], [\"random1\", \"random2\"]) # must produce a list of values\nend\n\n# local fixture - the setup/teardown function is run for each testcase\n# and each value produced by `fx2`\nfx3 = local_fixture(fx2) do produce, x\n    produce(x + 1) # must produce a single value\nend\n\n# testcase - will be picked up automatically\n# and run for all the combinations of fixture values\n@testcase \"tc\" for x in fx1, y in fx2, z in fx3\n    @test x + y == 2\n    @test x + y + z == z + y + x\nend"
 },
 
 {
@@ -101,7 +101,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Manual",
     "title": "Testcase tags",
     "category": "section",
-    "text": "warning: Warning\nTagging implementation is a work in progress for testcase macros.Testcases can be assigned tags of the type Symbol. This can be used to establish a secondary grouping, independent of the primary grouping provided by modules. For example, one can tag performance tests, tests that run for a long time, unit/integration tests, tests that require a specific resource and so on. Testcases can be filtered by tags they have or don't have using command-line arguments.The tagging is performed by the function tag() that takes a Symbol and returns a function that tags a testcase:tc = tag(:foo)(testcase() do\n    ... something\nend)It is convenient to use the <| operator:tc =\n    tag(:foo) <|\n    testcase() do\n        ... something\n    endA tag can be removed from a testcase using untag. Note that tagging and untagging commands are applied from inner to outer, so, for example, the following codetc =\n    tag(:foo) <|\n    untag(:bar) <|\n    untag(:foo) <|\n    tag(:bar) <|\n    testcase() do\n        ... something\n    endwill leave tc with the tag :foo, but without the tag :bar."
+    "text": "Testcases can be assigned tags of the type Symbol. This can be used to establish a secondary grouping, independent of the primary grouping provided by modules. For example, one can tag performance tests, tests that run for a long time, unit/integration tests, tests that require a specific resource and so on. Testcases can be filtered by tags they have or don't have using command-line arguments.The tagging is performed by an optional paramter tag to the macro @testcase that takes a list of Symbols:@testcase tags=[:foo] \"tc\" begin\n    ... something\nend)"
 },
 
 {
@@ -157,7 +157,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public API",
     "title": "Jute.@testcase",
     "category": "Macro",
-    "text": "@testcase [option=val ...] <name> begin ... end\n@testcase [option=val ...] <name> for x in fx1, y in fx2 ... end\n\nCreate a testcase object and add it to the current test group. Equivalent to\n\nregister_testobj(testcase(<name>; option=val, ...) do ... end)\nregister_testobj(testcase(<name>, fx1, fx2; option=val, ...) do x, y ... end)\n\n\n\n"
+    "text": "@testcase [option=val ...] <name> begin ... end\n@testcase [option=val ...] <name> for x in fx1, y in fx2 ... end\n\nCreate a testcase object and add it to the current test group.\n\n\n\n"
 },
 
 {
@@ -166,14 +166,6 @@ var documenterSearchIndex = {"docs": [
     "title": "Jute.@testgroup",
     "category": "Macro",
     "text": "@testgroup <name> begin ... end\n\nCreate a test group. The body can contain other @testgroup or @testcase declarations.\n\n\n\n"
-},
-
-{
-    "location": "public.html#Jute.testcase",
-    "page": "Public API",
-    "title": "Jute.testcase",
-    "category": "Function",
-    "text": "testcase(func, params...; tags=[])\n\nDefine a testcase.\n\nfunc is a testcase function. The number of function parameters must be equal to the number of parametrizing fixtures given in params. This function will be called with all combinations of values of fixtures from params.\n\nparams are either fixtures, iterables or pairs of two iterables used to parametrize the function. In the latter case, the first iterable will be used to produce the values, and the second one to produce the corresponding labels (for logging).\n\ntags is an array of Symbols. Testcases can be filtered in or out by tags, see run options for details.\n\nReturns a Testcase object.\n\n\n\n"
 },
 
 {
@@ -197,7 +189,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public API",
     "title": "Testcases and fixtures",
     "category": "section",
-    "text": "@testcase\n@testgroup\ntestcasefixturelocal_fixture"
+    "text": "@testcase\n@testgroup\nfixture\nlocal_fixture"
 },
 
 {
@@ -249,14 +241,6 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "public.html#Testcase-tags-1",
-    "page": "Public API",
-    "title": "Testcase tags",
-    "category": "section",
-    "text": "tag\nuntag\n<|"
-},
-
-{
     "location": "public.html#Jute.temporary_dir",
     "page": "Public API",
     "title": "Jute.temporary_dir",
@@ -278,38 +262,6 @@ var documenterSearchIndex = {"docs": [
     "title": "Built-in fixtures",
     "category": "section",
     "text": "temporary_dir\nrun_options"
-},
-
-{
-    "location": "public.html#Jute.rowmajor_product",
-    "page": "Public API",
-    "title": "Jute.rowmajor_product",
-    "category": "Function",
-    "text": "rowmajor_product(xss...)\n\nIterate over all combinations in the cartesian product of the inputs. Similar to IterTools.product(), but iterates in row-major order (that is, the first iterator is iterated the slowest).\n\n\n\n"
-},
-
-{
-    "location": "public.html#Jute.pprint_time",
-    "page": "Public API",
-    "title": "Jute.pprint_time",
-    "category": "Function",
-    "text": "pprint_time(s; meaningful_digits=0)\n\nReturns a string that represents a given time (in seconds) as a value scaled to the appropriate unit (minutes, hours, milliseconds etc) and rounded to a given number of meaningful digits (if it is smaller than a minute). If the latter is 0, the result is rounded to an integer at all times.\n\n\n\n"
-},
-
-{
-    "location": "public.html#Jute.with_output_capture",
-    "page": "Public API",
-    "title": "Jute.with_output_capture",
-    "category": "Function",
-    "text": "with_output_capture(func, pass_through=false)\n\nExecute the callable func and capture its output (both STDOUT and STDERR) in a string. Returns a tuple of the func's return value and its output. If pass_through is true, does not capture anything and returns an empty string instead of the output.\n\n\n\n"
-},
-
-{
-    "location": "public.html#Utilities-1",
-    "page": "Public API",
-    "title": "Utilities",
-    "category": "section",
-    "text": "rowmajor_product\npprint_time\nwith_output_capture"
 },
 
 {
@@ -373,7 +325,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Version history",
     "title": "v0.1.0 (current development version)",
     "category": "section",
-    "text": "CHANGED: testcase groups are no longer defined by modules; @testgroup or testgroup() should be used instead. Consequently, the option :test_module_prefix was removed.\nADDED: @testcase and @testgroup macros.\nFIXED: output capture problems in Julia 0.6 on Windows."
+    "text": "CHANGED: testcase groups are no longer defined by modules; @testgroup or testgroup() should be used instead. Consequently, the option :test_module_prefix was removed.\nCHANGED: testcases must be defined via the @testgroup macro instead of the testcase() function.\nCHANGED: not exporting rowmajor_product(), pprint_time(), with_output_capture() and build_run_options() anymore, since they are only used in self-tests.\nADDED: @testcase and @testgroup macros.\nADDED: progress reporting is now more suitable for long group and testcase names.\nFIXED: output capture problems in Julia 0.6 on Windows."
 },
 
 {
