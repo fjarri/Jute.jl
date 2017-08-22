@@ -211,7 +211,7 @@ The tagging is performed by an optional paramter `tag` to the macro [`@testcase`
 ```julia
 @testcase tags=[:foo] "tc" begin
     ... something
-end)
+end
 ```
 
 
