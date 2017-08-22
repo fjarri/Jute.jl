@@ -101,7 +101,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Manual",
     "title": "Testcase tags",
     "category": "section",
-    "text": "Testcases can be assigned tags of the type Symbol. This can be used to establish a secondary grouping, independent of the primary grouping provided by modules. For example, one can tag performance tests, tests that run for a long time, unit/integration tests, tests that require a specific resource and so on. Testcases can be filtered by tags they have or don't have using command-line arguments.The tagging is performed by an optional paramter tag to the macro @testcase that takes a list of Symbols:@testcase tags=[:foo] \"tc\" begin\n    ... something\nend)"
+    "text": "Testcases can be assigned tags of the type Symbol. This can be used to establish a secondary grouping, independent of the primary grouping provided by modules. For example, one can tag performance tests, tests that run for a long time, unit/integration tests, tests that require a specific resource and so on. Testcases can be filtered by tags they have or don't have using command-line arguments.The tagging is performed by an optional paramter tag to the macro @testcase that takes a list of Symbols:@testcase tags=[:foo] \"tc\" begin\n    ... something\nend"
 },
 
 {
@@ -233,11 +233,19 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "public.html#Jute.@test_fail",
+    "page": "Public API",
+    "title": "Jute.@test_fail",
+    "category": "Macro",
+    "text": "@test_fail descr\n\nReport a fail, providing an additional description (must be convertable to String). The description will be displayed in the final report at the end of the test run.\n\n\n\n"
+},
+
+{
     "location": "public.html#Assertions-1",
     "page": "Public API",
     "title": "Assertions",
     "category": "section",
-    "text": "The following assertions are re-exported from Base.Test and can be used inside Jute testcases.@test\n@test_throws\n@test_broken\n@test_skipThis is an additional assertion, allowing one to record an arbitrary value as a test result.@test_result"
+    "text": "The following assertions are re-exported from Base.Test and can be used inside Jute testcases.@test\n@test_throws\n@test_broken\n@test_skipJute adds several assertions of its own.@test_result\n@test_fail"
 },
 
 {
@@ -325,7 +333,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Version history",
     "title": "v0.1.0 (current development version)",
     "category": "section",
-    "text": "CHANGED: testcase groups are no longer defined by modules; @testgroup or testgroup() should be used instead. Consequently, the option :test_module_prefix was removed.\nCHANGED: testcases must be defined via the @testgroup macro instead of the testcase() function.\nCHANGED: not exporting rowmajor_product(), pprint_time(), with_output_capture() and build_run_options() anymore, since they are only used in self-tests.\nADDED: @testcase and @testgroup macros.\nADDED: progress reporting is now more suitable for long group and testcase names.\nFIXED: output capture problems in Julia 0.6 on Windows."
+    "text": "CHANGED: testcase groups are no longer defined by modules; @testgroup or testgroup() should be used instead. Consequently, the option :test_module_prefix was removed.\nCHANGED: testcases must be defined via the @testgroup macro instead of the testcase() function.\nCHANGED: not exporting rowmajor_product(), pprint_time(), with_output_capture() and build_run_options() anymore, since they are only used in self-tests.\nADDED: @testcase and @testgroup macros.\nADDED: progress reporting is now more suitable for long group and testcase names.\nADDED: @test_fail macro for providing a custom description to a fail.\nFIXED: output capture problems in Julia 0.6 on Windows."
 },
 
 {
