@@ -20,6 +20,24 @@ macro test_result(expr)
 end
 
 
+struct FailExplanation <: BT.Result
+    description :: String
+end
+
+
+"""
+    @test_fail descr
+
+Report a fail, providing an additional description (must be convertable to `String`).
+The description will be displayed in the final report at the end of the test run.
+"""
+macro test_fail(descr)
+    quote
+        BT.record(BT.get_testset(), FailExplanation($(esc(descr))))
+    end
+end
+
+
 struct TestcaseOutcome
     results :: Array{BT.Result, 1}
     elapsed_time :: Float64
@@ -30,6 +48,7 @@ end
 is_failed(::Any) = false
 is_failed(::BT.Fail) = true
 is_failed(::BT.Error) = true
+is_failed(::FailExplanation) = true
 is_failed(outcome::TestcaseOutcome) = any(map(is_failed, outcome.results))
 
 

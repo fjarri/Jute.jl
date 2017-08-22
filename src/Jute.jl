@@ -24,6 +24,7 @@ export @test_throws
 export @test_broken
 export @test_skip
 export @test_result
+export @test_fail
 
 include("reporting.jl")
 

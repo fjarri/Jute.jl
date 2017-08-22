@@ -102,7 +102,7 @@ end
          Got correct result, please change to @test if no longer broken.
     """
 
-    @test match_text(template, output)
+    test_match_text(template, output)
 end
 
 
@@ -139,7 +139,7 @@ end
          Got correct result, please change to @test if no longer broken.
     """
 
-    @test match_text(template, output)
+    test_match_text(template, output)
 end
 
 
@@ -184,7 +184,7 @@ end
          Got correct result, please change to @test if no longer broken.
     """
 
-    @test match_text(template, output)
+    test_match_text(template, output)
 end
 
 
@@ -208,7 +208,7 @@ end
         8 tests passed, 0 failed, 0 errored in <<<full_time>>> (total test time <<<test_time>>>)
     """
 
-    @test match_text(template, output)
+    test_match_text(template, output)
 end
 
 
@@ -238,7 +238,7 @@ end
         8 tests passed, 0 failed, 0 errored in <<<full_time>>> (total test time <<<test_time>>>)
     """
 
-    @test match_text(template, output)
+    test_match_text(template, output)
 end
 
 
@@ -271,7 +271,7 @@ end
            Evaluated: 1 == 2
     """
 
-    @test match_text(template, output)
+    test_match_text(template, output)
 end
 
 

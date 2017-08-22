@@ -29,10 +29,11 @@ The following assertions are re-exported from [`Base.Test`](https://docs.juliala
 @test_skip
 ```
 
-This is an additional assertion, allowing one to record an arbitrary value as a test result.
+`Jute` adds several assertions of its own.
 
 ```@docs
 @test_result
+@test_fail
 ```
 
 

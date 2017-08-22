@@ -4,7 +4,7 @@ using Jute
 
 export nested_run
 export nested_run_with_output
-export match_text
+export test_match_text
 
 
 strip_colors(s) = replace(s, r"\e\[\d+m", "")
@@ -50,7 +50,7 @@ end
 
 # FIXME: when the "fail description" functionality is available,
 # we need to use it here, so that the match fails are reported as fails and not errors.
-function match_text(template, text)
+function test_match_text(template, text)
     text_lines = split(strip(text), "\n")
     template_lines = split(normalize_template(template), "\n")
 
@@ -65,12 +65,14 @@ function match_text(template, text)
         if text_i > length(text_lines) && template_i > length(template_lines)
             break
         elseif text_i > length(text_lines)
-            error("Exhausted text")
+            @test_fail "Exhausted the text"
+            return
         elseif template_i > length(template_lines)
             if skipping_multiline
                 break
             end
-            error("Exhausted template")
+            @test_fail "Exhausted the template"
+            return
         end
 
         text_line = text_lines[text_i]
@@ -84,7 +86,10 @@ function match_text(template, text)
             s = replace(s, r_variable, s"(?<\1>.*)")
             if !ismatch(Regex(s), text_line)
                 if !skipping_multiline
-                    error("Failed to match line\n$text_line\nwith\n$s")
+                    @test_fail (
+                        "Failed to match the text line $text_i\n  $text_line\n" *
+                        "with the template line $template_i\n  $template_line")
+                    return
                 else
                     text_i += 1
                 end
@@ -95,8 +100,6 @@ function match_text(template, text)
             end
         end
     end
-
-    true
 end
 
 

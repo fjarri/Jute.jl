@@ -11,6 +11,7 @@ result_color(::BT.Fail, ::Any) = :red
 result_color(::BT.Error, ::Any) = :yellow
 result_color(::BT.Broken, ::Verbosity{2}) = :green
 result_color(::ReturnValue, ::Verbosity{2}) = :blue
+result_color(::FailExplanation, ::Any) = :red
 
 
 result_show(::BT.Pass, ::Verbosity{1}) = "."
@@ -25,6 +26,15 @@ result_show(::BT.Fail, ::Verbosity{1}) = "F"
 result_show(::BT.Fail, ::Verbosity{2}) = "FAIL"
 result_show(::BT.Error, ::Verbosity{1}) = "E"
 result_show(::BT.Error, ::Verbosity{2}) = "ERROR"
+result_show(::FailExplanation, ::Verbosity{1}) = "F"
+result_show(::FailExplanation, ::Verbosity{2}) = "FAIL"
+
+
+function Base.show(io::IO, fe::FailExplanation)
+    print_with_color(:red, io, "Test Failed\n"; bold=true)
+    descr = replace(fe.description, r"^"m, "  ")
+    print(io, descr)
+end
 
 
 mutable struct ProgressReporter
