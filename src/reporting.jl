@@ -168,7 +168,7 @@ function progress_finish!(progress::ProgressReporter, outcomes)
     for (tcinfo, labels, outcome) in outcomes
         if is_failed(outcome)
             println("=" ^ 80)
-            println(tag_string(tcinfo, labels))
+            println(tag_string(tcinfo, labels; full=true))
 
             if length(outcome.output) > 0
                 println("Captured output:")
