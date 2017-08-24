@@ -225,6 +225,30 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "public.html#Base.Test.@inferred",
+    "page": "Public API",
+    "title": "Base.Test.@inferred",
+    "category": "Macro",
+    "text": "@inferred f(x)\n\nTests that the call expression f(x) returns a value of the same type inferred by the compiler. It is useful to check for type stability.\n\nf(x) can be any call expression. Returns the result of f(x) if the types match, and an Error Result if it finds different types.\n\njulia> using Base.Test\n\njulia> f(a,b,c) = b > 1 ? 1 : 1.0\nf (generic function with 1 method)\n\njulia> typeof(f(1,2,3))\nInt64\n\njulia> @code_warntype f(1,2,3)\nVariables:\n  #self#::#f\n  a::Int64\n  b::Int64\n  c::Int64\n\nBody:\n  begin\n      unless (Base.slt_int)(1, b::Int64)::Bool goto 3\n      return 1\n      3:\n      return 1.0\n  end::UNION{FLOAT64, INT64}\n\njulia> @inferred f(1,2,3)\nERROR: return type Int64 does not match inferred return type Union{Float64, Int64}\nStacktrace:\n [1] error(::String) at ./error.jl:33\n\njulia> @inferred max(1,2)\n2\n\n\n\n"
+},
+
+{
+    "location": "public.html#Base.Test.@test_warn",
+    "page": "Public API",
+    "title": "Base.Test.@test_warn",
+    "category": "Macro",
+    "text": "@test_warn msg expr\n\nTest whether evaluating expr results in STDERR output that contains the msg string or matches the msg regular expression.  If msg is a boolean function, tests whether msg(output) returns true.  If msg is a tuple or array, checks that the error output contains/matches each item in msg. Returns the result of evaluating expr.\n\nSee also @test_nowarn to check for the absence of error output.\n\n\n\n"
+},
+
+{
+    "location": "public.html#Base.Test.@test_nowarn",
+    "page": "Public API",
+    "title": "Base.Test.@test_nowarn",
+    "category": "Macro",
+    "text": "@test_nowarn expr\n\nTest whether evaluating expr results in empty STDERR output (no warnings or other messages).  Returns the result of evaluating expr.\n\n\n\n"
+},
+
+{
     "location": "public.html#Jute.@test_result",
     "page": "Public API",
     "title": "Jute.@test_result",
@@ -245,7 +269,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public API",
     "title": "Assertions",
     "category": "section",
-    "text": "The following assertions are re-exported from Base.Test and can be used inside Jute testcases.@test\n@test_throws\n@test_broken\n@test_skipJute adds several assertions of its own.@test_result\n@test_fail"
+    "text": "The following assertions are re-exported from Base.Test and can be used inside Jute testcases.@test\n@test_throws\n@test_broken\n@test_skip\n@inferred\n@test_warn\n@test_nowarnJute adds several assertions of its own.@test_result\n@test_fail"
 },
 
 {
@@ -333,7 +357,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Version history",
     "title": "v0.1.0 (current development version)",
     "category": "section",
-    "text": "CHANGED: testcase groups are no longer defined by modules; @testgroup or testgroup() should be used instead. Consequently, the option :test_module_prefix was removed.\nCHANGED: testcases must be defined via the @testgroup macro instead of the testcase() function.\nCHANGED: not exporting rowmajor_product(), pprint_time(), with_output_capture() and build_run_options() anymore, since they are only used in self-tests.\nADDED: @testcase and @testgroup macros.\nADDED: progress reporting is now more suitable for long group and testcase names.\nADDED: @test_fail macro for providing a custom description to a fail.\nFIXED: output capture problems in Julia 0.6 on Windows."
+    "text": "CHANGED: testcase groups are no longer defined by modules; @testgroup or testgroup() should be used instead. Consequently, the option :test_module_prefix was removed.\nCHANGED: testcases must be defined via the @testgroup macro instead of the testcase() function.\nCHANGED: not exporting rowmajor_product(), pprint_time(), with_output_capture() and build_run_options() anymore, since they are only used in self-tests.\nADDED: @testcase and @testgroup macros.\nADDED: progress reporting is now more suitable for long group and testcase names.\nADDED: @test_fail macro for providing a custom description to a fail.\nADDED: re-exporting Base.Test's @inferred, @test_warn and @test_nowarn.\nFIXED: output capture problems in Julia 0.6 on Windows."
 },
 
 {
