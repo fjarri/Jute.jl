@@ -1,4 +1,4 @@
-using Base.Test: @test, @test_throws, @test_broken, @test_skip
+using Base.Test: @test, @test_throws, @test_broken, @test_skip, @test_warn, @test_nowarn, @inferred
 const BT = Base.Test
 
 

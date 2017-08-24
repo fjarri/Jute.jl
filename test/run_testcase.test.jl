@@ -117,6 +117,50 @@ end
 end
 
 
+@testcase "@inferred" begin
+
+    f(a,b,c) = b > 1 ? 1 : 1.0
+
+    results = get_results() do
+        @inferred f(1,2,3)
+    end
+
+    @test length(results) == 1
+    @test isa(results[1], Jute.BT.Error)
+
+    results = get_results() do
+        @inferred max(1, 2)
+    end
+
+    @test length(results) == 1
+    @test isa(results[1], Jute.BT.Pass)
+end
+
+
+@testcase "@test_warn" begin
+    results = get_results() do
+        @test_warn "warn" warn("warn")
+        @test_warn "warn" warn("foo")
+    end
+
+    @test length(results) == 2
+    @test isa(results[1], Jute.BT.Pass)
+    @test isa(results[2], Jute.BT.Fail)
+end
+
+
+@testcase "@test_nowarn" begin
+    results = get_results() do
+        @test_nowarn warn("warn")
+        @test_nowarn print("info")
+    end
+
+    @test length(results) == 2
+    @test isa(results[1], Jute.BT.Fail)
+    @test isa(results[2], Jute.BT.Pass)
+end
+
+
 @testcase "is_failed()" begin
     outcome = get_outcome() do
         @test 1 == 1

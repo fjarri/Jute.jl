@@ -27,6 +27,9 @@ The following assertions are re-exported from [`Base.Test`](https://docs.juliala
 @test_throws
 @test_broken
 @test_skip
+@inferred
+@test_warn
+@test_nowarn
 ```
 
 `Jute` adds several assertions of its own.
