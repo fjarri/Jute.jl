@@ -54,6 +54,10 @@ TESTCASES = Jute.collect_testobjs() do
 
     @testcase "with fixtures" for x in [1], y in [2]
     end
+
+    @testcase "test_fail" begin
+        @test_fail "Failure explanation"
+    end
 end
 
 
@@ -100,6 +104,11 @@ end
          Unexpected Pass
          Expression: 1 == 1
          Got correct result, please change to @test if no longer broken.
+
+        ================================================================================
+        test_fail
+        Test Failed
+          Failure explanation
     """
 
     test_match_text(template, output)
@@ -112,13 +121,13 @@ end
 
     template = """
         Collecting testcases...
-        Running 9 out of 9 testcases...
+        Running 10 out of 10 testcases...
         ================================================================================
         Platform: Julia <<<julia_version>>>, Jute <<<jute_version>>>
         --------------------------------------------------------------------------------
-        ....*.F..E....B..B..E..
+        ....*.F..E....B..B..E..F
         --------------------------------------------------------------------------------
-        18 tests passed, 1 failed, 2 errored in <<<full_time>>> (total test time <<<test_time>>>)
+        18 tests passed, 2 failed, 2 errored in <<<full_time>>> (total test time <<<test_time>>>)
         ================================================================================
         multiple tests and one failure
         Test Failed
@@ -137,6 +146,11 @@ end
          Unexpected Pass
          Expression: 1 == 1
          Got correct result, please change to @test if no longer broken.
+
+        ================================================================================
+        test_fail
+        Test Failed
+          Failure explanation
     """
 
     test_match_text(template, output)
@@ -149,7 +163,7 @@ end
 
     template = """
         Collecting testcases...
-        Running 9 out of 9 testcases...
+        Running 10 out of 10 testcases...
         ================================================================================
         Platform: Julia <<<julia_version>>>, Jute <<<jute_version>>>
         --------------------------------------------------------------------------------
@@ -162,8 +176,9 @@ end
         expected failure (<<<time>>>) [PASS] [BROKEN] [PASS]
         unexpected pass (<<<time>>>) [PASS] [ERROR] [PASS]
         with fixtures[1,2] (<<<time>>>) [PASS]
+        test_fail (<<<time>>>) [FAIL]
         --------------------------------------------------------------------------------
-        18 tests passed, 1 failed, 2 errored in <<<full_time>>> (total test time <<<test_time>>>)
+        18 tests passed, 2 failed, 2 errored in <<<full_time>>> (total test time <<<test_time>>>)
         ================================================================================
         multiple tests and one failure
         Test Failed
@@ -182,6 +197,11 @@ end
          Unexpected Pass
          Expression: 1 == 1
          Got correct result, please change to @test if no longer broken.
+
+        ================================================================================
+        test_fail
+        Test Failed
+          Failure explanation
     """
 
     test_match_text(template, output)
