@@ -154,7 +154,9 @@ function progress_finish!(progress::ProgressReporter, outcomes)
     num_results = Dict(
         key => length(filter(result -> isa(result, tp), all_results))
         for (key, tp) in [
-            (:pass, Union{BT.Pass, ReturnValue}), (:fail, BT.Fail), (:error, BT.Error)])
+            (:pass, Union{BT.Pass, ReturnValue, BT.Broken}),
+            (:fail, Union{BT.Fail, FailExplanation}),
+            (:error, BT.Error)])
 
     all_success = (num_results[:fail] + num_results[:error] == 0)
 
