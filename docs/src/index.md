@@ -35,16 +35,16 @@ using Jute
 fx1 = 1:3
 
 # global fixture - the setup/teardown function is run once
-fx2 = fixture() do produce
-    x = 1
-    y = 2
-    produce([x, y], ["random1", "random2"]) # must produce a list of values
+# for every produced value
+fx2 = fixture(fx1) do produce, x
+    # the optional second argument defines a custom label for the value
+    produce(x, "value $x")
 end
 
 # local fixture - the setup/teardown function is run for each testcase
 # and each value produced by `fx2`
 fx3 = local_fixture(fx2) do produce, x
-    produce(x + 1) # must produce a single value
+    produce(x + 1)
 end
 
 # testcase - will be picked up automatically

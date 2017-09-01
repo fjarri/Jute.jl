@@ -92,7 +92,7 @@ function fixture(producer, params...; name=nothing, instant_teardown=false)
     params = collect(map(normalize_fixture, params))
     # TODO: check that it does not depend on any local fixtures
     deps = union(map(dependencies, params)..., global_fixtures(params))
-    ff = fixture_factory(producer; instant_teardown=instant_teardown, returns_iterable=true)
+    ff = fixture_factory(producer; instant_teardown=instant_teardown)
     GlobalFixture(name, ff, params, deps)
 end
 
@@ -144,7 +144,7 @@ function local_fixture(producer, params...; name=nothing)
 
     params = collect(map(normalize_fixture, params))
     deps = union(map(dependencies, params)..., global_fixtures(params))
-    ff = fixture_factory(producer; instant_teardown=false, returns_iterable=false)
+    ff = fixture_factory(producer; instant_teardown=false)
     LocalFixture(name, ff, params, deps)
 end
 

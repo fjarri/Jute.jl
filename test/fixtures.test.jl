@@ -8,7 +8,7 @@ using DataStructures
 end
 
 fx_with_run_options = fixture(run_options) do produce, ro
-    produce([ro[:verbosity]])
+    produce(ro[:verbosity])
 end
 
 @testcase "testcase with a fixture with run_options" for v in fx_with_run_options

@@ -118,12 +118,12 @@ end
 ### Global fixtures
 
 A global fixture is a more sophisticated variant of a constant fixture that has a setup and a teardown stage.
-For each global fixture, the setup is called before the first testcase that uses it.
+For each value produced by the global fixture, the setup is called before the first testcase that uses it.
 As for the teardown, it is either called right away (if the keyword parameter `instant_teardown` is `true`), or after the last testcase that uses it (if `instant_teardown` is `false`, which is the default).
 If no testcases use it (for example, they were filtered out), neither setup nor teardown will be called.
 
-The setup and the teardown are defined by use of a single coroutine that produces the fixture iterable.
-The coroutine's first argument is a function that is used to return the fixture values.
+The setup and the teardown are defined by use of a single coroutine that produces the fixture value.
+The coroutine's first argument is a function that is used to return the value.
 If `instant_teardown` is `false`, the call blocks until it is time to execute the teardown:
 
 ```julia
@@ -131,14 +131,12 @@ db_connection = fixture() do produce
     c = db_connect()
 
     # this call blocks until all the testcases
-    # that use the fixture are executed
-    produce([c])
+    # that use this value are executed
+    produce(c)
 
     close(c)
 end
 ```
-
-Note that a global fixture must produce **the whole iterable** in one go.
 
 Similarly to the constant fixture case, one can provide a custom identifier for the fixture via the optional second argument of `produce()`:
 
@@ -146,24 +144,22 @@ Similarly to the constant fixture case, one can provide a custom identifier for 
 db_connection = fixture() do produce
     c = db_connect()
 
-    # this call blocks until all the testcases
-    # that use the fixture are executed
-    produce([c], ["db_connection"])
+    produce(c, "db_connection")
 
     close(c)
 end
 ```
 
 Global fixtures can be parametrized by other constant or global fixtures.
-Similarly to the test parametrization, all possible combinations of parameters will be used to produce iterables, which will be chained together:
+Similarly to the test parametrization, all possible combinations of parameters will be used to produce values:
 
 ```julia
-fx1 = fixture() do produce
-    produce(3:4)
+fx1 = fixture(3:4) do produce, x
+    produce(x)
 end
 
 fx2 = fixture(1:2, fx1) do produce, x, y
-    produce([(x, y)])
+    produce((x, y))
 end
 
 @testcase "tc" for x in fx2
@@ -195,7 +191,6 @@ end
 end
 ```
 
-Note that, unlike a global fixture, a local fixture only produces **one value**.
 Local fixtures can be parametrized by any other type of fixture, including other local fixtures.
 
 

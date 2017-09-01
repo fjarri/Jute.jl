@@ -6,26 +6,24 @@ using TestUtils
 constant_fixture1 = 1:2
 constant_fixture2 = ["a", "b"]
 
-global_fixture1_setup = false
-global_fixture1_torndown = false
+global_fixture1_setup = []
+global_fixture1_torndown = []
 global_fixture1_vals = [10, 20]
-global_fixture1 = fixture() do produce
-    @assert !global_fixture1_setup
-    global_fixture1_setup = true
-    produce(global_fixture1_vals)
-    global_fixture1_setup = false
-    global_fixture1_torndown = true
+global_fixture1 = fixture(global_fixture1_vals) do produce, val
+    @assert !(val in global_fixture1_setup)
+    push!(global_fixture1_setup, val)
+    produce(val)
+    push!(global_fixture1_torndown, val)
 end
 
-global_fixture2_setup = false
-global_fixture2_torndown = false
+global_fixture2_setup = []
+global_fixture2_torndown = []
 global_fixture2_vals = ["x", "y"]
-global_fixture2 = fixture() do produce
-    @assert !global_fixture2_setup
-    global_fixture2_setup = true
-    produce(global_fixture2_vals)
-    global_fixture2_setup = false
-    global_fixture2_torndown = true
+global_fixture2 = fixture(global_fixture2_vals) do produce, val
+    @assert !(val in global_fixture2_setup)
+    push!(global_fixture2_setup, val)
+    produce(val)
+    push!(global_fixture2_torndown, val)
 end
 
 
@@ -46,12 +44,12 @@ end
 g1_results = []
 
 @testcase "check g1 setup" begin
-    @test !global_fixture1_setup
-    @test !global_fixture1_torndown
+    @test global_fixture1_setup == []
+    @test global_fixture1_torndown == []
 end
 
 @testcase "g1" for x1 in global_fixture1
-    @test global_fixture1_setup
+    @test global_fixture1_setup == global_fixture1_vals
     push!(g1_results, x1)
 end
 
@@ -60,8 +58,7 @@ end
 end
 
 @testcase "check g1 is still there" begin
-    @test global_fixture1_setup
-    @test !global_fixture1_torndown
+    @test global_fixture1_torndown == []
 end
 
 
@@ -70,24 +67,22 @@ end
 g12_results = []
 
 @testcase "check g2 setup" begin
-    @test !global_fixture2_setup
-    @test !global_fixture2_torndown
+    @test global_fixture2_setup == []
+    @test global_fixture2_torndown == []
 end
 
 @testcase "g12" for x1 in global_fixture1, x2 in global_fixture2
-    @test global_fixture1_setup
-    @test global_fixture2_setup
+    @test global_fixture1_setup == global_fixture1_vals
+    @test global_fixture2_setup == global_fixture2_vals
     push!(g12_results, (x1, x2))
 end
 
 @testcase "check g1 destroyed" begin
-    @test !global_fixture1_setup
-    @test global_fixture1_torndown
+    @test global_fixture1_torndown == global_fixture1_vals
 end
 
 @testcase "check g2 is still there" begin
-    @test global_fixture2_setup
-    @test !global_fixture2_torndown
+    @test global_fixture2_torndown == []
 end
 
 @testcase "check g12" begin
@@ -99,7 +94,7 @@ end
 g2_results = []
 
 @testcase "g2" for x2 in global_fixture2
-    @test global_fixture2_setup
+    @test global_fixture2_setup == global_fixture2_vals
     push!(g2_results, x2)
 end
 
@@ -108,8 +103,7 @@ end
 end
 
 @testcase "check g2 is destroyed" begin
-    @test !global_fixture2_setup
-    @test global_fixture2_torndown
+    @test global_fixture2_torndown == global_fixture2_vals
 end
 
 
@@ -124,28 +118,26 @@ combine_ab(a, b) = a * b
 combine_ac(a, c) = a * c
 combine_bc(b, c) = b * "+" * c
 
-gf_as = fixture() do produce
-    @assert gfs_state["a"] == 0
-    gfs_state["a"] = 1
-    produce(as)
-    @assert gfs_state["a"] == 1
-    gfs_state["a"] = 0
+gf_as = fixture(as) do produce, a
+    gfs_state["a"] += 1
+    produce(a)
+    gfs_state["a"] -= 1
 end
 
-gf_bs = fixture(gf_as) do produce, a
-    total_values = 2
+gf_bs = fixture(gf_as, bs) do produce, a, b
+    total_values = 4
     @assert gfs_state["b"] >= 0 && gfs_state["b"] <= total_values - 1
     gfs_state["b"] += 1
-    produce([combine_ab(a, b) for b in bs])
+    produce(combine_ab(a, b))
     @assert gfs_state["b"] >= 1 && gfs_state["b"] <= total_values
     gfs_state["b"] -= 1
 end
 
-gf_cs = fixture(gf_as) do produce, a
-    total_values = 2
+gf_cs = fixture(gf_as, cs) do produce, a, c
+    total_values = 4
     @assert gfs_state["c"] >= 0 && gfs_state["c"] <= total_values - 1
     gfs_state["c"] += 1
-    produce([combine_ac(a, c) for c in cs])
+    produce(combine_ac(a, c))
     @assert gfs_state["c"] >= 1 && gfs_state["c"] <= total_values
     gfs_state["c"] -= 1
 end
@@ -154,7 +146,7 @@ gf_ds = fixture(gf_bs, gf_cs) do produce, b, c
     total_values = 16
     @assert gfs_state["d"] >= 0 && gfs_state["d"] <= total_values - 1
     gfs_state["d"] += 1
-    produce([combine_bc(b, c)])
+    produce(combine_bc(b, c))
     @assert gfs_state["d"] >= 1 && gfs_state["d"] <= total_values
     gfs_state["d"] -= 1
 end
@@ -199,10 +191,10 @@ end
 
 lf_sequence2 = []
 
-gf_for_lf = fixture() do produce
-    push!(lf_sequence2, "gf setup")
-    produce([1, 2])
-    push!(lf_sequence2, "gf teardown")
+gf_for_lf = fixture([1, 2]) do produce, val
+    push!(lf_sequence2, "gf setup $val")
+    produce(val)
+    push!(lf_sequence2, "gf teardown $val")
 end
 
 lf_nodeps = local_fixture() do produce
@@ -223,7 +215,8 @@ end
 
 @testcase "lf deps check" begin
     lf_sequence_ref = []
-    push!(lf_sequence_ref, "gf setup")
+    push!(lf_sequence_ref, "gf setup 1")
+    push!(lf_sequence_ref, "gf setup 2")
     for i in 3:4
         for gf in 1:2
             push!(lf_sequence_ref, "lf_nodeps setup")
@@ -235,7 +228,8 @@ end
             push!(lf_sequence_ref, "lf_nodeps teardown")
         end
     end
-    push!(lf_sequence_ref, "gf teardown")
+    push!(lf_sequence_ref, "gf teardown 1")
+    push!(lf_sequence_ref, "gf teardown 2")
 
     @test lf_sequence2 == lf_sequence_ref
 end

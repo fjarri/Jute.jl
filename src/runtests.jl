@@ -55,9 +55,9 @@ function instantiate_global(global_fixtures, fx::GlobalFixture)
     all_lvals = LabeledValue[]
     for lvals in rowmajor_product(iterables...)
         args = map(unwrap_value, lvals)
-        iterable, rff = setup(fx, args)
+        lval, rff = setup(fx, args)
 
-        append!(all_lvals, iterable)
+        push!(all_lvals, lval)
         if instant_teardown(rff)
             teardown(rff)
         else

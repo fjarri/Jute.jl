@@ -34,21 +34,10 @@ unwrap_value(lval::LabeledValue) = lval.value
 unwrap_label(lval::LabeledValue) = lval.label
 
 
-function fixture_factory(producer_func; instant_teardown=false, returns_iterable=false)
+function fixture_factory(producer_func; instant_teardown=false)
     channel_func = function(c, args)
         produce = function(value, label=nothing)
-            if returns_iterable
-                if label === nothing
-                    ret = map(labeled_value, value)
-                else
-                    ret = map(labeled_value, value, label)
-                end
-            else
-                ret = labeled_value(value, label)
-            end
-
-            put!(c, ret)
-
+            put!(c, labeled_value(value, label))
             if !instant_teardown
                 # block until the caller's signal
                 take!(c)
