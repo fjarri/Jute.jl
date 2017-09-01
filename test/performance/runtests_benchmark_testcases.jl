@@ -1,7 +1,7 @@
 using Jute
 
-f1 = fixture() do produce
-    produce(1:3)
+f1 = fixture(1:3) do produce, x
+    produce(x)
 end
 
 f2 = local_fixture() do produce
