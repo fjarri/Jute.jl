@@ -152,7 +152,7 @@ end
 @testcase "@test_nowarn" begin
     results = get_results() do
         @test_nowarn warn("warn")
-        @test_nowarn print("info")
+        @test_nowarn sin(1.0)
     end
 
     @test length(results) == 2
