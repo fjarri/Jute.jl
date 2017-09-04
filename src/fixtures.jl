@@ -43,7 +43,7 @@ function constant_fixture(vals, labels=nothing)
         labeled_vals = map(labeled_value, c_vals, c_labels)
     end
 
-    ConstantFixture(gensym("constant"), labeled_vals)
+    ConstantFixture(String(gensym("constant")), labeled_vals)
 end
 
 
@@ -82,7 +82,7 @@ Returns a [`GlobalFixture`](@ref) object.
 """
 function fixture(producer, params...; name=nothing, instant_teardown=false)
     if name === nothing
-        name = gensym("fixture")
+        name = String(gensym("fixture"))
     end
 
     if !is_callable(producer)
@@ -135,7 +135,7 @@ Returns a [`LocalFixture`](@ref) object.
 """
 function local_fixture(producer, params...; name=nothing)
     if name === nothing
-        name = string(gensym("local_fixture"))
+        name = String(gensym("local_fixture"))
     end
 
     if !is_callable(producer)
