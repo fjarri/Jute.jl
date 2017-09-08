@@ -3,7 +3,7 @@
 
 ## v0.1.0 (current development version)
 
-* **CHANGED**: testcase groups are no longer defined by modules; `@testgroup` or `testgroup()` should be used instead. Consequently, the option `:test_module_prefix` was removed.
+* **CHANGED**: testcase groups are no longer defined by modules; `@testgroup` should be used instead. Consequently, the option `:test_module_prefix` was removed.
 * **CHANGED**: testcases must be defined via the `@testgroup` macro instead of the `testcase()` function.
 * **CHANGED**: similarly, fixtures are defined with `@fixture` and `@local_fixture` macros. `fixture()` and `local_fixture()` are no longer exported.
 * **CHANGED**: not exporting `rowmajor_product()`, `pprint_time()`, `with_output_capture()` and `build_run_options()` anymore, since they are only used in self-tests.
