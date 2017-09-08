@@ -1,11 +1,11 @@
 using Jute
 
-f1 = fixture(1:3) do produce, x
-    produce(x)
+f1 = @fixture for x in 1:3
+    @produce x
 end
 
-f2 = local_fixture() do produce
-    produce(1)
+f2 = @local_fixture begin
+    @produce 1
 end
 
 f3 = [1, 2, 3]

@@ -9,12 +9,15 @@ include("options.jl")
 include("fixture_factory.jl")
 
 include("fixtures.jl")
-export fixture
-export local_fixture
 
 include("testcases.jl")
+
+include("macros.jl")
 export @testcase
 export @testgroup
+export @fixture
+export @local_fixture
+export @produce
 
 include("inspect.jl")
 

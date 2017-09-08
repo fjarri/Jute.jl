@@ -9,20 +9,20 @@ constant_fixture2 = ["a", "b"]
 global_fixture1_setup = []
 global_fixture1_torndown = []
 global_fixture1_vals = [10, 20]
-global_fixture1 = fixture(global_fixture1_vals) do produce, val
+global_fixture1 = @fixture for val in global_fixture1_vals
     @assert !(val in global_fixture1_setup)
     push!(global_fixture1_setup, val)
-    produce(val)
+    @produce val
     push!(global_fixture1_torndown, val)
 end
 
 global_fixture2_setup = []
 global_fixture2_torndown = []
 global_fixture2_vals = ["x", "y"]
-global_fixture2 = fixture(global_fixture2_vals) do produce, val
+global_fixture2 = @fixture for val in global_fixture2_vals
     @assert !(val in global_fixture2_setup)
     push!(global_fixture2_setup, val)
-    produce(val)
+    @produce val
     push!(global_fixture2_torndown, val)
 end
 
@@ -118,35 +118,35 @@ combine_ab(a, b) = a * b
 combine_ac(a, c) = a * c
 combine_bc(b, c) = b * "+" * c
 
-gf_as = fixture(as) do produce, a
+gf_as = @fixture for a in as
     gfs_state["a"] += 1
-    produce(a)
+    @produce a
     gfs_state["a"] -= 1
 end
 
-gf_bs = fixture(gf_as, bs) do produce, a, b
+gf_bs = @fixture for a in gf_as, b in bs
     total_values = 4
     @assert gfs_state["b"] >= 0 && gfs_state["b"] <= total_values - 1
     gfs_state["b"] += 1
-    produce(combine_ab(a, b))
+    @produce combine_ab(a, b)
     @assert gfs_state["b"] >= 1 && gfs_state["b"] <= total_values
     gfs_state["b"] -= 1
 end
 
-gf_cs = fixture(gf_as, cs) do produce, a, c
+gf_cs = @fixture for a in gf_as, c in cs
     total_values = 4
     @assert gfs_state["c"] >= 0 && gfs_state["c"] <= total_values - 1
     gfs_state["c"] += 1
-    produce(combine_ac(a, c))
+    @produce combine_ac(a, c)
     @assert gfs_state["c"] >= 1 && gfs_state["c"] <= total_values
     gfs_state["c"] -= 1
 end
 
-gf_ds = fixture(gf_bs, gf_cs) do produce, b, c
+gf_ds = @fixture for b in gf_bs, c in gf_cs
     total_values = 16
     @assert gfs_state["d"] >= 0 && gfs_state["d"] <= total_values - 1
     gfs_state["d"] += 1
-    produce(combine_bc(b, c))
+    @produce combine_bc(b, c)
     @assert gfs_state["d"] >= 1 && gfs_state["d"] <= total_values
     gfs_state["d"] -= 1
 end
@@ -174,9 +174,9 @@ end
 
 lf_sequence = []
 
-lf_nodeps = local_fixture() do produce
+lf_nodeps = @local_fixture begin
     push!(lf_sequence, "setup")
-    produce(1)
+    @produce 1
     push!(lf_sequence, "teardown")
 end
 
@@ -191,21 +191,21 @@ end
 
 lf_sequence2 = []
 
-gf_for_lf = fixture([1, 2]) do produce, val
+gf_for_lf = @fixture for val in [1, 2]
     push!(lf_sequence2, "gf setup $val")
-    produce(val)
+    @produce val
     push!(lf_sequence2, "gf teardown $val")
 end
 
-lf_nodeps = local_fixture() do produce
+lf_nodeps = @local_fixture begin
     push!(lf_sequence2, "lf_nodeps setup")
-    produce("a")
+    @produce "a"
     push!(lf_sequence2, "lf_nodeps teardown")
 end
 
-lf_deps = local_fixture(lf_nodeps, 3:4, gf_for_lf) do produce, x, y, z
+lf_deps = @local_fixture for x in lf_nodeps, y in 3:4, z in gf_for_lf
     push!(lf_sequence2, "lf_deps $x $y $z setup")
-    produce((x, y, z))
+    @produce (x, y, z)
     push!(lf_sequence2, "lf_deps $x $y $z teardown")
 end
 
@@ -244,8 +244,8 @@ end
     tc1_executed = false
     tc3_executed = false
 
-    gfx = fixture() do produce
-        produce([1])
+    gfx = @fixture begin
+        @produce 1
         teardown_called = true
     end
 
@@ -277,8 +277,8 @@ end
     teardown_called = false
     tc1_executed = false
 
-    gfx = fixture(instant_teardown=true) do produce
-        produce([1])
+    gfx = @fixture instant_teardown=true begin
+        @produce 1
         teardown_called = true
     end
 

@@ -7,8 +7,8 @@ using DataStructures
     @test haskey(ro, :verbosity)
 end
 
-fx_with_run_options = fixture(run_options) do produce, ro
-    produce(ro[:verbosity])
+fx_with_run_options = @fixture for ro in run_options
+    @produce ro[:verbosity]
 end
 
 @testcase "testcase with a fixture with run_options" for v in fx_with_run_options
@@ -41,18 +41,18 @@ end
 
 
 @testcase "global fixture checks for callable" begin
-    @test_throws ErrorException fixture(1)
+    @test_throws ErrorException Jute.fixture(1)
 end
 
 
 @testcase "local fixture checks for callable" begin
-    @test_throws ErrorException local_fixture(1)
+    @test_throws ErrorException Jute.local_fixture(1)
 end
 
 
 @testcase "constant fixture from a pair" begin
-    fx = fixture([1, 2] => ["one", "two"]) do produce, x
-        produce(x)
+    fx = @fixture for x in ([1, 2] => ["one", "two"])
+        @produce x
     end
     constant_fx = Jute.parameters(fx)[1]
     @test Jute.setup(constant_fx) == map(Jute.labeled_value, [1, 2], ["one", "two"])
@@ -60,24 +60,24 @@ end
 
 
 @testcase "fixture dependencies" begin
-    fx1 = fixture() do produce
-        produce([1])
+    fx1 = @fixture begin
+        @produce 1
     end
 
-    fx2 = fixture(fx1) do produce, x
-        produce([x])
+    fx2 = @fixture for x in fx1
+        @produce x
     end
 
-    fx3 = fixture(fx1) do produce, x
-        produce([x])
+    fx3 = @fixture for x in fx1
+        @produce x
     end
 
-    fx4 = local_fixture(fx3, fx2) do produce, x, y
-        produce(x + y)
+    fx4 = @local_fixture for x in fx3, y in fx2
+        @produce x + y
     end
 
-    fx5 = fixture(fx3, fx2) do produce, x, y
-        produce([x + y])
+    fx5 = @fixture for x in fx3, y in fx2
+        @produce x + y
     end
 
     @test Jute.dependencies(fx4) == OrderedSet([fx1, fx3, fx2])

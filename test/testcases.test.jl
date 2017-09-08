@@ -5,16 +5,16 @@ using DataStructures
 
 @testcase "testcase dependencies" begin
 
-    fx1 = fixture() do produce
-        produce([1])
+    fx1 = @fixture begin
+        @produce 1
     end
 
-    fx2 = fixture(fx1) do produce, x
-        produce([x])
+    fx2 = @fixture for x in fx1
+        @produce x
     end
 
-    fx3 = local_fixture(fx1) do produce, x
-        produce(x)
+    fx3 = @local_fixture for x in fx1
+        @produce x
     end
 
     tcs = Jute.collect_testobjs() do

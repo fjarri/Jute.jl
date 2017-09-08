@@ -1,0 +1,216 @@
+# Parse the iterator assignment expression from a for loop.
+# It is assumed to either have the form "x = <expr>" or "(x, y, z) = <expr>"
+# Returns the list of symbols from the left-hand-side and the expression from the right-hand side.
+function parse_iterator(it_expr)
+    @assert it_expr.head == :(=)
+    v_expr = it_expr.args[1]
+    fixture = it_expr.args[2]
+    if isa(v_expr, Expr)
+        @assert v_expr.head == :tuple
+        v = v_expr.args
+    else
+        v = [v_expr]
+    end
+    v, fixture
+end
+
+
+function build_tuple_unpacks(var_lists)
+    vars = []
+    unpacks = []
+    for var_list in var_lists
+        if length(var_list) == 1
+            push!(vars, var_list[1])
+        else
+            varname = gensym("tuple")
+            push!(vars, varname)
+            var_lst = map(esc, var_list)
+            push!(unpacks, :( ($(var_list...),) = $(esc(varname)) ))
+        end
+    end
+
+    vars, unpacks
+end
+
+
+# Parse the body of a fixture or a testcase.
+# This can be either a begin/end block, or a for loop
+function parse_body(body_expr)
+    if body_expr.head == :for
+        iterators = body_expr.args[1]
+        body = body_expr.args[2]
+        if iterators.head == :block
+            pairs = map(parse_iterator, iterators.args)
+            var_lists, fixtures = zip(pairs...)
+        else
+            v, f = parse_iterator(iterators)
+            fixtures = [f]
+            var_lists = [v]
+        end
+    elseif body_expr.head == :block
+        fixtures = []
+        var_lists = []
+        body = body_expr
+    else
+        error("Incorrect body expression of type $(body_expr.head)")
+    end
+
+    vars, unpacks = build_tuple_unpacks(var_lists)
+
+    body = esc(body)
+    fixtures = map(esc, fixtures)
+    vars = map(esc, vars)
+
+    vars, unpacks, fixtures, body
+end
+
+
+# Taken from Base.Test and simplified
+function parse_options(options_expr)
+    options = :(Dict{Symbol, Any}())
+    for arg in options_expr
+        if isa(arg, Expr) && arg.head == :(=)
+            # we're building up a Dict literal here
+            key = Expr(:quote, arg.args[1])
+            push!(options.args, Expr(:call, :(=>), key, esc(arg.args[2])))
+        else
+            error("Unexpected argument $arg to @testcase")
+        end
+    end
+    options
+end
+
+
+"""
+    @testcase [option=val ...] <name> begin ... end
+    @testcase [option=val ...] <name> for x in fx1, (y, z) in fx2 ... end
+
+Create a testcase object and add it to the current test group.
+
+Available options:
+
+`tags :: Array{Symbol, 1}`: a list of tags for the testcase.
+
+`single_process :: Bool`: if `true`, the testcase will be executed in the same process
+for all combinations of the fixture values.
+"""
+macro testcase(args...)
+
+    options_expr = args[1:end-2]
+    name = esc(args[end-1])
+    vars, unpacks, fixtures, body = parse_body(args[end])
+
+    if length(options_expr) > 0
+        options = parse_options(options_expr)
+        tc_call = quote
+            testcase($name, $(fixtures...); $options...) do $(vars...)
+                $(unpacks...)
+                $body
+            end
+        end
+    else
+        tc_call = quote
+            testcase($name, $(fixtures...)) do $(vars...)
+                $(unpacks...)
+                $body
+            end
+        end
+    end
+
+    :( register_testobj($tc_call) )
+end
+
+
+
+"""
+    @testgroup [option=val ...] <name> begin ... end
+
+Create a test group.
+The body can contain other [`@testgroup`](@ref) or [`@testcase`](@ref) declarations.
+
+Available options:
+
+`single_process :: Bool`: if `true`, the all the testcases and subgroups in this test group
+will be executed in the same process.
+"""
+macro testgroup(args...)
+
+    options_expr = args[1:end-2]
+    name = esc(args[end-1])
+    body = esc(args[end])
+
+    if length(options_expr) > 0
+        options = parse_options(options_expr)
+        tg_call = quote
+            testgroup($name; $options...) do
+                $body
+            end
+        end
+    else
+        tg_call = quote
+            testgroup($name) do
+                $body
+            end
+        end
+    end
+
+    :( register_testobj($tg_call) )
+end
+
+
+const PRODUCE_VAR = esc(gensym("produce"))
+
+
+function _fixture(islocal, args...)
+    options_expr = args[1:end-1]
+    vars, unpacks, fixtures, body = parse_body(args[end])
+
+    fxname = islocal ? :local_fixture : :fixture
+
+    if length(options_expr) > 0
+        options = parse_options(options_expr)
+        quote
+            $fxname($(fixtures...); $options...) do $PRODUCE_VAR, $(vars...)
+                $(unpacks...)
+                $body
+            end
+        end
+    else
+        res = quote
+            $fxname($(fixtures...)) do $PRODUCE_VAR, $(vars...)
+                $(unpacks...)
+                $body
+            end
+        end
+        res
+    end
+end
+
+
+"""
+    @fixture [option=val ...] <name> begin ... end
+    @fixture [option=val ...] <name> for x in fx1, y in fx2 ... end
+
+Create a testcase object and add it to the current test group.
+
+Available options:
+
+`tags :: Array{Symbol, 1}`: a list of tags for the testcase.
+
+`single_process :: Bool`: if `true`, the testcase will be executed in the same process
+for all combinations of the fixture values.
+"""
+macro fixture(args...)
+    _fixture(false, args...)
+end
+
+
+macro local_fixture(args...)
+    _fixture(true, args...)
+end
+
+
+macro produce(args...)
+    args = map(esc, args)
+    :( $PRODUCE_VAR($(args...)) )
+end

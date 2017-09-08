@@ -5,9 +5,11 @@
 
 * **CHANGED**: testcase groups are no longer defined by modules; `@testgroup` or `testgroup()` should be used instead. Consequently, the option `:test_module_prefix` was removed.
 * **CHANGED**: testcases must be defined via the `@testgroup` macro instead of the `testcase()` function.
+* **CHANGED**: similarly, fixtures are defined with `@fixture` and `@local_fixture` macros. `fixture()` and `local_fixture()` are no longer exported.
 * **CHANGED**: not exporting `rowmajor_product()`, `pprint_time()`, `with_output_capture()` and `build_run_options()` anymore, since they are only used in self-tests.
 * **CHANGED**: global fixtures now produce single values instead of whole lists, same as the local ones.
 * ADDED: `@testcase` and `@testgroup` macros.
+* ADDED: `@fixture` and `@local_fixture` macros.
 * ADDED: progress reporting is now more suitable for long group and testcase names.
 * ADDED: `@test_fail` macro for providing a custom description to a fail.
 * ADDED: re-exporting `Base.Test`'s `@inferred`, `@test_warn` and `@test_nowarn`.

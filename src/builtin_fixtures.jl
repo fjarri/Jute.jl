@@ -2,9 +2,9 @@
 A local fixture that creates a temporary directory and returns its name;
 the directory and all its contents is removed during the teardown.
 """
-const temporary_dir = local_fixture() do produce
+const temporary_dir = @local_fixture begin
     dir = mktempdir()
-    produce(dir)
+    @produce dir
     rm(dir, recursive=true)
 end
 
