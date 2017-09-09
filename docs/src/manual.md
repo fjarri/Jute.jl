@@ -28,8 +28,8 @@ end
 
 ## Assertions
 
-`Jute` relies on the assertions from [`Base.Test`](http://docs.julialang.org/en/latest/stdlib/test/); [`@test`](@ref Jute.@test), [`@test_throws`](@ref Jute.@test_throws), [`@test_skip`](@ref Jute.@test_skip) and [`@test_broken`](@ref Jute.@test_broken) can be used.
-In addition, `Jute` has a [`@test_result`](@ref Jute.@test_result) macro allowing one to return a custom result (e.g. the value of a benchmark from a testcase).
+`Jute` relies on the assertions from [`Base.Test`](http://docs.julialang.org/en/latest/stdlib/test/); [`@test`](@ref Jute.@test), [`@test_throws`](@ref Jute.@test_throws), [`@test_skip`](@ref Jute.@test_skip), [`@test_broken`](@ref Jute.@test_broken), [`@inferred`](@ref Jute.@inferred), [`@test_warn`](@ref Jute.@test_warn) and [`@test_nowarn`](@ref Jute.@test_nowarn) can be used.
+In addition, `Jute` has a [`@test_result`](@ref Jute.@test_result) macro allowing one to return a custom result (e.g. the value of a benchmark from a testcase), and a [`@test_fail`](@ref Jute.@test_fail) macro for providing custom information with a fail.
 There can be several assertions per testcase; their results will be reported separately.
 If the testcase does not call any assertions and does not throw any exceptions, it is considered to be passed.
 
