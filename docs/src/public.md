@@ -13,8 +13,9 @@ runtests
 ```@docs
 @testcase
 @testgroup
-fixture
-local_fixture
+@global_fixture
+@local_fixture
+@produce
 ```
 
 

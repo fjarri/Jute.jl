@@ -114,12 +114,26 @@ end
 # parametrized testcase[2, 4]: [PASS]
 ```
 
+Iterable unpacking is also supported:
+
+```julia
+@testcase "parametrized testcase" for (x, y) in [(1, 2), (3, 4)]
+    @test x + y == y + x
+end
+
+# Output:
+# parametrized testcase[(1, 2)]: [PASS]
+# parametrized testcase[(3, 4)]: [PASS]
+```
+
+Note that the label still refers to the full element of the iterable.
+
 
 ### Global fixtures
 
 A global fixture is a more sophisticated variant of a constant fixture that has a setup and a teardown stage.
 For each value produced by the global fixture, the setup is called before the first testcase that uses it.
-As for the teardown, it is either called right away (if the keyword parameter `instant_teardown` is `true`), or after the last testcase that uses it (if `instant_teardown` is `false`, which is the default).
+As for the teardown, it is either called right away (if the option `instant_teardown` is `true`), or after the last testcase that uses it (if `instant_teardown` is `false`, which is the default).
 If no testcases use it (for example, they were filtered out), neither setup nor teardown will be called.
 
 The setup and the teardown are defined by use of a single coroutine that produces the fixture value.
@@ -127,24 +141,24 @@ The coroutine's first argument is a function that is used to return the value.
 If `instant_teardown` is `false`, the call blocks until it is time to execute the teardown:
 
 ```julia
-db_connection = fixture() do produce
+db_connection = @global_fixture begin
     c = db_connect()
 
     # this call blocks until all the testcases
     # that use this value are executed
-    produce(c)
+    @produce c
 
     close(c)
 end
 ```
 
-Similarly to the constant fixture case, one can provide a custom identifier for the fixture via the optional second argument of `produce()`:
+Similarly to the constant fixture case, one can provide a custom identifier for the fixture via the optional second argument of [`@produce`](@ref Jute.@produce):
 
 ```julia
-db_connection = fixture() do produce
+db_connection = @global_fixture begin
     c = db_connect()
 
-    produce(c, "db_connection")
+    @produce c "db_connection"
 
     close(c)
 end
@@ -154,12 +168,12 @@ Global fixtures can be parametrized by other constant or global fixtures.
 Similarly to the test parametrization, all possible combinations of parameters will be used to produce values:
 
 ```julia
-fx1 = fixture(3:4) do produce, x
-    produce(x)
+fx1 = @global_fixture for x in 3:4
+    @produce x
 end
 
-fx2 = fixture(1:2, fx1) do produce, x, y
-    produce((x, y))
+fx2 = @global_fixture for x in 1:2, y in fx1
+    @produce (x, y)
 end
 
 @testcase "tc" for x in fx2
@@ -180,9 +194,9 @@ A local fixture is a fixture whose value is created right before each call to th
 A simple example is a fixture that provides a temporary directory:
 
 ```julia
-temporary_dir = local_fixture() do produce
+temporary_dir = @local_fixture begin
     dir = mktempdir()
-    produce(dir) # this call will block while the testcase is being executed
+    @produce dir # this call will block while the testcase is being executed
     rm(dir, recursive=true)
 end
 

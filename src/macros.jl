@@ -90,9 +90,6 @@ Create a testcase object and add it to the current test group.
 Available options:
 
 `tags :: Array{Symbol, 1}`: a list of tags for the testcase.
-
-`single_process :: Bool`: if `true`, the testcase will be executed in the same process
-for all combinations of the fixture values.
 """
 macro testcase(args...)
 
@@ -123,15 +120,10 @@ end
 
 
 """
-    @testgroup [option=val ...] <name> begin ... end
+    @testgroup <name> begin ... end
 
 Create a test group.
 The body can contain other [`@testgroup`](@ref) or [`@testcase`](@ref) declarations.
-
-Available options:
-
-`single_process :: Bool`: if `true`, the all the testcases and subgroups in this test group
-will be executed in the same process.
 """
 macro testgroup(args...)
 
@@ -189,27 +181,53 @@ end
 
 """
     @global_fixture [option=val ...] <name> begin ... end
-    @global_fixture [option=val ...] <name> for x in fx1, y in fx2 ... end
+    @global_fixture [option=val ...] <name> for x in fx1, (y, z) in fx2 ... end
 
-Create a testcase object and add it to the current test group.
+Create a global fixture (a fixture set up once before all
+the testcases that use it and torn down after they finish).
+
+The body must contain a single call to [`@produce`](@ref), producing a single value.
+
+The iterables in the `for` loop are either fixtures (constant of global only),
+iterable objects or pairs of two iterables used to parametrize the fixture.
 
 Available options:
 
-`tags :: Array{Symbol, 1}`: a list of tags for the testcase.
+`instant_teardown :: Bool`: if `true`, the part of the fixture body after the [`@produce`](@ref)
+will be executed immediately.
 
-`single_process :: Bool`: if `true`, the testcase will be executed in the same process
-for all combinations of the fixture values.
+Returns a [`GlobalFixture`](@ref) object.
 """
 macro global_fixture(args...)
     _fixture(false, args...)
 end
 
 
+"""
+    @local_fixture <name> begin ... end
+    @local_fixture <name> for x in fx1, (y, z) in fx2 ... end
+
+Create a local fixture (a fixture set up before each testcase
+that uses it and torn down afterwards).
+
+The body must contain a single call to [`@produce`](@ref), producing a single value.
+
+The iterables in the `for` loop are either fixtures (constant of global only),
+iterable objects or pairs of two iterables used to parametrize the fixture.
+
+Returns a [`LocalFixture`](@ref) object.
+"""
 macro local_fixture(args...)
     _fixture(true, args...)
 end
 
 
+"""
+    @produce <val> [<label>]
+
+Produce a fixture value (with an optional label).
+Must only be called inside the bodies of [`@local_fixture`](@ref) and [`@global_fixture`](@ref).
+"""
 macro produce(args...)
     args = map(esc, args)
     :( $PRODUCE_VAR($(args...)) )

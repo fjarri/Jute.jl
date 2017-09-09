@@ -64,22 +64,6 @@ function setup(fx::GlobalFixture, args)
 end
 
 
-"""
-    fixture(func, params...; instant_teardown=false)
-
-Create a global fixture (a fixture set up once before all
-the testcases that use it and torn down after they finish).
-
-`func` is a function with `length(params) + 1` parameters.
-The first parameter takes a function `produce(values[, labels])`
-that is used to return the fixture iterable (with an optional iterable of labels).
-The rest take the values of the dependent fixtures from `params`.
-
-`params` are either fixtures (constant of global only),
-iterables or pairs of two iterables used to parametrize the fixture.
-
-Returns a [`GlobalFixture`](@ref) object.
-"""
 function global_fixture(producer, params...; name=nothing, instant_teardown=false)
     if name === nothing
         name = String(gensym("fixture"))
@@ -117,22 +101,6 @@ struct LocalFixture <: Fixture
 end
 
 
-"""
-    local_fixture(func, params...)
-
-Create a local fixture (a fixture set up before each testcase
-that uses it and torn down afterwards).
-
-`func` is a function with `length(params) + 1` parameters.
-The first parameter takes a function `produce(value[, label])`
-that is used to return the fixture value (with an optional label).
-The rest take the values of the dependent fixtures from `params`.
-
-`params` are either fixtures (of any type), iterables or pairs of two iterables
-used to parametrize the fixture.
-
-Returns a [`LocalFixture`](@ref) object.
-"""
 function local_fixture(producer, params...; name=nothing)
     if name === nothing
         name = String(gensym("local_fixture"))
