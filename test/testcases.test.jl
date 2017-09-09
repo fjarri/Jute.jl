@@ -5,11 +5,11 @@ using DataStructures
 
 @testcase "testcase dependencies" begin
 
-    fx1 = @fixture begin
+    fx1 = @global_fixture begin
         @produce 1
     end
 
-    fx2 = @fixture for x in fx1
+    fx2 = @global_fixture for x in fx1
         @produce x
     end
 

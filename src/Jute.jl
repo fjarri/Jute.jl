@@ -15,7 +15,7 @@ include("testcases.jl")
 include("macros.jl")
 export @testcase
 export @testgroup
-export @fixture
+export @global_fixture
 export @local_fixture
 export @produce
 

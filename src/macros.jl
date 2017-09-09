@@ -165,7 +165,7 @@ function _fixture(islocal, args...)
     options_expr = args[1:end-1]
     vars, unpacks, fixtures, body = parse_body(args[end])
 
-    fxname = islocal ? :local_fixture : :fixture
+    fxname = islocal ? :local_fixture : :global_fixture
 
     if length(options_expr) > 0
         options = parse_options(options_expr)
@@ -188,8 +188,8 @@ end
 
 
 """
-    @fixture [option=val ...] <name> begin ... end
-    @fixture [option=val ...] <name> for x in fx1, y in fx2 ... end
+    @global_fixture [option=val ...] <name> begin ... end
+    @global_fixture [option=val ...] <name> for x in fx1, y in fx2 ... end
 
 Create a testcase object and add it to the current test group.
 
@@ -200,7 +200,7 @@ Available options:
 `single_process :: Bool`: if `true`, the testcase will be executed in the same process
 for all combinations of the fixture values.
 """
-macro fixture(args...)
+macro global_fixture(args...)
     _fixture(false, args...)
 end
 

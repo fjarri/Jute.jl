@@ -80,7 +80,7 @@ iterables or pairs of two iterables used to parametrize the fixture.
 
 Returns a [`GlobalFixture`](@ref) object.
 """
-function fixture(producer, params...; name=nothing, instant_teardown=false)
+function global_fixture(producer, params...; name=nothing, instant_teardown=false)
     if name === nothing
         name = String(gensym("fixture"))
     end

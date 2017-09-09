@@ -9,7 +9,7 @@ constant_fixture2 = ["a", "b"]
 global_fixture1_setup = []
 global_fixture1_torndown = []
 global_fixture1_vals = [10, 20]
-global_fixture1 = @fixture for val in global_fixture1_vals
+global_fixture1 = @global_fixture for val in global_fixture1_vals
     @assert !(val in global_fixture1_setup)
     push!(global_fixture1_setup, val)
     @produce val
@@ -19,7 +19,7 @@ end
 global_fixture2_setup = []
 global_fixture2_torndown = []
 global_fixture2_vals = ["x", "y"]
-global_fixture2 = @fixture for val in global_fixture2_vals
+global_fixture2 = @global_fixture for val in global_fixture2_vals
     @assert !(val in global_fixture2_setup)
     push!(global_fixture2_setup, val)
     @produce val
@@ -118,13 +118,13 @@ combine_ab(a, b) = a * b
 combine_ac(a, c) = a * c
 combine_bc(b, c) = b * "+" * c
 
-gf_as = @fixture for a in as
+gf_as = @global_fixture for a in as
     gfs_state["a"] += 1
     @produce a
     gfs_state["a"] -= 1
 end
 
-gf_bs = @fixture for a in gf_as, b in bs
+gf_bs = @global_fixture for a in gf_as, b in bs
     total_values = 4
     @assert gfs_state["b"] >= 0 && gfs_state["b"] <= total_values - 1
     gfs_state["b"] += 1
@@ -133,7 +133,7 @@ gf_bs = @fixture for a in gf_as, b in bs
     gfs_state["b"] -= 1
 end
 
-gf_cs = @fixture for a in gf_as, c in cs
+gf_cs = @global_fixture for a in gf_as, c in cs
     total_values = 4
     @assert gfs_state["c"] >= 0 && gfs_state["c"] <= total_values - 1
     gfs_state["c"] += 1
@@ -142,7 +142,7 @@ gf_cs = @fixture for a in gf_as, c in cs
     gfs_state["c"] -= 1
 end
 
-gf_ds = @fixture for b in gf_bs, c in gf_cs
+gf_ds = @global_fixture for b in gf_bs, c in gf_cs
     total_values = 16
     @assert gfs_state["d"] >= 0 && gfs_state["d"] <= total_values - 1
     gfs_state["d"] += 1
@@ -191,7 +191,7 @@ end
 
 lf_sequence2 = []
 
-gf_for_lf = @fixture for val in [1, 2]
+gf_for_lf = @global_fixture for val in [1, 2]
     push!(lf_sequence2, "gf setup $val")
     @produce val
     push!(lf_sequence2, "gf teardown $val")
@@ -244,7 +244,7 @@ end
     tc1_executed = false
     tc3_executed = false
 
-    gfx = @fixture begin
+    gfx = @global_fixture begin
         @produce 1
         teardown_called = true
     end
@@ -277,7 +277,7 @@ end
     teardown_called = false
     tc1_executed = false
 
-    gfx = @fixture instant_teardown=true begin
+    gfx = @global_fixture instant_teardown=true begin
         @produce 1
         teardown_called = true
     end

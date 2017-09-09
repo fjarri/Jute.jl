@@ -7,7 +7,7 @@ using DataStructures
     @test haskey(ro, :verbosity)
 end
 
-fx_with_run_options = @fixture for ro in run_options
+fx_with_run_options = @global_fixture for ro in run_options
     @produce ro[:verbosity]
 end
 
@@ -41,7 +41,7 @@ end
 
 
 @testcase "global fixture checks for callable" begin
-    @test_throws ErrorException Jute.fixture(1)
+    @test_throws ErrorException Jute.global_fixture(1)
 end
 
 
@@ -51,7 +51,7 @@ end
 
 
 @testcase "constant fixture from a pair" begin
-    fx = @fixture for x in ([1, 2] => ["one", "two"])
+    fx = @global_fixture for x in ([1, 2] => ["one", "two"])
         @produce x
     end
     constant_fx = Jute.parameters(fx)[1]
@@ -60,15 +60,15 @@ end
 
 
 @testcase "fixture dependencies" begin
-    fx1 = @fixture begin
+    fx1 = @global_fixture begin
         @produce 1
     end
 
-    fx2 = @fixture for x in fx1
+    fx2 = @global_fixture for x in fx1
         @produce x
     end
 
-    fx3 = @fixture for x in fx1
+    fx3 = @global_fixture for x in fx1
         @produce x
     end
 
@@ -76,7 +76,7 @@ end
         @produce x + y
     end
 
-    fx5 = @fixture for x in fx3, y in fx2
+    fx5 = @global_fixture for x in fx3, y in fx2
         @produce x + y
     end
 

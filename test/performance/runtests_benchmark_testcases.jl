@@ -1,6 +1,6 @@
 using Jute
 
-f1 = @fixture for x in 1:3
+f1 = @global_fixture for x in 1:3
     @produce x
 end
 
