@@ -100,7 +100,7 @@ end
 # parametrized testcase[three]: [FAIL]
 ```
 
-A testcase can use several fixtures, in which case `Jute` will run the testcase function will all possible combinations of them:
+A testcase can use several fixtures, in which case `Jute` will run the testcase function with all possible combinations of them:
 
 ```julia
 @testcase "parametrized testcase" for x in [1, 2], y in [3, 4]
