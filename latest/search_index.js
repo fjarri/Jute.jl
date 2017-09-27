@@ -21,7 +21,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "A quick example",
     "category": "section",
-    "text": "Directory structure:test/\n    foo.test.jl # tests are here\n    runtests.jl # the entry pointruntests.jl:using Jute\nexit(runtests())foo.test.jl:using Jute\n\n# constant fixture - any iterable\nfx1 = 1:3\n\n# global fixture - the setup/teardown function is run once\n# for every produced value\nfx2 = fixture(fx1) do produce, x\n    # the optional second argument defines a custom label for the value\n    produce(x, \"value $x\")\nend\n\n# local fixture - the setup/teardown function is run for each testcase\n# and each value produced by `fx2`\nfx3 = local_fixture(fx2) do produce, x\n    produce(x + 1)\nend\n\n# testcase - will be picked up automatically\n# and run for all the combinations of fixture values\n@testcase \"tc\" for x in fx1, y in fx2, z in fx3\n    @test x + y == 2\n    @test x + y + z == z + y + x\nend"
+    "text": "Directory structure:test/\n    foo.test.jl # tests are here\n    runtests.jl # the entry pointruntests.jl:using Jute\nexit(runtests())foo.test.jl:# constant fixture - any iterable\nfx1 = 1:3\n\n# global fixture - the setup/teardown function is run once\n# for every produced value\nfx2 = @global_fixture for x in fx1\n    # the optional second argument defines a custom label for the value\n    @produce x \"value $x\"\nend\n\n# local fixture - the setup/teardown function is run for each testcase\n# and each value produced by `fx2`\nfx3 = @local_fixture for x in fx2\n    @produce (x + 1)\nend\n\n# testcase - will be picked up automatically\n# and run for all the combinations of fixture values\n@testcase \"tc\" for x in fx1, y in fx2, z in fx3\n    @test x + y == 2\n    @test x + y + z == z + y + x\nend"
 },
 
 {
@@ -53,7 +53,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Manual",
     "title": "Assertions",
     "category": "section",
-    "text": "Jute relies on the assertions from Base.Test; @test, @test_throws, @test_skip and @test_broken can be used. In addition, Jute has a @test_result macro allowing one to return a custom result (e.g. the value of a benchmark from a testcase). There can be several assertions per testcase; their results will be reported separately. If the testcase does not call any assertions and does not throw any exceptions, it is considered to be passed."
+    "text": "Jute relies on the assertions from Base.Test; @test, @test_throws, @test_skip, @test_broken, @inferred, @test_warn and @test_nowarn can be used. In addition, Jute has a @test_result macro allowing one to return a custom result (e.g. the value of a benchmark from a testcase), and a @test_fail macro for providing custom information with a fail. There can be several assertions per testcase; their results will be reported separately. If the testcase does not call any assertions and does not throw any exceptions, it is considered to be passed."
 },
 
 {
@@ -77,7 +77,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Manual",
     "title": "Constant fixtures",
     "category": "section",
-    "text": "The simplest method to parametrize a test is to supply it with an iterable:@testcase \"parametrized testcase\" for x in [1, 2, 3]\n    @test x == 1\nend\n\n# Output:\n# parametrized testcase[1]: [PASS]\n# parametrized testcase[2]: [FAIL]\n# parametrized testcase[3]: [FAIL]By default, Jute uses string() to convert a fixture value to a string for reporting purposes. One can assign custom labels to fixtures by passing a Pair of iterables instead:@testcase \"parametrized testcase\" for x in [1, 2, 3] => [\"one\", \"two\", \"three\"]\n    @test x == 1\nend\n\n# Output:\n# parametrized testcase[one]: [PASS]\n# parametrized testcase[two]: [FAIL]\n# parametrized testcase[three]: [FAIL]A testcase can use several fixtures, in which case Jute will run the testcase function will all possible combinations of them:@testcase \"parametrized testcase\" for x in [1, 2], y in [3, 4]\n    @test x + y == y + x\nend\n\n# Output:\n# parametrized testcase[1, 3]: [PASS]\n# parametrized testcase[1, 4]: [PASS]\n# parametrized testcase[2, 3]: [PASS]\n# parametrized testcase[2, 4]: [PASS]"
+    "text": "The simplest method to parametrize a test is to supply it with an iterable:@testcase \"parametrized testcase\" for x in [1, 2, 3]\n    @test x == 1\nend\n\n# Output:\n# parametrized testcase[1]: [PASS]\n# parametrized testcase[2]: [FAIL]\n# parametrized testcase[3]: [FAIL]By default, Jute uses string() to convert a fixture value to a string for reporting purposes. One can assign custom labels to fixtures by passing a Pair of iterables instead:@testcase \"parametrized testcase\" for x in [1, 2, 3] => [\"one\", \"two\", \"three\"]\n    @test x == 1\nend\n\n# Output:\n# parametrized testcase[one]: [PASS]\n# parametrized testcase[two]: [FAIL]\n# parametrized testcase[three]: [FAIL]A testcase can use several fixtures, in which case Jute will run the testcase function with all possible combinations of them:@testcase \"parametrized testcase\" for x in [1, 2], y in [3, 4]\n    @test x + y == y + x\nend\n\n# Output:\n# parametrized testcase[1, 3]: [PASS]\n# parametrized testcase[1, 4]: [PASS]\n# parametrized testcase[2, 3]: [PASS]\n# parametrized testcase[2, 4]: [PASS]Iterable unpacking is also supported:@testcase \"parametrized testcase\" for (x, y) in [(1, 2), (3, 4)]\n    @test x + y == y + x\nend\n\n# Output:\n# parametrized testcase[(1, 2)]: [PASS]\n# parametrized testcase[(3, 4)]: [PASS]Note that the label still refers to the full element of the iterable."
 },
 
 {
@@ -85,7 +85,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Manual",
     "title": "Global fixtures",
     "category": "section",
-    "text": "A global fixture is a more sophisticated variant of a constant fixture that has a setup and a teardown stage. For each value produced by the global fixture, the setup is called before the first testcase that uses it. As for the teardown, it is either called right away (if the keyword parameter instant_teardown is true), or after the last testcase that uses it (if instant_teardown is false, which is the default). If no testcases use it (for example, they were filtered out), neither setup nor teardown will be called.The setup and the teardown are defined by use of a single coroutine that produces the fixture value. The coroutine's first argument is a function that is used to return the value. If instant_teardown is false, the call blocks until it is time to execute the teardown:db_connection = fixture() do produce\n    c = db_connect()\n\n    # this call blocks until all the testcases\n    # that use this value are executed\n    produce(c)\n\n    close(c)\nendSimilarly to the constant fixture case, one can provide a custom identifier for the fixture via the optional second argument of produce():db_connection = fixture() do produce\n    c = db_connect()\n\n    produce(c, \"db_connection\")\n\n    close(c)\nendGlobal fixtures can be parametrized by other constant or global fixtures. Similarly to the test parametrization, all possible combinations of parameters will be used to produce values:fx1 = fixture(3:4) do produce, x\n    produce(x)\nend\n\nfx2 = fixture(1:2, fx1) do produce, x, y\n    produce((x, y))\nend\n\n@testcase \"tc\" for x in fx2\n    @test length(x) == 2\nend\n\n# Output:\n# tc[(1, 3)]: [PASS]\n# tc[(1, 4)]: [PASS]\n# tc[(2, 3)]: [PASS]\n# tc[(2, 4)]: [PASS]"
+    "text": "A global fixture is a more sophisticated variant of a constant fixture that has a setup and a teardown stage. For each value produced by the global fixture, the setup is called before the first testcase that uses it. As for the teardown, it is either called right away (if the option instant_teardown is true), or after the last testcase that uses it (if instant_teardown is false, which is the default). If no testcases use it (for example, they were filtered out), neither setup nor teardown will be called.The setup and the teardown are defined by use of a single coroutine that produces the fixture value. The coroutine's first argument is a function that is used to return the value. If instant_teardown is false, the call blocks until it is time to execute the teardown:db_connection = @global_fixture begin\n    c = db_connect()\n\n    # this call blocks until all the testcases\n    # that use this value are executed\n    @produce c\n\n    close(c)\nendSimilarly to the constant fixture case, one can provide a custom identifier for the fixture via the optional second argument of @produce:db_connection = @global_fixture begin\n    c = db_connect()\n\n    @produce c \"db_connection\"\n\n    close(c)\nendGlobal fixtures can be parametrized by other constant or global fixtures. Similarly to the test parametrization, all possible combinations of parameters will be used to produce values:fx1 = @global_fixture for x in 3:4\n    @produce x\nend\n\nfx2 = @global_fixture for x in 1:2, y in fx1\n    @produce (x, y)\nend\n\n@testcase \"tc\" for x in fx2\n    @test length(x) == 2\nend\n\n# Output:\n# tc[(1, 3)]: [PASS]\n# tc[(1, 4)]: [PASS]\n# tc[(2, 3)]: [PASS]\n# tc[(2, 4)]: [PASS]"
 },
 
 {
@@ -93,7 +93,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Manual",
     "title": "Local fixtures",
     "category": "section",
-    "text": "A local fixture is a fixture whose value is created right before each call to the testcase function and destroyed afterwards. A simple example is a fixture that provides a temporary directory:temporary_dir = local_fixture() do produce\n    dir = mktempdir()\n    produce(dir) # this call will block while the testcase is being executed\n    rm(dir, recursive=true)\nend\n\n@testcase \"tempdir test\" for dir in temporary_dir\n    open(joinpath(dir, \"somefile\"), \"w\")\nendLocal fixtures can be parametrized by any other type of fixture, including other local fixtures."
+    "text": "A local fixture is a fixture whose value is created right before each call to the testcase function and destroyed afterwards. A simple example is a fixture that provides a temporary directory:temporary_dir = @local_fixture begin\n    dir = mktempdir()\n    @produce dir # this call will block while the testcase is being executed\n    rm(dir, recursive=true)\nend\n\n@testcase \"tempdir test\" for dir in temporary_dir\n    open(joinpath(dir, \"somefile\"), \"w\")\nendLocal fixtures can be parametrized by any other type of fixture, including other local fixtures."
 },
 
 {
@@ -157,7 +157,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public API",
     "title": "Jute.@testcase",
     "category": "Macro",
-    "text": "@testcase [option=val ...] <name> begin ... end\n@testcase [option=val ...] <name> for x in fx1, y in fx2 ... end\n\nCreate a testcase object and add it to the current test group.\n\nAvailable options:\n\ntags :: Array{Symbol, 1}: a list of tags for the testcase.\n\n\n\n"
+    "text": "@testcase [option=val ...] <name> begin ... end\n@testcase [option=val ...] <name> for x in fx1, (y, z) in fx2 ... end\n\nCreate a testcase object and add it to the current test group.\n\nAvailable options:\n\ntags :: Array{Symbol, 1}: a list of tags for the testcase.\n\n\n\n"
 },
 
 {
@@ -169,19 +169,27 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "public.html#Jute.fixture",
+    "location": "public.html#Jute.@global_fixture",
     "page": "Public API",
-    "title": "Jute.fixture",
-    "category": "Function",
-    "text": "fixture(func, params...; instant_teardown=false)\n\nCreate a global fixture (a fixture set up once before all the testcases that use it and torn down after they finish).\n\nfunc is a function with length(params) + 1 parameters. The first parameter takes a function produce(values[, labels]) that is used to return the fixture iterable (with an optional iterable of labels). The rest take the values of the dependent fixtures from params.\n\nparams are either fixtures (constant of global only), iterables or pairs of two iterables used to parametrize the fixture.\n\nReturns a GlobalFixture object.\n\n\n\n"
+    "title": "Jute.@global_fixture",
+    "category": "Macro",
+    "text": "@global_fixture [option=val ...] <name> begin ... end\n@global_fixture [option=val ...] <name> for x in fx1, (y, z) in fx2 ... end\n\nCreate a global fixture (a fixture set up once before all the testcases that use it and torn down after they finish).\n\nThe body must contain a single call to @produce, producing a single value.\n\nThe iterables in the for loop are either fixtures (constant of global only), iterable objects or pairs of two iterables used to parametrize the fixture.\n\nAvailable options:\n\ninstant_teardown :: Bool: if true, the part of the fixture body after the @produce will be executed immediately.\n\nReturns a GlobalFixture object.\n\n\n\n"
 },
 
 {
-    "location": "public.html#Jute.local_fixture",
+    "location": "public.html#Jute.@local_fixture",
     "page": "Public API",
-    "title": "Jute.local_fixture",
-    "category": "Function",
-    "text": "local_fixture(func, params...)\n\nCreate a local fixture (a fixture set up before each testcase that uses it and torn down afterwards).\n\nfunc is a function with length(params) + 1 parameters. The first parameter takes a function produce(value[, label]) that is used to return the fixture value (with an optional label). The rest take the values of the dependent fixtures from params.\n\nparams are either fixtures (of any type), iterables or pairs of two iterables used to parametrize the fixture.\n\nReturns a LocalFixture object.\n\n\n\n"
+    "title": "Jute.@local_fixture",
+    "category": "Macro",
+    "text": "@local_fixture <name> begin ... end\n@local_fixture <name> for x in fx1, (y, z) in fx2 ... end\n\nCreate a local fixture (a fixture set up before each testcase that uses it and torn down afterwards).\n\nThe body must contain a single call to @produce, producing a single value.\n\nThe iterables in the for loop are either fixtures (constant of global only), iterable objects or pairs of two iterables used to parametrize the fixture.\n\nReturns a LocalFixture object.\n\n\n\n"
+},
+
+{
+    "location": "public.html#Jute.@produce",
+    "page": "Public API",
+    "title": "Jute.@produce",
+    "category": "Macro",
+    "text": "@produce <val> [<label>]\n\nProduce a fixture value (with an optional label). Must only be called inside the bodies of @local_fixture and @global_fixture.\n\n\n\n"
 },
 
 {
@@ -189,7 +197,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Public API",
     "title": "Testcases and fixtures",
     "category": "section",
-    "text": "@testcase\n@testgroup\nfixture\nlocal_fixture"
+    "text": "@testcase\n@testgroup\n@global_fixture\n@local_fixture\n@produce"
 },
 
 {
@@ -357,7 +365,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Version history",
     "title": "v0.1.0 (current development version)",
     "category": "section",
-    "text": "CHANGED: testcase groups are no longer defined by modules; @testgroup or testgroup() should be used instead. Consequently, the option :test_module_prefix was removed.\nCHANGED: testcases must be defined via the @testgroup macro instead of the testcase() function.\nCHANGED: not exporting rowmajor_product(), pprint_time(), with_output_capture() and build_run_options() anymore, since they are only used in self-tests.\nCHANGED: global fixtures now produce single values instead of whole lists, same as the local ones.\nADDED: @testcase and @testgroup macros.\nADDED: progress reporting is now more suitable for long group and testcase names.\nADDED: @test_fail macro for providing a custom description to a fail.\nADDED: re-exporting Base.Test's @inferred, @test_warn and @test_nowarn.\nFIXED: output capture problems in Julia 0.6 on Windows."
+    "text": "CHANGED: testcase groups are no longer defined by modules; @testgroup should be used instead. Consequently, the option :test_module_prefix was removed.\nCHANGED: testcases must be defined via the @testgroup macro instead of the testcase() function.\nCHANGED: similarly, fixtures are defined with @global_fixture and @local_fixture macros. fixture() and local_fixture() are no longer exported.\nCHANGED: not exporting rowmajor_product(), pprint_time(), with_output_capture() and build_run_options() anymore, since they are only used in self-tests.\nCHANGED: global fixtures now produce single values instead of whole lists, same as the local ones.\nADDED: @testcase and @testgroup macros.\nADDED: @global_fixture and @local_fixture macros.\nADDED: progress reporting is now more suitable for long group and testcase names.\nADDED: @test_fail macro for providing a custom description to a fail.\nADDED: re-exporting Base.Test's @inferred, @test_warn and @test_nowarn.\nFIXED: output capture problems in Julia 0.6 on Windows."
 },
 
 {
