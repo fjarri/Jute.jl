@@ -3,43 +3,46 @@
 
 ## Defining tests
 
-The entry-point file (commonly called `runtests.jl`) is simply:
+The entry-point file (commonly called `runtests.jl`) is:
 
 ```julia
 using Jute
+
+# Testcase definitions
+
 exit(runtests())
 ```
 
-The test runner picks up any file with the name ending in `.test.jl` in the directory where the entry-point file is located, or in any subdirectories.
+If there were no [`@testcase`](@ref Jute.@testcase) and [`@testgroup`](@ref Jute.@testgroup) calls before the call to [`runtests()`](@ref Jute.runtests), the test runner picks up any file with the name ending in `.test.jl` (by default; can be changed with the command-line option `--test-file-postfix`) in the directory where the entry-point file is located, or in any subdirectories.
 All those files are included at the same level (with `using Jute` at the start), and all the [`@testcase`](@ref Jute.@testcase) and [`@testgroup`](@ref Jute.@testgroup) definitions are picked up.
+
+If some testcase definitions were present before the call to [`runtests()`](@ref Jute.runtests), they will be used and **consumed**, so the following calls to [`runtests()`](@ref Jute.runtests) will follow the first scenario (loading testcases from files).
+
 The [`@testgroup`](@ref Jute.@testgroup) definitions can contain other [`@testgroup`](@ref Jute.@testgroup) definitions and [`@testcase`](@ref Jute.@testcase) definitions.
 
 The `exit()` call is required to signal about any test failures to the processes that initiate the execution of the test suite, for instance CI tools.
 [`runtests()`](@ref Jute.runtests) returns `1` if there were failed tests, `0` otherwise.
 
-The [`@testcase`](@ref Jute.@testcase) macro takes the testcase name and body:
+!!! note
 
-```julia
-@testcase "simple testcase" begin
-    @test 1 == 1
-end
-```
+    In all the following examples the `exit()` call will be missing because of the limitations of the `Documenter`'s doctest runner.
+    Also, `using Jute` will be implied.
 
 
-## Assertions
+## Basic testcases and groups
 
-`Jute` relies on the assertions from [`Base.Test`](http://docs.julialang.org/en/latest/stdlib/test/); [`@test`](@ref Jute.@test), [`@test_throws`](@ref Jute.@test_throws), [`@test_skip`](@ref Jute.@test_skip), [`@test_broken`](@ref Jute.@test_broken), [`@inferred`](@ref Jute.@inferred), [`@test_warn`](@ref Jute.@test_warn) and [`@test_nowarn`](@ref Jute.@test_nowarn) can be used.
-In addition, `Jute` has a [`@test_result`](@ref Jute.@test_result) macro allowing one to return a custom result (e.g. the value of a benchmark from a testcase), and a [`@test_fail`](@ref Jute.@test_fail) macro for providing custom information with a fail.
-There can be several assertions per testcase; their results will be reported separately.
-If the testcase does not call any assertions and does not throw any exceptions, it is considered to be passed.
-
-
-## Grouping tests
-
+In the simple case of a non-parametrized test, the [`@testcase`](@ref Jute.@testcase) macro takes the testcase name and body.
 Testcases can be grouped using [`@testgroup`](@ref Jute.@testgroup) definitions.
 For example:
 
-```julia
+```@meta
+DocTestSetup = quote
+    using Jute
+    jute_doctest()
+end
+```
+
+```jldoctest grouping
 @testcase "tc1" begin
 end
 
@@ -54,18 +57,36 @@ end
         end
     end
 end
-```
 
-the following testcases will be listed:
+runtests(; options=Dict(:verbosity => 2))
 
-```
-tc1
-Group/tc2
-Group2/Subgroup/tc3
+# output
+
+Collecting testcases...
+Running 3 out of 3 testcases...
+================================================================================
+Platform: Julia [...], Jute [...]
+--------------------------------------------------------------------------------
+tc1 ([...] ms) [PASS]
+group/
+  tc2 ([...] ms) [PASS]
+group2/
+  subgroup/
+    tc3 ([...] ms) [PASS]
+--------------------------------------------------------------------------------
+3 tests passed, 0 failed, 0 errored in [...] s (total test time [...] s)
 ```
 
 The order of testcase definition is preserved.
 In other words, the testcases will be executed in the same order in which they were defined.
+
+
+## Assertions
+
+`Jute` relies on the assertions from [`Base.Test`](http://docs.julialang.org/en/latest/stdlib/test/); [`@test`](@ref Jute.@test), [`@test_throws`](@ref Jute.@test_throws), [`@test_skip`](@ref Jute.@test_skip), [`@test_broken`](@ref Jute.@test_broken), [`@inferred`](@ref Jute.@inferred), [`@test_warn`](@ref Jute.@test_warn) and [`@test_nowarn`](@ref Jute.@test_nowarn) can be used.
+In addition, `Jute` has a [`@test_result`](@ref Jute.@test_result) macro allowing one to return a custom result (e.g. the value of a benchmark from a testcase), and a [`@test_fail`](@ref Jute.@test_fail) macro for providing custom information with a fail.
+There can be several assertions per testcase; their results will be reported separately.
+If the testcase does not call any assertions and does not throw any exceptions, it is considered to be passed.
 
 
 ## Parametrizing testcases
@@ -75,58 +96,131 @@ In other words, the testcases will be executed in the same order in which they w
 
 The simplest method to parametrize a test is to supply it with an iterable:
 
-```julia
+```@meta
+DocTestSetup = quote
+    using Jute
+    jute_doctest()
+end
+```
+
+```jldoctest parametrize_simple
 @testcase "parametrized testcase" for x in [1, 2, 3]
-    @test x == 1
+    @test x == x
 end
 
-# Output:
-# parametrized testcase[1]: [PASS]
-# parametrized testcase[2]: [FAIL]
-# parametrized testcase[3]: [FAIL]
+runtests(; options=Dict(:verbosity => 2))
+
+# output
+
+Collecting testcases...
+Running 1 out of 1 testcases...
+================================================================================
+Platform: Julia [...], Jute [...]
+--------------------------------------------------------------------------------
+parametrized testcase[1] ([...] ms) [PASS]
+parametrized testcase[2] ([...] ms) [PASS]
+parametrized testcase[3] ([...] ms) [PASS]
+--------------------------------------------------------------------------------
+3 tests passed, 0 failed, 0 errored in [...] s (total test time [...] s)
 ```
 
 By default, `Jute` uses `string()` to convert a fixture value to a string for reporting purposes.
 One can assign custom labels to fixtures by passing a `Pair` of iterables instead:
 
-```julia
-@testcase "parametrized testcase" for x in [1, 2, 3] => ["one", "two", "three"]
-    @test x == 1
+```@meta
+DocTestSetup = quote
+    using Jute
+    jute_doctest()
+end
+```
+
+```jldoctest custom_labels
+@testcase "parametrized testcase" for x in ([1, 2, 3] => ["one", "two", "three"])
+    @test x == x
 end
 
-# Output:
-# parametrized testcase[one]: [PASS]
-# parametrized testcase[two]: [FAIL]
-# parametrized testcase[three]: [FAIL]
+runtests(; options=Dict(:verbosity => 2))
+
+# output
+
+Collecting testcases...
+Running 1 out of 1 testcases...
+================================================================================
+Platform: Julia [...], Jute [...]
+--------------------------------------------------------------------------------
+parametrized testcase[one] ([...] ms) [PASS]
+parametrized testcase[two] ([...] ms) [PASS]
+parametrized testcase[three] ([...] ms) [PASS]
+--------------------------------------------------------------------------------
+3 tests passed, 0 failed, 0 errored in [...] s (total test time [...] s)
 ```
 
 A testcase can use several fixtures, in which case `Jute` will run the testcase function with all possible combinations of them:
 
-```julia
+```@meta
+DocTestSetup = quote
+    using Jute
+    jute_doctest()
+end
+```
+
+```jldoctest several_fixtures
 @testcase "parametrized testcase" for x in [1, 2], y in [3, 4]
     @test x + y == y + x
 end
 
-# Output:
-# parametrized testcase[1, 3]: [PASS]
-# parametrized testcase[1, 4]: [PASS]
-# parametrized testcase[2, 3]: [PASS]
-# parametrized testcase[2, 4]: [PASS]
+runtests(; options=Dict(:verbosity => 2))
+
+# output
+
+Collecting testcases...
+Running 1 out of 1 testcases...
+================================================================================
+Platform: Julia [...], Jute [...]
+--------------------------------------------------------------------------------
+parametrized testcase[1,3] ([...] ms) [PASS]
+parametrized testcase[1,4] ([...] ms) [PASS]
+parametrized testcase[2,3] ([...] ms) [PASS]
+parametrized testcase[2,4] ([...] ms) [PASS]
+--------------------------------------------------------------------------------
+4 tests passed, 0 failed, 0 errored in [...] s (total test time [...] s)
 ```
 
 Iterable unpacking is also supported:
 
-```julia
+```@meta
+DocTestSetup = quote
+    using Jute
+    jute_doctest()
+end
+```
+
+```jldoctest fixture_unpacking
 @testcase "parametrized testcase" for (x, y) in [(1, 2), (3, 4)]
     @test x + y == y + x
 end
 
-# Output:
-# parametrized testcase[(1, 2)]: [PASS]
-# parametrized testcase[(3, 4)]: [PASS]
+runtests(; options=Dict(:verbosity => 2))
+
+# output
+
+Collecting testcases...
+Running 1 out of 1 testcases...
+================================================================================
+Platform: Julia [...], Jute [...]
+--------------------------------------------------------------------------------
+parametrized testcase[(1, 2)] ([...] ms) [PASS]
+parametrized testcase[(3, 4)] ([...] ms) [PASS]
+--------------------------------------------------------------------------------
+2 tests passed, 0 failed, 0 errored in [...] s (total test time [...] s)
 ```
 
 Note that the label still refers to the full element of the iterable.
+
+!!! note
+
+    If the iterable expression evaluates to anything other than a fixture object, it will be treated as a constant fixture.
+    In other words, if an expression like `for (x, y) in [fixture1, fixture2, fixture3]` is used to parametrize a testcase or a fixture, the nested fixtures will not be processed and added to the dependencies.
 
 
 ### Global fixtures
@@ -167,7 +261,14 @@ end
 Global fixtures can be parametrized by other constant or global fixtures.
 Similarly to the test parametrization, all possible combinations of parameters will be used to produce values:
 
-```julia
+```@meta
+DocTestSetup = quote
+    using Jute
+    jute_doctest()
+end
+```
+
+```jldoctest global_fixtures
 fx1 = @global_fixture for x in 3:4
     @produce x
 end
@@ -180,11 +281,21 @@ end
     @test length(x) == 2
 end
 
-# Output:
-# tc[(1, 3)]: [PASS]
-# tc[(1, 4)]: [PASS]
-# tc[(2, 3)]: [PASS]
-# tc[(2, 4)]: [PASS]
+runtests(; options=Dict(:verbosity => 2))
+
+# output
+
+Collecting testcases...
+Running 1 out of 1 testcases...
+================================================================================
+Platform: Julia [...], Jute [...]
+--------------------------------------------------------------------------------
+tc[(1, 3)] ([...] ms) [PASS]
+tc[(1, 4)] ([...] ms) [PASS]
+tc[(2, 3)] ([...] ms) [PASS]
+tc[(2, 4)] ([...] ms) [PASS]
+--------------------------------------------------------------------------------
+4 tests passed, 0 failed, 0 errored in [...] s (total test time [...] s)
 ```
 
 
@@ -193,16 +304,36 @@ end
 A local fixture is a fixture whose value is created right before each call to the testcase function and destroyed afterwards.
 A simple example is a fixture that provides a temporary directory:
 
-```julia
+```@meta
+DocTestSetup = quote
+    using Jute
+    jute_doctest()
+end
+```
+
+```jldoctest local_fixtures
 temporary_dir = @local_fixture begin
     dir = mktempdir()
-    @produce dir # this call will block while the testcase is being executed
+    @produce dir "tempdir" # this call will block while the testcase is being executed
     rm(dir, recursive=true)
 end
 
 @testcase "tempdir test" for dir in temporary_dir
-    open(joinpath(dir, "somefile"), "w")
+    @test isdir(dir)
 end
+
+runtests(; options=Dict(:verbosity => 2))
+
+# output
+
+Collecting testcases...
+Running 1 out of 1 testcases...
+================================================================================
+Platform: Julia [...], Jute [...]
+--------------------------------------------------------------------------------
+tempdir test[tempdir] ([...] ms) [PASS]
+--------------------------------------------------------------------------------
+1 tests passed, 0 failed, 0 errored in [...] s (total test time [...] s)
 ```
 
 Local fixtures can be parametrized by any other type of fixture, including other local fixtures.
@@ -215,12 +346,34 @@ This can be used to establish a secondary grouping, independent of the primary g
 For example, one can tag performance tests, tests that run for a long time, unit/integration tests, tests that require a specific resource and so on.
 Testcases can be filtered by tags they have or don't have using [command-line arguments](@ref run_options_manual).
 
-The tagging is performed by an optional paramter `tag` to the macro [`@testcase`](@ref Jute.@testcase) that takes a list of `Symbol`s:
+The tagging is performed by the optional paramter `tag` to the macro [`@testcase`](@ref Jute.@testcase) that takes a list of `Symbol`s:
 
-```julia
-@testcase tags=[:foo] "tc" begin
-    ... something
+```@meta
+DocTestSetup = quote
+    using Jute
+    jute_doctest()
 end
+```
+
+```jldoctest tags
+@testcase tags=[:foo] "foo" begin
+end
+
+@testcase tags=[:bar, :baz] "bar and baz" begin
+end
+
+runtests(; options=Dict(:verbosity => 2, :include_only_tags => [:baz]))
+
+# output
+
+Collecting testcases...
+Running 1 out of 2 testcases...
+================================================================================
+Platform: Julia [...], Jute [...]
+--------------------------------------------------------------------------------
+bar and baz ([...] ms) [PASS]
+--------------------------------------------------------------------------------
+1 tests passed, 0 failed, 0 errored in [...] s (total test time [...] s)
 ```
 
 

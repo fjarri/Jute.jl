@@ -2,33 +2,24 @@
 
 The main principles of the library:
 
-* The test runner `include()`s all the files named in a certain way (ending in `.test.jl` by default);
-* Every module-scope variable (including the nested modules) of the [`Testcase`](@ref Jute.Testcase) type is interpreted as a testcase;
-* Testcases are grouped based on modules they are in, not the files they are coming from;
+* The test runner `include()`s all the files named in a certain way (ending in `.test.jl` by default). Alternatively, the files containing testcase definitions can be included manually;
+* Testcases are defined using the [`@testcase`](@ref Jute.@testcase) macro and grouped using the [`@testgroup`](@ref Jute.@testgroup) macro;
 * Testcases can be parametrized by fixtures, which can be simple iterables, or include a setup/teardown stage right before and after each test, or once before and after all the tests that use it.
 * Fixtures can be parametrized by other fixtures.
 
 
 ## A quick example
 
-Directory structure:
-
+```@meta
+DocTestSetup = quote
+    using Jute
+    jute_doctest()
+end
 ```
-test/
-    foo.test.jl # tests are here
-    runtests.jl # the entry point
-```
 
-`runtests.jl`:
-
-```julia
+```jldoctest index
 using Jute
-exit(runtests())
-```
 
-`foo.test.jl`:
-
-```julia
 # constant fixture - any iterable
 fx1 = 1:3
 
@@ -48,7 +39,20 @@ end
 # testcase - will be picked up automatically
 # and run for all the combinations of fixture values
 @testcase "tc" for x in fx1, y in fx2, z in fx3
-    @test x + y == 2
+    @test x + y == y + x
     @test x + y + z == z + y + x
 end
+
+runtests()
+
+# output
+
+Collecting testcases...
+Running 1 out of 1 testcases...
+================================================================================
+Platform: Julia [...], Jute [...]
+--------------------------------------------------------------------------------
+......................................................
+--------------------------------------------------------------------------------
+54 tests passed, 0 failed, 0 errored in [...] s (total test time [...] s)
 ```
