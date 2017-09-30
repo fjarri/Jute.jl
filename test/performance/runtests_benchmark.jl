@@ -8,11 +8,12 @@ test_include_only = (ARGS[1] == "test_include_only")
 run_options = Jute.build_run_options(options=Dict(:verbosity => 0))
 
 tic()
-obj_dict = Jute.include_test_files!(test_files)
+Jute.include_test_files!(test_files)
+tcs = task_local_storage(Jute.TESTCASE_ACCUM_ID)
 if test_include_only
     exitcode = 0
 else
-    exitcode = Jute.runtests_internal(run_options, obj_dict)
+    exitcode = Jute.runtests_internal(run_options, tcs)
 end
 println(toq())
 exit(exitcode)
