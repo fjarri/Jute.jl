@@ -68,7 +68,7 @@ function instantiate_global(global_fixtures, fx::GlobalFixture)
 end
 
 
-function run_testcases(run_options, tcs)
+function run_testcases(run_options, tcs, doctest)
 
     global_fixtures = Dict{AbstractGlobalFixture, Array{LabeledValue, 1}}()
     gi = get_iterable(global_fixtures)
@@ -76,7 +76,7 @@ function run_testcases(run_options, tcs)
 
     test_outcomes = []
 
-    progress = progress_reporter([tcinfo for (tcinfo, tc) in tcs], run_options[:verbosity])
+    progress = progress_reporter([tcinfo for (tcinfo, tc) in tcs], run_options[:verbosity], doctest)
 
     progress_start!(progress)
 
@@ -174,7 +174,7 @@ function filter_testcases(run_options, tcs)
 end
 
 
-function runtests_internal(run_options, tcs)
+function runtests_internal(run_options, tcs, doctest=false)
     if run_options[:verbosity] > 0
         println("Collecting testcases...")
     end
@@ -190,8 +190,25 @@ function runtests_internal(run_options, tcs)
         println("Running $(length(testcases)) out of $(length(all_testcases)) testcases...")
         println("=" ^ 80)
     end
-    all_successful = run_testcases(run_options, testcases)
+    all_successful = run_testcases(run_options, testcases, doctest)
     Int(!all_successful)
+end
+
+
+struct DoctestsFlagID
+end
+
+
+const DOCTESTS_FLAG_ID = DoctestsFlagID()
+
+
+"""
+Enable doctest mode for the reporting.
+Replaces all variable parts of the reports (timings, module versions etc) with placeholders.
+Warning: non-pure, sets a global flag.
+"""
+function jute_doctest()
+    task_local_storage(DOCTESTS_FLAG_ID, true)
 end
 
 
@@ -231,5 +248,13 @@ function runtests(tcs=nothing; options=nothing)
         end
     end
 
-    runtests_internal(run_options, tcs)
+    doctest = haskey(task_local_storage(), DOCTESTS_FLAG_ID) && task_local_storage(DOCTESTS_FLAG_ID)
+
+    res = runtests_internal(run_options, tcs, doctest)
+
+    if doctest
+        nothing
+    else
+        res
+    end
 end

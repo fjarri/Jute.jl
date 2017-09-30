@@ -41,11 +41,12 @@ mutable struct ProgressReporter
     verbosity :: Int
     just_started :: Bool
     current_group :: Array{String, 1}
+    doctest :: Bool
 end
 
 
-function progress_reporter(tcinfos, verbosity)
-    ProgressReporter(verbosity, true, String[])
+function progress_reporter(tcinfos, verbosity, doctest)
+    ProgressReporter(verbosity, true, String[], doctest)
 end
 
 
@@ -114,7 +115,11 @@ function progress_finish_testcase!(
                 result_show(result, Verbosity{verbosity}()))
         end
     elseif verbosity >= 2
-        elapsed_time = pprint_time(outcome.elapsed_time)
+        if progress.doctest
+            elapsed_time = "[...] ms"
+        else
+            elapsed_time = pprint_time(outcome.elapsed_time)
+        end
 
         print("($elapsed_time)")
 
@@ -136,7 +141,16 @@ end
 
 function progress_start!(progress::ProgressReporter)
     if progress.verbosity > 0
-        println("Platform: Julia $VERSION, Jute $(Pkg.installed("Jute"))")
+
+        if progress.doctest
+            julia_version = "[...]"
+            jute_version = "[...]"
+        else
+            julia_version = string(VERSION)
+            jute_version = string(Pkg.installed("Jute"))
+        end
+
+        println("Platform: Julia $julia_version, Jute $jute_version")
         println("-" ^ 80)
     end
 
@@ -165,9 +179,14 @@ function progress_finish!(progress::ProgressReporter, outcomes)
     end
 
     if progress.verbosity >= 1
-        full_test_time = mapreduce(outcome -> outcome.elapsed_time, +, outcome_objs)
-        full_time_str = pprint_time(full_time, meaningful_digits=3)
-        full_test_time_str = pprint_time(full_test_time, meaningful_digits=3)
+        if progress.doctest
+            full_time_str = "[...] s"
+            full_test_time_str = "[...] s"
+        else
+            full_test_time = mapreduce(outcome -> outcome.elapsed_time, +, outcome_objs)
+            full_time_str = pprint_time(full_time, meaningful_digits=3)
+            full_test_time_str = pprint_time(full_test_time, meaningful_digits=3)
+        end
 
         println("-" ^ 80)
         println(
