@@ -79,7 +79,12 @@ function testgroup(func, name; single_process::Bool=false)
 end
 
 
-register_testobj(obj) = push!(task_local_storage(TESTCASE_ACCUM_ID), obj)
+function register_testobj(obj)
+    if !haskey(task_local_storage(), TESTCASE_ACCUM_ID)
+        task_local_storage(TESTCASE_ACCUM_ID, Any[])
+    end
+    push!(task_local_storage(TESTCASE_ACCUM_ID), obj)
+end
 
 
 function collect_testobjs(func)

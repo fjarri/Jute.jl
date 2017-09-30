@@ -15,7 +15,6 @@ module ImportSandbox
 
         eval(quote
             using Jute
-            task_local_storage(TESTCASE_ACCUM_ID, Any[])
             $((:(include($test_file)) for test_file in test_files)...)
         end)
 

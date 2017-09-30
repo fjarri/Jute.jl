@@ -13,6 +13,7 @@
 * ADDED: progress reporting is now more suitable for long group and testcase names.
 * ADDED: `@test_fail` macro for providing a custom description to a fail.
 * ADDED: re-exporting `Base.Test`'s `@inferred`, `@test_warn` and `@test_nowarn`.
+* ADDED: testcases can now be defined directly before the call to `runtests()` instead of in specially named files.
 * FIXED: output capture problems in Julia 0.6 on Windows.
 
 

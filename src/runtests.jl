@@ -211,17 +211,25 @@ from the above list. If `options` is given, command-line arguments are not parse
 
 Returns `0` if there are no failed tests, `1` otherwise.
 """
-function runtests(; options=nothing)
+function runtests(tcs=nothing; options=nothing)
     run_options = build_run_options(args=ARGS, options=options)
 
-    runtests_dir = get_runtests_dir()
-    test_files = find_test_files(runtests_dir, run_options[:test_file_postfix])
+    if tcs === nothing
 
-    if run_options[:verbosity] > 0
-        println("Loading test files...")
+        if haskey(task_local_storage(), TESTCASE_ACCUM_ID)
+            tcs = task_local_storage(TESTCASE_ACCUM_ID)
+            delete!(task_local_storage(), TESTCASE_ACCUM_ID)
+        else
+            runtests_dir = get_runtests_dir()
+            test_files = find_test_files(runtests_dir, run_options[:test_file_postfix])
+
+            if run_options[:verbosity] > 0
+                println("Loading test files...")
+            end
+            tcs = include_test_files!(
+                test_files, run_options[:dont_add_runtests_path] ? nothing : runtests_dir)
+        end
     end
-    tcs = include_test_files!(
-        test_files, run_options[:dont_add_runtests_path] ? nothing : runtests_dir)
 
     runtests_internal(run_options, tcs)
 end
