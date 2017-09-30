@@ -24,8 +24,8 @@ function build_tuple_unpacks(var_lists)
         else
             varname = gensym("tuple")
             push!(vars, varname)
-            var_lst = map(esc, var_list)
-            push!(unpacks, :( ($(var_list...),) = $(esc(varname)) ))
+            escaped_list = map(esc, var_list)
+            push!(unpacks, :( ($(escaped_list...),) = $(esc(varname)) ))
         end
     end
 
