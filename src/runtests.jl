@@ -195,6 +195,13 @@ function runtests_internal(run_options, tcs, doctest=false)
 end
 
 
+struct TestcaseAccumID
+end
+
+
+const TESTCASE_ACCUM_ID = TestcaseAccumID()
+
+
 struct DoctestsFlagID
 end
 
@@ -243,8 +250,12 @@ function runtests(tcs=nothing; options=nothing)
             if run_options[:verbosity] > 0
                 println("Loading test files...")
             end
-            tcs = include_test_files!(
-                test_files, run_options[:dont_add_runtests_path] ? nothing : runtests_dir)
+
+            tcs = task_local_storage(TESTCASE_ACCUM_ID, Any[]) do
+                include_test_files!(
+                    test_files, run_options[:dont_add_runtests_path] ? nothing : runtests_dir)
+                task_local_storage(TESTCASE_ACCUM_ID)
+            end
         end
     end
 

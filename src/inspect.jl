@@ -4,9 +4,6 @@ using DataStructures
 module ImportSandbox
 
     export include_test_files!
-    export TESTCASE_ACCUM_ID
-
-    const TESTCASE_ACCUM_ID = :__JUTE_TESTCASES__
 
     function include_test_files!(test_files, add_load_path=nothing)
         if !(add_load_path === nothing)
@@ -17,8 +14,6 @@ module ImportSandbox
             using Jute
             $((:(include($test_file)) for test_file in test_files)...)
         end)
-
-        task_local_storage(TESTCASE_ACCUM_ID)
     end
 
 end
