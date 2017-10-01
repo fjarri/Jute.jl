@@ -1,7 +1,7 @@
 # Version history
 
 
-## v0.1.0 (current development version)
+## v0.1.0 (1 Oct 2017)
 
 * **CHANGED**: testcase groups are no longer defined by modules; `@testgroup` should be used instead. Consequently, the option `:test_module_prefix` was removed.
 * **CHANGED**: testcases must be defined via the `@testgroup` macro instead of the `testcase()` function.
