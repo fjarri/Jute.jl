@@ -38,7 +38,7 @@ For example:
 ```@meta
 DocTestSetup = quote
     using Jute
-    jute_doctest()
+    Jute.jute_doctest()
 end
 ```
 
@@ -99,7 +99,7 @@ The simplest method to parametrize a test is to supply it with an iterable:
 ```@meta
 DocTestSetup = quote
     using Jute
-    jute_doctest()
+    Jute.jute_doctest()
 end
 ```
 
@@ -130,7 +130,7 @@ One can assign custom labels to fixtures by passing a `Pair` of iterables instea
 ```@meta
 DocTestSetup = quote
     using Jute
-    jute_doctest()
+    Jute.jute_doctest()
 end
 ```
 
@@ -160,7 +160,7 @@ A testcase can use several fixtures, in which case `Jute` will run the testcase 
 ```@meta
 DocTestSetup = quote
     using Jute
-    jute_doctest()
+    Jute.jute_doctest()
 end
 ```
 
@@ -191,7 +191,7 @@ Iterable unpacking is also supported:
 ```@meta
 DocTestSetup = quote
     using Jute
-    jute_doctest()
+    Jute.jute_doctest()
 end
 ```
 
@@ -264,7 +264,7 @@ Similarly to the test parametrization, all possible combinations of parameters w
 ```@meta
 DocTestSetup = quote
     using Jute
-    jute_doctest()
+    Jute.jute_doctest()
 end
 ```
 
@@ -307,7 +307,7 @@ A simple example is a fixture that provides a temporary directory:
 ```@meta
 DocTestSetup = quote
     using Jute
-    jute_doctest()
+    Jute.jute_doctest()
 end
 ```
 
@@ -351,7 +351,7 @@ The tagging is performed by the optional paramter `tag` to the macro [`@testcase
 ```@meta
 DocTestSetup = quote
     using Jute
-    jute_doctest()
+    Jute.jute_doctest()
 end
 ```
 

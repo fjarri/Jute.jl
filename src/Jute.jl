@@ -36,7 +36,6 @@ include("reporting.jl")
 
 include("runtests.jl")
 export runtests
-export jute_doctest
 
 include("builtin_fixtures.jl")
 export run_options

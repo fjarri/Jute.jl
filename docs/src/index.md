@@ -13,7 +13,7 @@ The main principles of the library:
 ```@meta
 DocTestSetup = quote
     using Jute
-    jute_doctest()
+    Jute.jute_doctest()
 end
 ```
 
