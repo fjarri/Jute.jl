@@ -1,9 +1,9 @@
 # Version history
 
 
-## Current development version
+## v0.2.0 (current development version)
 
-Under construction.
+* FIXED: include/exclude filtering for testcases is now correctly performed based on full testcase paths.
 
 
 ## v0.1.0 (1 Oct 2017)

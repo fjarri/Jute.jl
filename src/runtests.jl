@@ -155,7 +155,7 @@ end
 
 
 function is_testcase_included(e_paths, i_paths, e_tags, i_tags, tcinfo::TestcaseInfo)
-    full_tag = string(tcinfo)
+    full_tag = path_string(tcinfo)
     (
         (isnull(e_paths) || !ismatch(get(e_paths), full_tag))
         && (isnull(i_paths) || ismatch(get(i_paths), full_tag))
