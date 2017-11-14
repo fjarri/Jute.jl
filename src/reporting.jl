@@ -42,11 +42,12 @@ mutable struct ProgressReporter
     just_started :: Bool
     current_group :: Array{String, 1}
     doctest :: Bool
+    start_time :: UInt64
 end
 
 
 function progress_reporter(tcinfos, verbosity, doctest)
-    ProgressReporter(verbosity, true, String[], doctest)
+    ProgressReporter(verbosity, true, String[], doctest, 0)
 end
 
 
@@ -154,13 +155,13 @@ function progress_start!(progress::ProgressReporter)
         println("-" ^ 80)
     end
 
-    tic()
+    progress.start_time = time_ns()
 end
 
 
 function progress_finish!(progress::ProgressReporter, outcomes)
 
-    full_time = toq()
+    full_time = (time_ns() - progress.start_time) / 1e9
 
     outcome_objs = [outcome for (tcinfo, labels, outcome) in outcomes]
 

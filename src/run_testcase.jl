@@ -73,11 +73,11 @@ function run_testcase(tc::Testcase, args, capture_output::Bool=false)
     results = BT.Result[]
 
     elapsed_time, output = with_output_capture(!capture_output) do
-        tic()
+        t = time_ns()
         BT.@testset JuteTestSet results=:($results) begin
             Base.invokelatest(tc.func, args...)
         end
-        toq()
+        (time_ns() - t) / 1e9
     end
 
     if length(results) == 0
