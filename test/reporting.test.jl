@@ -262,7 +262,7 @@ end
 end
 
 
-@testcase "captured_output" begin
+@testcase "captured output" begin
     testcases = Jute.collect_testobjs() do
         @testcase "passing testcase" begin
             println(STDOUT, "stdout from passing testcase")
