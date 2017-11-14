@@ -1,4 +1,4 @@
-const BT = Base.Test
+const BT = Compat.Test
 
 
 struct Verbosity{T}

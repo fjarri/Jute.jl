@@ -1,5 +1,6 @@
-using Base.Test: @test, @test_throws, @test_broken, @test_skip, @test_warn, @test_nowarn, @inferred
-const BT = Base.Test
+using Compat
+using Compat.Test: @test, @test_throws, @test_broken, @test_skip, @test_warn, @test_nowarn, @inferred
+const BT = Compat.Test
 
 
 struct ReturnValue{T} <: BT.Result
