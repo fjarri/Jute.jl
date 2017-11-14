@@ -12,7 +12,7 @@ strip_colors(s) = replace(s, r"\e\[\d+m", "")
 
 function _nested_run(tcs, options, output_pass_through)
     exitcode, output = Jute.with_output_capture(output_pass_through) do
-        Jute.runtests(tcs; options=options)
+        Jute.runtests(tcs; options=options, ignore_commandline=true)
     end
     exitcode, strip_colors(output)
 end

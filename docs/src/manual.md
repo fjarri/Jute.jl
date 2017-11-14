@@ -381,6 +381,7 @@ bar and baz ([...] ms) [PASS]
 
 `Jute`'s [`runtest()`](@ref Jute.runtests) picks up the options from the command line by default.
 Alternatively, they can be set with the `options` keyword argument of [`runtests()`](@ref Jute.runtests).
+Note that command-line arguments override the ones passed via `options`.
 
 ```@docs
 Jute.build_parser

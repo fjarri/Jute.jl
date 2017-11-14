@@ -220,7 +220,7 @@ end
 
 
 """
-    runtests(; options=nothing)
+    runtests(; options=nothing, ignore_commandline=false)
 
 Run the test suite.
 
@@ -233,10 +233,15 @@ This function has several side effects:
 `options` must be a dictionary with the keys corresponding to some of the options
 from the above list. If `options` is given, command-line arguments are not parsed.
 
+If `ignore_commandline` is `true`, command-line arguments passed to the program will not be used.
+This option can be helpful if one wants to be sure that the run options used are exactly the ones
+specified in the call.
+
 Returns `0` if there are no failed tests, `1` otherwise.
 """
-function runtests(tcs=nothing; options=nothing)
-    run_options = build_run_options(args=ARGS, options=options)
+function runtests(tcs=nothing; options=nothing, ignore_commandline=false)
+    args = ignore_commandline ? nothing : ARGS
+    run_options = build_run_options(args=args, options=options)
 
     if tcs === nothing
 
