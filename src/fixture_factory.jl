@@ -70,6 +70,6 @@ function teardown(rff::RunningFixtureFactory)
         put!(rff.channel, nothing)
     end
     if !istaskdone(rff.task)
-        wait(rff.task)
+        compat_fetch(rff.task)
     end
 end

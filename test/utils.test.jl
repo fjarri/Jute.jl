@@ -1,3 +1,6 @@
+using Compat
+
+
 @testgroup "utils" begin
 
 
@@ -43,8 +46,8 @@ end
     # we still need to capture it one level higher.
     Jute.with_output_capture() do
         ret, out = Jute.with_output_capture(true) do
-            println(STDOUT, "stdout 1")
-            println(STDERR, "stderr 1")
+            println(stdout, "stdout 1")
+            println(stderr, "stderr 1")
             1
         end
 
@@ -57,10 +60,10 @@ end
 # Check that both STDOUT and STDERR are captured and joined in the correct order
 @testcase "capture all" begin
     ret, out = Jute.with_output_capture() do
-        println(STDOUT, "stdout 1")
-        println(STDERR, "stderr 1")
-        println(STDOUT, "stdout 2")
-        println(STDERR, "stderr 2")
+        println(stdout, "stdout 1")
+        println(stderr, "stderr 1")
+        println(stdout, "stdout 2")
+        println(stderr, "stderr 2")
         1
     end
 
@@ -74,8 +77,8 @@ end
 @testcase "restore on error" begin
     try
         Jute.with_output_capture() do
-            println(STDOUT, "stdout 1")
-            println(STDERR, "stderr 1")
+            println(stdout, "stdout 1")
+            println(stderr, "stderr 1")
             error("error")
             1
         end

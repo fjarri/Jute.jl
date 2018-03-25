@@ -55,7 +55,7 @@ path_string(tcinfo::TestcaseInfo) = join([tcinfo.path; tcinfo.name], "/")
 
 
 function tag_string(tcinfo::TestcaseInfo, labels; full::Bool=false)
-    fixtures_tag = join(labels, ",")
+    fixtures_tag = isempty(labels) ? "" : join(labels, ",")
     tc_tag = full ? path_string(tcinfo) : tcinfo.name
     if length(labels) > 0
         tc_tag * "[" * fixtures_tag * "]"

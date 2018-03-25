@@ -1,13 +1,14 @@
 module TestUtils
 
 using Jute
+using Compat
 
 export nested_run
 export nested_run_with_output
 export test_match_text
 
 
-strip_colors(s) = replace(s, r"\e\[\d+m", "")
+strip_colors(s) = replace(s, r"\e\[\d+m" => "")
 
 
 function _nested_run(tcs, options, output_pass_through)
@@ -36,13 +37,13 @@ end
 
 
 function escape_for_regex(s)
-    replace(s, r"([\.\[\]\(\)\\\*\+\?\^\$])", s"\\\1")
+    replace(s, r"([\.\[\]\(\)\\\*\+\?\^\$])" => s"\\\1")
 end
 
 
 function normalize_template(s)
     m = match(r"^(\s*)", s)
-    s = replace(s, Regex("^$(m[1])", "m"), "")
+    s = replace(s, Regex("^$(m[1])", "m") => "")
     strip(s)
 end
 
@@ -77,13 +78,13 @@ function test_match_text(template, text)
         text_line = text_lines[text_i]
         template_line = template_lines[template_i]
 
-        if ismatch(r_multiline, template_line)
+        if occursin(r_multiline, template_line)
             skipping_multiline = true
             template_i += 1
         else
             s = "^" * escape_for_regex(template_line) * "\$"
-            s = replace(s, r_variable, s"(?<\1>.*)")
-            if !ismatch(Regex(s), text_line)
+            s = replace(s, r_variable => s"(?<\1>.*)")
+            if !occursin(Regex(s), text_line)
                 if !skipping_multiline
                     @test_fail (
                         "Failed to match the text line $text_i\n  $text_line\n" *

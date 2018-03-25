@@ -81,6 +81,17 @@ TESTCASES_WITH_GROUPS = Jute.collect_testobjs() do
 end
 
 
+if Base.thisminor(VERSION) <= v"0.6"
+    failure_template = "Test Failed"
+    error_template = "Error During Test"
+    exception_template = "Got an exception of type ErrorException outside of a @test"
+else
+    failure_template = "Test Failed at <<<path>>>"
+    error_template = "Error During Test at <<<path>>>"
+    exception_template = "Got exception ErrorException(\"Uncaught exception\") outside of a @test"
+end
+
+
 @testcase "verbosity0" begin
     exitcode, output = nested_run_with_output(TESTCASES, Dict(:verbosity => 0))
     @test exitcode == 1
@@ -88,19 +99,19 @@ end
     template = """
         ================================================================================
         multiple tests and one failure
-        Test Failed
+        $failure_template
           Expression: 2 == 1
            Evaluated: 2 == 1
         ================================================================================
         uncaught exception
-        Error During Test
-          Got an exception of type ErrorException outside of a @test
+        $error_template
+          $exception_template
           Uncaught exception
           Stacktrace:
         <<<MULTILINE>>>
         ================================================================================
         unexpected pass
-        Error During Test
+        $error_template
          Unexpected Pass
          Expression: 1 == 1
          Got correct result, please change to @test if no longer broken.
@@ -130,19 +141,19 @@ end
         20 tests passed, 2 failed, 2 errored in <<<full_time>>> (total test time <<<test_time>>>)
         ================================================================================
         multiple tests and one failure
-        Test Failed
+        $failure_template
           Expression: 2 == 1
            Evaluated: 2 == 1
         ================================================================================
         uncaught exception
-        Error During Test
-          Got an exception of type ErrorException outside of a @test
+        $error_template
+          $exception_template
           Uncaught exception
           Stacktrace:
         <<<MULTILINE>>>
         ================================================================================
         unexpected pass
-        Error During Test
+        $error_template
          Unexpected Pass
          Expression: 1 == 1
          Got correct result, please change to @test if no longer broken.
@@ -181,19 +192,19 @@ end
         20 tests passed, 2 failed, 2 errored in <<<full_time>>> (total test time <<<test_time>>>)
         ================================================================================
         multiple tests and one failure
-        Test Failed
+        $failure_template
           Expression: 2 == 1
            Evaluated: 2 == 1
         ================================================================================
         uncaught exception
-        Error During Test
-          Got an exception of type ErrorException outside of a @test
+        $error_template
+          $exception_template
           Uncaught exception
           Stacktrace:
         <<<MULTILINE>>>
         ================================================================================
         unexpected pass
-        Error During Test
+        $error_template
          Unexpected Pass
          Expression: 1 == 1
          Got correct result, please change to @test if no longer broken.
@@ -265,14 +276,14 @@ end
 @testcase "captured output" begin
     testcases = Jute.collect_testobjs() do
         @testcase "passing testcase" begin
-            println(STDOUT, "stdout from passing testcase")
-            println(STDERR, "stderr from passing testcase")
+            println(stdout, "stdout from passing testcase")
+            println(stderr, "stderr from passing testcase")
         end
 
         @testcase "failing testcase" begin
-            println(STDOUT, "stdout from failing testcase")
+            println(stdout, "stdout from failing testcase")
             @test 1 == 2
-            println(STDERR, "stderr from failing testcase")
+            println(stderr, "stderr from failing testcase")
         end
     end
 
@@ -286,7 +297,7 @@ end
         stdout from failing testcase
         stderr from failing testcase
 
-        Test Failed
+        $failure_template
           Expression: 1 == 2
            Evaluated: 1 == 2
     """

@@ -31,8 +31,8 @@ result_show(::FailExplanation, ::Verbosity{2}) = "FAIL"
 
 
 function Base.show(io::IO, fe::FailExplanation)
-    print_with_color(:red, io, "Test Failed\n"; bold=true)
-    descr = replace(fe.description, r"^"m, "  ")
+    printstyled(io, "Test Failed\n"; color=:red, bold=true)
+    descr = replace(fe.description, r"^"m => "  ")
     print(io, descr)
 end
 
@@ -111,9 +111,9 @@ function progress_finish_testcase!(
     verbosity = progress.verbosity
     if verbosity == 1
         for result in outcome.results
-            print_with_color(
-                result_color(result, Verbosity{verbosity}()),
-                result_show(result, Verbosity{verbosity}()))
+            printstyled(
+                result_show(result, Verbosity{verbosity}()),
+                color=result_color(result, Verbosity{verbosity}()))
         end
     elseif verbosity >= 2
         if progress.doctest
@@ -126,9 +126,9 @@ function progress_finish_testcase!(
 
         for result in outcome.results
             result_str = result_show(result, Verbosity{verbosity}())
-            print_with_color(
-                result_color(result, Verbosity{verbosity}()),
-                " [$result_str]")
+            printstyled(
+                " [$result_str]",
+                color=result_color(result, Verbosity{verbosity}()))
         end
         println()
     end
@@ -148,7 +148,7 @@ function progress_start!(progress::ProgressReporter)
             jute_version = "[...]"
         else
             julia_version = string(VERSION)
-            jute_version = string(Pkg.installed("Jute"))
+            jute_version = string(installed("Jute"))
         end
 
         println("Platform: Julia $julia_version, Jute $jute_version")

@@ -139,8 +139,8 @@ end
 
 @testcase "@test_warn" begin
     results = get_results() do
-        @test_warn "warn" warn("warn")
-        @test_warn "warn" warn("foo")
+        @test_warn "warn" println(stderr, "warn")
+        @test_warn "warn" println(stderr, "foo")
     end
 
     @test length(results) == 2
@@ -151,7 +151,7 @@ end
 
 @testcase "@test_nowarn" begin
     results = get_results() do
-        @test_nowarn warn("warn")
+        @test_nowarn println(stderr, "warn")
         @test_nowarn sin(1.0)
     end
 

@@ -10,7 +10,7 @@ end
 
 
 @testcase "commandline options" begin
-    opts = Jute.build_run_options(; args=["--verbosity", "2"])
+    opts = Jute.build_run_options(; args=["--verbosity=2"])
     @test opts[:verbosity] == 2
 end
 
@@ -22,7 +22,7 @@ end
 
 
 @testcase "commandline overrides userdict options" begin
-    opts = Jute.build_run_options(; options=Dict(:verbosity => 2), args=["--verbosity", "0"])
+    opts = Jute.build_run_options(; options=Dict(:verbosity => 2), args=["--verbosity=0"])
     @test opts[:verbosity] == 0
 end
 

@@ -85,7 +85,7 @@ struct RowMajorProduct{T<:Tuple}
 end
 
 
-Base.iteratorsize(::Type{T}) where T<:RowMajorProduct = Base.SizeUnknown()
+Base.IteratorSize(::Type{T}) where T<:RowMajorProduct = Base.SizeUnknown()
 
 
 Base.eltype(::Type{RowMajorProduct{T}}) where T = Tuple{map(eltype, T.parameters)...}
@@ -112,7 +112,7 @@ function Base.start(it::RowMajorProduct)
             return js, nothing
         end
     end
-    vs = Vector{Any}(n)
+    vs = Vector{Any}(undef, n)
     for i = 1:n
         vs[i], js[i] = next(it.xss[i], js[i])
     end
@@ -143,7 +143,7 @@ Base.done(::RowMajorProduct, state) = state[2] === nothing
 
 
 function read_stream(s)
-    if Base.thisminor(VERSION) < v"0.7"
+    if Base.thisminor(VERSION) <= v"0.6"
         readstring(s)
     else
         read(s, String)
@@ -165,8 +165,8 @@ function with_output_capture(func, pass_through::Bool=false)
         return func(), ""
     end
 
-    STDOUT_OLD = STDOUT
-    STDERR_OLD = STDERR
+    stdout_old = stdout
+    stderr_old = stderr
 
     rd, wr = redirect_stdout()
     redirect_stderr(wr)
@@ -177,12 +177,21 @@ function with_output_capture(func, pass_through::Bool=false)
     try
         ret = func()
     finally
-        redirect_stdout(STDOUT_OLD)
-        redirect_stderr(STDERR_OLD)
+        redirect_stdout(stdout_old)
+        redirect_stderr(stderr_old)
         close(wr)
-        output = wait(reader)
+        output = compat_fetch(reader)
         close(rd)
     end
 
     ret, output
+end
+
+
+function compat_fetch(task)
+    if Base.thisminor(VERSION) <= v"0.6"
+        wait(task)
+    else
+        fetch(task)
+    end
 end
