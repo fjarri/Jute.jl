@@ -17,6 +17,7 @@ makedocs(
 )
 
 deploydocs(
+    julia = "nightly",
     repo = "github.com/fjarri/Jute.jl.git",
     target = "build",
     deps = nothing,
