@@ -26,7 +26,7 @@ git:
 
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia -e 'import Pkg; Pkg.build("Jute"); Pkg.test("Jute"; coverage=true)'
+  - julia -e 'import Pkg; Pkg.clone(pwd(), \"Jute\"); Pkg.build("Jute"); Pkg.test("Jute"; coverage=true)'
 
 after_success:
   - julia -e 'import Pkg; Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
