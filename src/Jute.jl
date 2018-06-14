@@ -2,14 +2,8 @@ __precompile__()
 
 module Jute
 
-using Compat
-using Nullables
+using Pkg
 
-if Base.thisminor(VERSION) <= v"0.6"
-    installed = Pkg.installed
-else
-    using Pkg: installed
-end
 
 include("utils.jl")
 

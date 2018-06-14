@@ -5,7 +5,13 @@ abstract type Fixture end
 abstract type AbstractGlobalFixture <: Fixture end
 
 
-is_iterable(val) = applicable(start, val)
+function try_collect(val)
+    try
+        return collect(val)[:]
+    catch
+        return nothing
+    end
+end
 
 
 is_callable(val) = !isempty(methods(val))
@@ -27,19 +33,19 @@ users can just supply iterables directly as testcase or fixture parameters.
 """
 function constant_fixture(vals, labels=nothing)
 
-    if !is_iterable(vals)
+    c_vals = try_collect(vals)
+    if c_vals === nothing
         error("`vals` must be an iterable")
     end
-
-    c_vals = collect(vals)[:]
 
     if labels === nothing
         labeled_vals = map(labeled_value, c_vals)
     else
-        if !is_iterable(labels)
+        c_labels = try_collect(labels)
+        if c_labels === nothing
             error("`labels` must be an iterable")
         end
-        c_labels = collect(labels)[:]
+
         labeled_vals = map(labeled_value, c_vals, c_labels)
     end
 

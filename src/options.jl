@@ -24,10 +24,10 @@ For every option, the corresponding command-line argument names are given in par
 If supplied via the `options` keyword argument of [`runtests()`](@ref),
 their type must be as given or `convert()`-able to it.
 
-**`:include_only`**`:: Nullable{Regex}` (`--include-only`, `-i`):
+**`:include_only`**`:: Union{Nothing, Regex}` (`--include-only`, `-i`):
 takes a regular expression; tests with full names that do not match it will not be executed.
 
-**`:exclude`**`:: Nullable{Regex}` (`--exclude`, `-e`):
+**`:exclude`**`:: Union{Nothing, Regex}` (`--exclude`, `-e`):
 takes a regular expression; tests with full names that match it will not be executed.
 
 !!! note
@@ -179,11 +179,13 @@ function build_parser(options)
 end
 
 
+maybe_regex(::Nothing) = nothing
+maybe_regex(s::String) = Regex(s)
+
+
 function normalize_options(run_options)
 
     run_options = deepcopy(run_options)
-
-    maybe_regex(s) = s === nothing ? Nullable{Regex}() : Nullable{Regex}(Regex(s))
 
     run_options[:include_only] = maybe_regex(run_options[:include_only])
     run_options[:exclude] = maybe_regex(run_options[:exclude])

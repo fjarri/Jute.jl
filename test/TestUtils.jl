@@ -1,7 +1,6 @@
 module TestUtils
 
 using Jute
-using Compat
 
 export nested_run
 export nested_run_with_output

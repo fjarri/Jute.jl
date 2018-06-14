@@ -1,4 +1,4 @@
-using TestUtils
+using .TestUtils
 
 
 @testgroup "reporting" begin

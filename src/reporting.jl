@@ -1,4 +1,4 @@
-const BT = Compat.Test
+const BT = Test
 
 
 struct Verbosity{T}
@@ -148,7 +148,8 @@ function progress_start!(progress::ProgressReporter)
             jute_version = "[...]"
         else
             julia_version = string(VERSION)
-            jute_version = string(installed("Jute"))
+            # FIXME: at the moment Pkg3 does not allow us to get out own version
+            jute_version = "<unknown>"
         end
 
         println("Platform: Julia $julia_version, Jute $jute_version")

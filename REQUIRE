@@ -1,5 +1,5 @@
-julia 0.6
-ArgParse
+julia 0.7
+ArgParse 0.6
 DataStructures
-Compat
-Nullables
+Test
+Pkg

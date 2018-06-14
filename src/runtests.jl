@@ -8,7 +8,7 @@ get_iterable(global_fixtures) = fx -> _get_iterable(global_fixtures, fx)
 
 struct DelayedTeardownValue
     lval :: LabeledValue
-    rff :: Nullable{RunningFixtureFactory}
+    rff :: Union{Nothing, RunningFixtureFactory}
     subvalues :: Array{DelayedTeardownValue, 1}
 end
 
@@ -30,11 +30,11 @@ end
 
 
 function release(val::DelayedTeardownValue)
-    if !isnull(val.rff)
+    if !(val.rff === nothing)
         for v in val.subvalues
             release(v)
         end
-        teardown(get(val.rff))
+        teardown(val.rff)
     end
 end
 
@@ -157,8 +157,8 @@ end
 function is_testcase_included(e_paths, i_paths, e_tags, i_tags, tcinfo::TestcaseInfo)
     full_tag = path_string(tcinfo)
     (
-        (isnull(e_paths) || !ismatch(get(e_paths), full_tag))
-        && (isnull(i_paths) || ismatch(get(i_paths), full_tag))
+        (e_paths === nothing || !ismatch(e_paths, full_tag))
+        && (i_paths === nothing || ismatch(i_paths, full_tag))
         && (isempty(e_tags) || isempty(intersect(e_tags, tcinfo.tags)))
         && (isempty(i_tags) || !isempty(intersect(i_tags, tcinfo.tags)))
         )
