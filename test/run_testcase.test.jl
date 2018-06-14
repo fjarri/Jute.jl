@@ -22,7 +22,7 @@ end
     results = get_results() do
     end
     @test length(results) == 1
-    @test isa(results[1], Jute.BT.Pass)
+    @test isa(results[1], Jute.Test.Pass)
 end
 
 
@@ -34,7 +34,7 @@ end
     end
 
     @test length(results) == 3
-    @test isa(results[1], Jute.BT.Pass)
+    @test isa(results[1], Jute.Test.Pass)
     @test isa(results[2], Jute.ReturnValue) && results[2].value == 1
     @test isa(results[3], Jute.ReturnValue) && results[3].value == "a"
 end
@@ -54,10 +54,10 @@ end
     end
 
     @test length(results) == 4
-    @test isa(results[1], Jute.BT.Pass)
-    @test isa(results[2], Jute.BT.Fail)
-    @test isa(results[3], Jute.BT.Error)
-    @test isa(results[4], Jute.BT.Error)
+    @test isa(results[1], Jute.Test.Pass)
+    @test isa(results[2], Jute.Test.Fail)
+    @test isa(results[3], Jute.Test.Error)
+    @test isa(results[4], Jute.Test.Error)
 end
 
 
@@ -69,9 +69,9 @@ end
     end
 
     @test length(results) == 3
-    @test isa(results[1], Jute.BT.Pass)
-    @test isa(results[2], Jute.BT.Pass)
-    @test isa(results[3], Jute.BT.Pass)
+    @test isa(results[1], Jute.Test.Pass)
+    @test isa(results[2], Jute.Test.Pass)
+    @test isa(results[3], Jute.Test.Pass)
 end
 
 
@@ -83,9 +83,9 @@ end
     end
 
     @test length(results) == 3
-    @test isa(results[1], Jute.BT.Pass)
-    @test isa(results[2], Jute.BT.Broken)
-    @test isa(results[3], Jute.BT.Pass)
+    @test isa(results[1], Jute.Test.Pass)
+    @test isa(results[2], Jute.Test.Broken)
+    @test isa(results[3], Jute.Test.Pass)
 end
 
 
@@ -97,9 +97,9 @@ end
     end
 
     @test length(results) == 3
-    @test isa(results[1], Jute.BT.Pass)
-    @test isa(results[2], Jute.BT.Broken)
-    @test isa(results[3], Jute.BT.Pass)
+    @test isa(results[1], Jute.Test.Pass)
+    @test isa(results[2], Jute.Test.Broken)
+    @test isa(results[3], Jute.Test.Pass)
 end
 
 
@@ -111,9 +111,9 @@ end
     end
 
     @test length(results) == 3
-    @test isa(results[1], Jute.BT.Pass)
-    @test isa(results[2], Jute.BT.Error)
-    @test isa(results[3], Jute.BT.Pass)
+    @test isa(results[1], Jute.Test.Pass)
+    @test isa(results[2], Jute.Test.Error)
+    @test isa(results[3], Jute.Test.Pass)
 end
 
 
@@ -126,14 +126,14 @@ end
     end
 
     @test length(results) == 1
-    @test isa(results[1], Jute.BT.Error)
+    @test isa(results[1], Jute.Test.Error)
 
     results = get_results() do
         @inferred max(1, 2)
     end
 
     @test length(results) == 1
-    @test isa(results[1], Jute.BT.Pass)
+    @test isa(results[1], Jute.Test.Pass)
 end
 
 
@@ -144,8 +144,8 @@ end
     end
 
     @test length(results) == 2
-    @test isa(results[1], Jute.BT.Pass)
-    @test isa(results[2], Jute.BT.Fail)
+    @test isa(results[1], Jute.Test.Pass)
+    @test isa(results[2], Jute.Test.Fail)
 end
 
 
@@ -156,8 +156,8 @@ end
     end
 
     @test length(results) == 2
-    @test isa(results[1], Jute.BT.Fail)
-    @test isa(results[2], Jute.BT.Pass)
+    @test isa(results[1], Jute.Test.Fail)
+    @test isa(results[2], Jute.Test.Pass)
 end
 
 

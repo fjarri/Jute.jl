@@ -1,4 +1,4 @@
-const BT = Test
+using Test
 
 
 struct Verbosity{T}
@@ -6,26 +6,26 @@ end
 
 
 result_color(::Any, ::Any) = :default
-result_color(::BT.Pass, ::Verbosity{2}) = :green
-result_color(::BT.Fail, ::Any) = :red
-result_color(::BT.Error, ::Any) = :yellow
-result_color(::BT.Broken, ::Verbosity{2}) = :green
+result_color(::Test.Pass, ::Verbosity{2}) = :green
+result_color(::Test.Fail, ::Any) = :red
+result_color(::Test.Error, ::Any) = :yellow
+result_color(::Test.Broken, ::Verbosity{2}) = :green
 result_color(::ReturnValue, ::Verbosity{2}) = :blue
 result_color(::FailExplanation, ::Any) = :red
 
 
-result_show(::BT.Pass, ::Verbosity{1}) = "."
-result_show(::BT.Pass, ::Verbosity{2}) = "PASS"
-result_show(::BT.Broken, ::Verbosity{1}) = "B"
-result_show(::BT.Broken, ::Verbosity{2}) = "BROKEN"
+result_show(::Test.Pass, ::Verbosity{1}) = "."
+result_show(::Test.Pass, ::Verbosity{2}) = "PASS"
+result_show(::Test.Broken, ::Verbosity{1}) = "B"
+result_show(::Test.Broken, ::Verbosity{2}) = "BROKEN"
 result_show(::ReturnValue, ::Verbosity{1}) = "*"
 # Since the `show` method for the result type will probably be defined in the test file,
 # we need to use `invokelatest` here for it to be picked up.
 result_show(result::ReturnValue, ::Verbosity{2}) = Base.invokelatest(string, result.value)
-result_show(::BT.Fail, ::Verbosity{1}) = "F"
-result_show(::BT.Fail, ::Verbosity{2}) = "FAIL"
-result_show(::BT.Error, ::Verbosity{1}) = "E"
-result_show(::BT.Error, ::Verbosity{2}) = "ERROR"
+result_show(::Test.Fail, ::Verbosity{1}) = "F"
+result_show(::Test.Fail, ::Verbosity{2}) = "FAIL"
+result_show(::Test.Error, ::Verbosity{1}) = "E"
+result_show(::Test.Error, ::Verbosity{2}) = "ERROR"
 result_show(::FailExplanation, ::Verbosity{1}) = "F"
 result_show(::FailExplanation, ::Verbosity{2}) = "FAIL"
 
@@ -170,9 +170,9 @@ function progress_finish!(progress::ProgressReporter, outcomes)
     num_results = Dict(
         key => length(filter(result -> isa(result, tp), all_results))
         for (key, tp) in [
-            (:pass, Union{BT.Pass, ReturnValue, BT.Broken}),
-            (:fail, Union{BT.Fail, FailExplanation}),
-            (:error, BT.Error)])
+            (:pass, Union{Test.Pass, ReturnValue, Test.Broken}),
+            (:fail, Union{Test.Fail, FailExplanation}),
+            (:error, Test.Error)])
 
     all_success = (num_results[:fail] + num_results[:error] == 0)
 
