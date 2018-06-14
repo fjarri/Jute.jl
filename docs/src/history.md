@@ -4,7 +4,6 @@
 ## v0.2.0 (current development version)
 
 * **CHANGED**: support for Julia v0.6 dropped.
-
 * ADDED: command-line arguments (if used) now override the options passed to `runtests()` during the call.
 * FIXED: an incorrect description for the `--dont-add-runtests-path` option.
 * FIXED: include/exclude filtering for testcases is now correctly performed based on full testcase paths.
