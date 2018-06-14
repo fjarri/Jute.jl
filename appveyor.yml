@@ -40,4 +40,4 @@ build_script:
   - IF EXIST .git\shallow (git fetch --unshallow)
 
 test_script:
-  - C:\projects\julia\bin\julia -e "import Pkg; Pkg.test("Jute"; coverage=true)"
+  - C:\projects\julia\bin\julia -e "import Pkg; Pkg.instantiate(); Pkg.test(; coverage=true)"

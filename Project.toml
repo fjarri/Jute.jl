@@ -1,6 +1,7 @@
 authors = ["Bogdan Opanchuk <bogdan@opanchuk.net>"]
 name = "Jute"
-uuid = "032b5134-6ead-11e8-1d96-e14c4252dc26"
+repo = "https://github.com/fjarri/Jute.jl.git"
+uuid = "82bedeac-9837-5b62-883a-b5b3b7c811c5"
 version = "0.2.0-dev"
 
 [deps]
