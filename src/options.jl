@@ -44,7 +44,7 @@ takes a regular expression; tests with full names that match it will not be exec
 include only tests with any of the specified tags.
 You can pass several tags to this option, separated by spaces.
 
-**`:exclude_tags`**`:: Array{Symbol, 1}` (`--exclude-tags`, `-t`):
+**`:exclude_tags`**`:: Array{Symbol, 1}` (`--exclude-tags`, `-n`):
 exclude tests with any of the specified tags.
 You can pass several tags to this option, separated by spaces.
 
