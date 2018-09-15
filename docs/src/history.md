@@ -1,7 +1,7 @@
 # Version history
 
 
-## v0.2.0 (current development version)
+## v0.2.0 (16 Sep 2018)
 
 * **CHANGED**: support for Julia v0.6 dropped, support for v1.0 added.
 * ADDED: command-line arguments (if used) now override the options passed to `runtests()` during the call.
