@@ -165,8 +165,8 @@ end
 function is_testcase_included(e_paths, i_paths, e_tags, i_tags, tcinfo::TestcaseInfo)
     full_tag = path_string(tcinfo)
     (
-        (e_paths === nothing || !ismatch(e_paths, full_tag))
-        && (i_paths === nothing || ismatch(i_paths, full_tag))
+        (e_paths === nothing || !occursin(e_paths, full_tag))
+        && (i_paths === nothing || occursin(i_paths, full_tag))
         && (isempty(e_tags) || isempty(intersect(e_tags, tcinfo.tags)))
         && (isempty(i_tags) || !isempty(intersect(i_tags, tcinfo.tags)))
         )
