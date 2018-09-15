@@ -166,7 +166,7 @@ function progress_finish!(progress::ProgressReporter, outcomes)
 
     outcome_objs = [outcome for (tcinfo, labels, outcome) in outcomes]
 
-    all_results = mapreduce(outcome -> outcome.results, vcat, [], outcome_objs)
+    all_results = mapreduce(outcome -> outcome.results, vcat, outcome_objs, init=[])
     num_results = Dict(
         key => length(filter(result -> isa(result, tp), all_results))
         for (key, tp) in [
