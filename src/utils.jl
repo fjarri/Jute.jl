@@ -77,7 +77,37 @@ function pprint_small_time(s::Number, meaningful_digits::Int)
 end
 
 
-rowmajor_product(xss...) = product(reverse(xss)...)
+# A simple lazy map function for use with rowmajor_product()
+
+struct LazyMap
+    func
+    iter
+end
+
+
+lazymap(func, iter) = LazyMap(func, iter)
+
+
+function Base.iterate(lm::LazyMap, state=nothing)
+    if state === nothing
+        pair = iterate(lm.iter)
+    else
+        pair = iterate(lm.iter, state)
+    end
+
+    if pair === nothing
+        nothing
+    else
+        val, state = pair
+        lm.func(val), state
+    end
+end
+
+
+Base.length(lm::LazyMap) = length(lm.iter)
+
+
+rowmajor_product(xss...) = lazymap(reverse, product(reverse(xss)...))
 
 
 function read_stream(s)
