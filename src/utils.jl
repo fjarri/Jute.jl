@@ -110,15 +110,6 @@ Base.length(lm::LazyMap) = length(lm.iter)
 rowmajor_product(xss...) = lazymap(reverse, product(reverse(xss)...))
 
 
-function read_stream(s)
-    if Base.thisminor(VERSION) <= v"0.6"
-        readstring(s)
-    else
-        read(s, String)
-    end
-end
-
-
 """
     with_output_capture(func, pass_through=false)
 
@@ -138,7 +129,7 @@ function with_output_capture(func, pass_through::Bool=false)
 
     rd, wr = redirect_stdout()
     redirect_stderr(wr)
-    reader = @async read_stream(rd)
+    reader = @async read(rd, String)
 
     ret = nothing
     output = ""
@@ -148,18 +139,9 @@ function with_output_capture(func, pass_through::Bool=false)
         redirect_stdout(stdout_old)
         redirect_stderr(stderr_old)
         close(wr)
-        output = compat_fetch(reader)
+        output = fetch(reader)
         close(rd)
     end
 
     ret, output
-end
-
-
-function compat_fetch(task)
-    if Base.thisminor(VERSION) <= v"0.6"
-        wait(task)
-    else
-        fetch(task)
-    end
 end
