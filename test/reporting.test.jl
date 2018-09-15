@@ -81,15 +81,9 @@ TESTCASES_WITH_GROUPS = Jute.collect_testobjs() do
 end
 
 
-if Base.thisminor(VERSION) <= v"0.6"
-    failure_template = "Test Failed"
-    error_template = "Error During Test"
-    exception_template = "Got an exception of type ErrorException outside of a @test"
-else
-    failure_template = "Test Failed at <<<path>>>"
-    error_template = "Error During Test at <<<path>>>"
-    exception_template = "Got exception ErrorException(\"Uncaught exception\") outside of a @test"
-end
+failure_template = "Test Failed at <<<path>>>"
+error_template = "Error During Test at <<<path>>>"
+exception_template = "Got exception outside of a @test"
 
 
 @testcase "verbosity0" begin
