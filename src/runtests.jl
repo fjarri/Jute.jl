@@ -1,7 +1,15 @@
 _get_iterable(global_fixtures, fx::AbstractGlobalFixture) = global_fixtures[fx]
 _get_iterable(global_fixtures, fx::ConstantFixture) = setup(fx)
-_get_iterable(global_fixtures, fx::LocalFixture) =
-    rowmajor_product([_get_iterable(global_fixtures, param) for param in parameters(fx)]...)
+function _get_iterable(global_fixtures, fx::LocalFixture)
+    # Workaround for Julia issue #29193.
+    # If it is fixed, the last line should work for the empty `params` case as well.
+    params = parameters(fx)
+    if isempty(params)
+        [()]
+    else
+        rowmajor_product([_get_iterable(global_fixtures, param) for param in params]...)
+    end
+end
 
 get_iterable(global_fixtures) = fx -> _get_iterable(global_fixtures, fx)
 
