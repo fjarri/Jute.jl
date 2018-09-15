@@ -1,6 +1,9 @@
 using ArgParse
 
 
+ArgParse.parse_item(::Type{Symbol}, s::AbstractString) = Symbol(s)
+
+
 const ARG_DEFAULTS = Dict(
     :include_only => nothing,
     :exclude => nothing,
