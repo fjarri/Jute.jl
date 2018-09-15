@@ -305,9 +305,9 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "history.html#v0.2.0-(current-development-version)-1",
+    "location": "history.html#v0.2.0-(16-Sep-2018)-1",
     "page": "Version history",
-    "title": "v0.2.0 (current development version)",
+    "title": "v0.2.0 (16 Sep 2018)",
     "category": "section",
     "text": "CHANGED: support for Julia v0.6 dropped, support for v1.0 added.\nADDED: command-line arguments (if used) now override the options passed to runtests() during the call.\nFIXED: an incorrect description for the --dont-add-runtests-path option.\nFIXED: include/exclude filtering for testcases is now correctly performed based on full testcase paths."
 },
