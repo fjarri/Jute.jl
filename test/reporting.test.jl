@@ -180,7 +180,7 @@ end
         skip test (<<<time>>>) [PASS] [BROKEN] [PASS]
         expected failure (<<<time>>>) [PASS] [BROKEN] [PASS]
         unexpected pass (<<<time>>>) [PASS] [ERROR] [PASS]
-        with fixtures[1,2] (<<<time>>>) [PASS]
+        with fixtures [1,2] (<<<time>>>) [PASS]
         test_fail (<<<time>>>) [FAIL]
         --------------------------------------------------------------------------------
         20 tests passed, 2 failed, 2 errored in <<<full_time>>> (total test time <<<test_time>>>)
