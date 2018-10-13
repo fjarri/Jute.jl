@@ -21,7 +21,7 @@ runtests
 
 ## Assertions
 
-The following assertions are re-exported from [`Base.Test`](https://docs.julialang.org/en/stable/stdlib/test/) and can be used inside `Jute` testcases.
+The following assertions are re-exported from [`Test`](https://docs.julialang.org/en/latest/stdlib/Test/) and can be used inside `Jute` testcases.
 
 ```@docs
 @test

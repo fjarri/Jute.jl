@@ -65,7 +65,7 @@ function parse_body(body_expr)
 end
 
 
-# Taken from Base.Test and simplified
+# Taken from Test and simplified
 function parse_options(options_expr)
     options = :(Dict{Symbol, Any}())
     for arg in options_expr
