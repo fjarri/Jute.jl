@@ -1,6 +1,3 @@
-using Test
-
-
 struct Verbosity{T}
 end
 

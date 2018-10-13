@@ -1,5 +1,32 @@
-using Test
-using Test: @test, @test_throws, @test_broken, @test_skip, @test_warn, @test_nowarn, @inferred
+import Test
+import Test: @test, @test_throws, @test_broken, @test_skip, @test_warn, @test_nowarn, @inferred
+
+
+# Re-documenting the assertions from Test manually, because we need Documenter to pick them up.
+# We could use their original docs instead of using links, but Documenter tries to
+# run doctests on them, which fail.
+# TODO: perhaps it is possible to create all these in a loop to avoid repetition.
+
+@doc "See [`Test.@test`](https://docs.julialang.org/en/latest/stdlib/Test/#Test.@test)."
+:(@test)
+
+@doc "See [`Test.@test_throws`](https://docs.julialang.org/en/latest/stdlib/Test/#Test.@test_throws)."
+:(@test_throws)
+
+@doc "See [`Test.@test_broken`](https://docs.julialang.org/en/latest/stdlib/Test/#Test.@test_broken)."
+:(@test_broken)
+
+@doc "See [`Test.@test_skip`](https://docs.julialang.org/en/latest/stdlib/Test/#Test.@test_skip)."
+:(@test_skip)
+
+@doc "See [`Test.@test_warn`](https://docs.julialang.org/en/latest/stdlib/Test/#Test.@test_warn)."
+:(@test_warn)
+
+@doc "See [`Test.@test_nowarn`](https://docs.julialang.org/en/latest/stdlib/Test/#Test.@test_nowarn)."
+:(@test_nowarn)
+
+@doc "See [`Test.@inferred`](https://docs.julialang.org/en/latest/stdlib/Test/#Test.@inferred)."
+:(@inferred)
 
 
 struct ReturnValue{T} <: Test.Result
