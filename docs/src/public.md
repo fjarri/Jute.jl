@@ -40,6 +40,12 @@ The following assertions are re-exported from [`Test`](https://docs.julialang.or
 @test_fail
 ```
 
+Assertions can be made to terminate the testcase on failure.
+
+```@docs
+@critical
+```
+
 
 ## Built-in fixtures
 

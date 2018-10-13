@@ -65,6 +65,43 @@ macro test_fail(descr)
 end
 
 
+struct CriticalFailException <: Exception
+end
+
+
+const _test_macro_symbols = Symbol.([
+    "@test",
+    "@test_fail",
+    "@test_throws",
+    "@test_broken",
+    "@inferred",
+    "@test_warn",
+    "@test_nowarn",
+    ])
+
+
+"""
+    @critical expr
+
+Terminates the testcase on failure of an assertion `expr`.
+`expr` must start from one of [`@test`](@ref), [`@test_fail`](@ref),
+[`@test_throws`](@ref), [`@test_broken`](@ref), [`@inferred`](@ref),
+[`@test_warn`](@ref), [`@test_nowarn`](@ref).
+"""
+macro critical(expr)
+    if expr.head != :macrocall || !(expr.args[1] in _test_macro_symbols)
+        error("@critical must precede an assertion macro that records a result")
+    end
+
+    quote
+        $expr
+        if is_failed(Test.get_testset().results[end])
+            throw(CriticalFailException())
+        end
+    end
+end
+
+
 struct TestcaseOutcome
     results :: Array{Test.Result, 1}
     elapsed_time :: Float64
@@ -101,7 +138,15 @@ function run_testcase(tc::Testcase, args, capture_output::Bool=false)
     elapsed_time, output = with_output_capture(!capture_output) do
         t = time_ns()
         Test.@testset JuteTestSet results=:($results) begin
-            Base.invokelatest(tc.func, args...)
+            try
+                Base.invokelatest(tc.func, args...)
+            catch e
+                if typeof(e) == CriticalFailException
+                    # Used to terminate the testcase from inside of any number of nested calls
+                else
+                    rethrow(e)
+                end
+            end
         end
         (time_ns() - t) / 1e9
     end

@@ -34,6 +34,7 @@ export @test_fail
 export @inferred
 export @test_warn
 export @test_nowarn
+export @critical
 
 include("reporting.jl")
 

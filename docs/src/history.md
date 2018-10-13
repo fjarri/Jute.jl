@@ -1,6 +1,11 @@
 # Version history
 
 
+## v0.2.1 (current development version)
+
+* ADDED: `@critical` macro to make test assertions terminate the testcase on failure.
+
+
 ## v0.2.0 (16 Sep 2018)
 
 * **CHANGED**: support for Julia v0.6 dropped, support for v1.0 added.
