@@ -61,7 +61,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Manual",
     "title": "Assertions",
     "category": "section",
-    "text": "Jute relies on the assertions from Base.Test; @test, @test_throws, @test_skip, @test_broken, @inferred, @test_warn and @test_nowarn can be used. In addition, Jute has a @test_result macro allowing one to return a custom result (e.g. the value of a benchmark from a testcase), and a @test_fail macro for providing custom information with a fail. There can be several assertions per testcase; their results will be reported separately. If the testcase does not call any assertions and does not throw any exceptions, it is considered to be passed."
+    "text": "Jute relies on the assertions from Test; @test, @test_throws, @test_skip, @test_broken, @inferred, @test_warn and @test_nowarn can be used. In addition, Jute has a @test_result macro allowing one to return a custom result (e.g. the value of a benchmark from a testcase), and a @test_fail macro for providing custom information with a fail. There can be several assertions per testcase; their results will be reported separately. If the testcase does not call any assertions and does not throw any exceptions, it is considered to be passed."
 },
 
 {
@@ -201,6 +201,62 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "public.html#Test.@test",
+    "page": "Public API",
+    "title": "Test.@test",
+    "category": "macro",
+    "text": "See Test.@test.\n\n\n\n\n\n"
+},
+
+{
+    "location": "public.html#Test.@test_throws",
+    "page": "Public API",
+    "title": "Test.@test_throws",
+    "category": "macro",
+    "text": "See Test.@test_throws.\n\n\n\n\n\n"
+},
+
+{
+    "location": "public.html#Test.@test_broken",
+    "page": "Public API",
+    "title": "Test.@test_broken",
+    "category": "macro",
+    "text": "See Test.@test_broken.\n\n\n\n\n\n"
+},
+
+{
+    "location": "public.html#Test.@test_skip",
+    "page": "Public API",
+    "title": "Test.@test_skip",
+    "category": "macro",
+    "text": "See Test.@test_skip.\n\n\n\n\n\n"
+},
+
+{
+    "location": "public.html#Test.@inferred",
+    "page": "Public API",
+    "title": "Test.@inferred",
+    "category": "macro",
+    "text": "See Test.@inferred.\n\n\n\n\n\n"
+},
+
+{
+    "location": "public.html#Test.@test_warn",
+    "page": "Public API",
+    "title": "Test.@test_warn",
+    "category": "macro",
+    "text": "See Test.@test_warn.\n\n\n\n\n\n"
+},
+
+{
+    "location": "public.html#Test.@test_nowarn",
+    "page": "Public API",
+    "title": "Test.@test_nowarn",
+    "category": "macro",
+    "text": "See Test.@test_nowarn.\n\n\n\n\n\n"
+},
+
+{
     "location": "public.html#Jute.@test_result",
     "page": "Public API",
     "title": "Jute.@test_result",
@@ -217,11 +273,19 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "public.html#Jute.@critical",
+    "page": "Public API",
+    "title": "Jute.@critical",
+    "category": "macro",
+    "text": "@critical expr\n\nTerminates the testcase on failure of an assertion expr. expr must start from one of @test, @test_fail, @test_throws, @test_broken, @inferred, @test_warn, @test_nowarn.\n\n\n\n\n\n"
+},
+
+{
     "location": "public.html#Assertions-1",
     "page": "Public API",
     "title": "Assertions",
     "category": "section",
-    "text": "The following assertions are re-exported from Base.Test and can be used inside Jute testcases.@test\n@test_throws\n@test_broken\n@test_skip\n@inferred\n@test_warn\n@test_nowarnJute adds several assertions of its own.@test_result\n@test_fail"
+    "text": "The following assertions are re-exported from Test and can be used inside Jute testcases.@test\n@test_throws\n@test_broken\n@test_skip\n@inferred\n@test_warn\n@test_nowarnJute adds several assertions of its own.@test_result\n@test_failAssertions can be made to terminate the testcase on failure.@critical"
 },
 
 {
@@ -302,6 +366,14 @@ var documenterSearchIndex = {"docs": [
     "title": "Version history",
     "category": "section",
     "text": ""
+},
+
+{
+    "location": "history.html#v0.2.1-(current-development-version)-1",
+    "page": "Version history",
+    "title": "v0.2.1 (current development version)",
+    "category": "section",
+    "text": "ADDED: @critical macro to make test assertions terminate the testcase on failure."
 },
 
 {
