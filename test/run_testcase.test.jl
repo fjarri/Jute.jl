@@ -161,6 +161,30 @@ end
 end
 
 
+function critical_fail()
+    @critical @test 1 == 2 # critical failure, execution should stop
+end
+
+
+@testcase "@critical" begin
+    results = get_results() do
+        @test 1 == 1
+        critical_fail() # test that @critical works even inside a function
+        @test 1 == 1
+    end
+
+    @test length(results) == 2
+    @test isa(results[1], Jute.Test.Pass)
+    @test isa(results[2], Jute.Test.Fail)
+end
+
+
+@testcase "@critical on an unsupported expression" begin
+    @test_throws LoadError eval(:( @critical 1 == 1 ))
+end
+
+
+
 @testcase "is_failed()" begin
     outcome = get_outcome() do
         @test 1 == 1
