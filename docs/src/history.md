@@ -4,6 +4,7 @@
 ## v0.2.1 (current development version)
 
 * ADDED: `@critical` macro to make test assertions terminate the testcase on failure.
+* FIXED: `@produce` hanging when passed a non-string label.
 
 
 ## v0.2.0 (16 Sep 2018)

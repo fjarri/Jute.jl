@@ -59,6 +59,41 @@ end
 end
 
 
+testcases_for_custom_label_test = Jute.collect_testobjs() do
+    fx_with_custom_label = @global_fixture for x in [1, 2]
+        # Try a string and non-string label as a regression test
+        # (@produce used to hang if passed a non-string label).
+        label = x == 1 ? "one" : 2
+        @produce x label
+    end
+
+    @testcase "custom label" for x in fx_with_custom_label
+        @test 1 == 1
+    end
+end
+
+
+@testcase "produce with a custom label" begin
+    exitcode, output = nested_run_with_output(
+        testcases_for_custom_label_test, Dict(:verbosity => 2))
+    @test exitcode == 0
+
+    template = """
+        Collecting testcases...
+        Running 1 out of 1 testcases...
+        ================================================================================
+        Platform: Julia <<<julia_version>>>, Jute <<<jute_version>>>
+        --------------------------------------------------------------------------------
+        custom label [one] (<<<time>>>) [PASS]
+        custom label [2] (<<<time>>>) [PASS]
+        --------------------------------------------------------------------------------
+        2 tests passed, 0 failed, 0 errored in <<<full_time>>> (total test time <<<test_time>>>)
+    """
+
+    test_match_text(template, output)
+end
+
+
 @testcase "fixture dependencies" begin
     fx1 = @global_fixture begin
         @produce 1

@@ -21,7 +21,7 @@ end
 
 
 labeled_value(value, label=nothing) =
-    LabeledValue(value, label === nothing ? string(value) : label)
+    LabeledValue(value, label === nothing ? string(value) : string(label))
 
 
 Base.:(==)(lval1::LabeledValue, lval2::LabeledValue) =
