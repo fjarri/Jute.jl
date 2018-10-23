@@ -18,19 +18,19 @@ end
 
 @testcase "constant fixture with non-1D iterable" begin
     fx = Jute.constant_fixture(1)
-    @test Jute.setup(fx) == [Jute.labeled_value(1)]
+    @test Jute.setup(fx) == [Jute.LabeledValue(1)]
 
     fx = Jute.constant_fixture([1 2; 3 4])
-    @test Jute.setup(fx) == map(Jute.labeled_value, [1, 3, 2, 4])
+    @test Jute.setup(fx) == map(Jute.LabeledValue, [1, 3, 2, 4])
 
     fx = Jute.constant_fixture([1 2; 3 4], ["one" "two"; "three" "four"])
-    @test Jute.setup(fx) == map(Jute.labeled_value, [1, 3, 2, 4], ["one", "three", "two", "four"])
+    @test Jute.setup(fx) == map(Jute.LabeledValue, [1, 3, 2, 4], ["one", "three", "two", "four"])
 end
 
 
 @testcase "constant fixture with labels" begin
     fx = Jute.constant_fixture([1], ["one"])
-    @test Jute.setup(fx) == [Jute.labeled_value(1, "one")]
+    @test Jute.setup(fx) == [Jute.LabeledValue(1, "one")]
 end
 
 
@@ -55,7 +55,7 @@ end
         @produce x
     end
     constant_fx = Jute.parameters(fx)[1]
-    @test Jute.setup(constant_fx) == map(Jute.labeled_value, [1, 2], ["one", "two"])
+    @test Jute.setup(constant_fx) == map(Jute.LabeledValue, [1, 2], ["one", "two"])
 end
 
 

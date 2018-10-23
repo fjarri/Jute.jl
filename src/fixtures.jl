@@ -39,14 +39,14 @@ function constant_fixture(vals, labels=nothing)
     end
 
     if labels === nothing
-        labeled_vals = map(labeled_value, c_vals)
+        labeled_vals = map(LabeledValue, c_vals)
     else
         c_labels = try_collect(labels)
         if c_labels === nothing
             error("`labels` must be an iterable")
         end
 
-        labeled_vals = map(labeled_value, c_vals, c_labels)
+        labeled_vals = map(LabeledValue, c_vals, c_labels)
     end
 
     ConstantFixture(String(gensym("constant")), labeled_vals)

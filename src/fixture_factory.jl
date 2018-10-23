@@ -17,11 +17,9 @@ instant_teardown(rff::RunningFixtureFactory) = rff.instant_teardown
 struct LabeledValue
     value :: Any
     label :: String
+
+    LabeledValue(value, label=nothing) = new(value, string(label === nothing ? value : label))
 end
-
-
-labeled_value(value, label=nothing) =
-    LabeledValue(value, label === nothing ? string(value) : string(label))
 
 
 Base.:(==)(lval1::LabeledValue, lval2::LabeledValue) =
@@ -37,7 +35,7 @@ unwrap_label(lval::LabeledValue) = lval.label
 function fixture_factory(producer_func; instant_teardown=false)
     channel_func = function(c, args)
         produce = function(value, label=nothing)
-            put!(c, labeled_value(value, label))
+            put!(c, LabeledValue(value, label))
             if !instant_teardown
                 # block until the caller's signal
                 take!(c)
