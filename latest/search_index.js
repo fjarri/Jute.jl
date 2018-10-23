@@ -373,7 +373,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Version history",
     "title": "v0.2.1 (current development version)",
     "category": "section",
-    "text": "ADDED: @critical macro to make test assertions terminate the testcase on failure."
+    "text": "ADDED: @critical macro to make test assertions terminate the testcase on failure.\nFIXED: @produce hanging when passed a non-string label."
 },
 
 {
