@@ -40,11 +40,12 @@ mutable struct ProgressReporter
     current_group :: Array{String, 1}
     doctest :: Bool
     start_time :: UInt64
+    visited_groups :: Set{Array{String, 1}}
 end
 
 
 function progress_reporter(tcinfos, verbosity, doctest)
-    ProgressReporter(verbosity, true, String[], doctest, 0)
+    ProgressReporter(verbosity, true, String[], doctest, 0, Set{Array{String, 1}}())
 end
 
 
@@ -71,9 +72,17 @@ function progress_start_testcases!(progress::ProgressReporter, tcinfo::TestcaseI
         end
 
         if length(path) > 0
-            cn = common_elems_num(progress.current_group, path)
+            path_repeated = path in progress.visited_groups
+
+            if path_repeated && verbosity == 1
+                cn = 0
+            else
+                cn = common_elems_num(progress.current_group, path)
+            end
+
             for i in cn+1:length(path)
-                print("  " ^ (i - 1), path[i], verbosity == 1 ? ":" : "/")
+
+                print("  " ^ (i - 1), path[i], verbosity == 1 ? (path_repeated ? " (cont.):" : ":") : "/")
                 if verbosity == 1
                     if i != length(path)
                         print("\n")
@@ -87,6 +96,7 @@ function progress_start_testcases!(progress::ProgressReporter, tcinfo::TestcaseI
         end
 
         progress.current_group = path
+        push!(progress.visited_groups, path)
     end
 
     progress.just_started = false

@@ -72,6 +72,7 @@ TESTCASES_WITH_GROUPS = Jute.collect_testobjs() do
                 @testcase "subsubgroup 1 testcase 2" begin end
             end
         end
+        @testcase "group 1 testcase 3" begin end
     end
     @testgroup "group 2" begin
         @testcase "group 2 testcase 1" begin end
@@ -219,7 +220,7 @@ end
 
     template = """
         Collecting testcases...
-        Running 8 out of 8 testcases...
+        Running 9 out of 9 testcases...
         ================================================================================
         Platform: Julia <<<julia_version>>>, Jute <<<jute_version>>>
         --------------------------------------------------------------------------------
@@ -227,10 +228,11 @@ end
         group 1: ..
           subgroup 1:
             subsubgroup 1: ..
+        group 1 (cont.): .
         group 2: ..
         .
         --------------------------------------------------------------------------------
-        8 tests passed, 0 failed, 0 errored in <<<full_time>>> (total test time <<<test_time>>>)
+        9 tests passed, 0 failed, 0 errored in <<<full_time>>> (total test time <<<test_time>>>)
     """
 
     test_match_text(template, output)
@@ -243,7 +245,7 @@ end
 
     template = """
         Collecting testcases...
-        Running 8 out of 8 testcases...
+        Running 9 out of 9 testcases...
         ================================================================================
         Platform: Julia <<<julia_version>>>, Jute <<<jute_version>>>
         --------------------------------------------------------------------------------
@@ -255,12 +257,13 @@ end
             subsubgroup 1/
               subsubgroup 1 testcase 1 (<<<time>>>) [PASS]
               subsubgroup 1 testcase 2 (<<<time>>>) [PASS]
+          group 1 testcase 3 (<<<time>>>) [PASS]
         group 2/
           group 2 testcase 1 (<<<time>>>) [PASS]
           group 2 testcase 2 (<<<time>>>) [PASS]
         root testcase 2 (<<<time>>>) [PASS]
         --------------------------------------------------------------------------------
-        8 tests passed, 0 failed, 0 errored in <<<full_time>>> (total test time <<<test_time>>>)
+        9 tests passed, 0 failed, 0 errored in <<<full_time>>> (total test time <<<test_time>>>)
     """
 
     test_match_text(template, output)

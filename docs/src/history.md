@@ -5,6 +5,7 @@
 
 * ADDED: `@critical` macro to make test assertions terminate the testcase on failure.
 * FIXED: `@produce` hanging when passed a non-string label.
+* FIXED: incorrect indentation with `verbosity=1` when a group has some testcases after nested groups.
 
 
 ## v0.2.0 (16 Sep 2018)
