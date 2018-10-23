@@ -168,13 +168,12 @@ function _fixture(islocal, args...)
             end
         end
     else
-        res = quote
+        quote
             $fxname($(fixtures...)) do $PRODUCE_VAR, $(vars...)
                 $(unpacks...)
                 $body
             end
         end
-        res
     end
 end
 
