@@ -82,9 +82,7 @@ function run_testcases(run_options, tcs, doctest)
     gi = get_iterable(global_fixtures)
     for_teardown = DefaultDict{Int, Array{RunningFixtureFactory, 1}}(() -> RunningFixtureFactory[])
 
-    test_outcomes = []
-
-    progress = progress_reporter([tcinfo for (tcinfo, tc) in tcs], run_options[:verbosity], doctest)
+    progress = ProgressReporter(run_options[:verbosity], doctest)
 
     progress_start!(progress)
 
@@ -116,11 +114,8 @@ function run_testcases(run_options, tcs, doctest)
             end
         end
 
-
         fixture_iterables = map(gi, parameters(tc))
         iterable_permutations = rowmajor_product(fixture_iterables...)
-
-        progress_start_testcases!(progress, tcinfo, length(iterable_permutations))
 
         for lvals in iterable_permutations
             dvals = map(instantiate, parameters(tc), lvals)
@@ -129,7 +124,6 @@ function run_testcases(run_options, tcs, doctest)
             progress_start_testcase!(progress, tcinfo, labels)
             outcome = run_testcase(tc, args, capture_output)
             map(release, dvals)
-            push!(test_outcomes, (tcinfo, labels, outcome))
             progress_finish_testcase!(progress, tcinfo, labels, outcome)
 
             if is_failed(outcome)
@@ -147,8 +141,6 @@ function run_testcases(run_options, tcs, doctest)
             delete!(for_teardown, i)
         end
 
-        progress_finish_testcases!(progress, tcinfo)
-
         if max_fails_reached
             # Call all remaining teardowns
             for (i, rffs) in for_teardown
@@ -158,7 +150,9 @@ function run_testcases(run_options, tcs, doctest)
         end
     end
 
-    progress_finish!(progress, test_outcomes)
+    progress_finish!(progress)
+
+    fails_num == 0
 end
 
 

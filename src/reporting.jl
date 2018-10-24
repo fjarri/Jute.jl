@@ -34,6 +34,13 @@ function Base.show(io::IO, fe::FailExplanation)
 end
 
 
+struct ExecutedTestcase
+    tcinfo :: TestcaseInfo
+    labels :: Array{String, 1}
+    outcome :: TestcaseOutcome
+end
+
+
 mutable struct ProgressReporter
     verbosity :: Int
     just_started :: Bool
@@ -41,11 +48,11 @@ mutable struct ProgressReporter
     doctest :: Bool
     start_time :: UInt64
     visited_groups :: Set{Array{String, 1}}
-end
+    testcases :: Array{ExecutedTestcase, 1}
 
-
-function progress_reporter(tcinfos, verbosity, doctest)
-    ProgressReporter(verbosity, true, String[], doctest, 0, Set{Array{String, 1}}())
+    function ProgressReporter(verbosity, doctest)
+        new(verbosity, true, String[], doctest, 0, Set{Array{String, 1}}(), ExecutedTestcase[])
+    end
 end
 
 
@@ -61,49 +68,55 @@ function common_elems_num(l1, l2)
 end
 
 
-function progress_start_testcases!(progress::ProgressReporter, tcinfo::TestcaseInfo, fixtures_num)
-    path, name = path_pair(tcinfo)
+function _progress_start_testgroup!(progress::ProgressReporter, tcinfo::TestcaseInfo)
+
     verbosity = progress.verbosity
+    path = tcinfo.path
 
-    if verbosity > 0 && path != progress.current_group
-
-        if verbosity == 1 && !progress.just_started
-            println()
-        end
-
-        if length(path) > 0
-            path_repeated = path in progress.visited_groups
-
-            if path_repeated && verbosity == 1
-                cn = 0
-            else
-                cn = common_elems_num(progress.current_group, path)
-            end
-
-            for i in cn+1:length(path)
-
-                print("  " ^ (i - 1), path[i], verbosity == 1 ? (path_repeated ? " (cont.):" : ":") : "/")
-                if verbosity == 1
-                    if i != length(path)
-                        print("\n")
-                    else
-                        print(" ")
-                    end
-                elseif verbosity == 2
-                    print("\n")
-                end
-            end
-        end
-
-        progress.current_group = path
-        push!(progress.visited_groups, path)
+    if verbosity == 1 && !progress.just_started
+        println()
     end
 
-    progress.just_started = false
+    if length(path) > 0
+        path_repeated = path in progress.visited_groups
+
+        if path_repeated && verbosity == 1
+            cn = 0
+        else
+            cn = common_elems_num(progress.current_group, path)
+        end
+
+        for i in cn+1:length(path)
+            postfix = verbosity == 1 ? (path_repeated ? " (cont.):" : ":") : "/"
+            print("  " ^ (i - 1), path[i], postfix)
+            if verbosity == 1
+                if i != length(path)
+                    print("\n")
+                else
+                    print(" ")
+                end
+            elseif verbosity == 2
+                print("\n")
+            end
+        end
+    end
+
 end
 
 
 function progress_start_testcase!(progress::ProgressReporter, tcinfo::TestcaseInfo, labels)
+
+    progress.just_started = false
+
+    path, name = path_pair(tcinfo)
+    verbosity = progress.verbosity
+
+    if verbosity > 0 && path != progress.current_group
+        _progress_start_testgroup!(progress, tcinfo)
+        progress.current_group = path
+        push!(progress.visited_groups, path)
+    end
+
     if progress.verbosity >= 2
         tctag = tag_string(tcinfo, labels)
         path, name = path_pair(tcinfo)
@@ -114,6 +127,8 @@ end
 
 function progress_finish_testcase!(
         progress::ProgressReporter, tcinfo::TestcaseInfo, labels, outcome)
+
+    push!(progress.testcases, ExecutedTestcase(tcinfo, labels, outcome))
 
     verbosity = progress.verbosity
     if verbosity == 1
@@ -142,11 +157,6 @@ function progress_finish_testcase!(
 end
 
 
-function progress_finish_testcases!(progress::ProgressReporter, tcinfo::TestcaseInfo)
-
-end
-
-
 function progress_start!(progress::ProgressReporter)
     if progress.verbosity > 0
 
@@ -167,88 +177,96 @@ function progress_start!(progress::ProgressReporter)
 end
 
 
-function progress_finish!(progress::ProgressReporter, outcomes)
+function _custom_results_present(progress::ProgressReporter)
+    for etc in progress.testcases
+        if any(isa(result, ReturnValue) for result in etc.outcome.results)
+            return true
+        end
+    end
+    false
+end
 
-    full_time = (time_ns() - progress.start_time) / 1e9
 
-    outcome_objs = [outcome for (tcinfo, labels, outcome) in outcomes]
+function _print_custom_results(progress::ProgressReporter)
+    println("-" ^ 80)
+    pr2 = ProgressReporter(2, false)
+    for etc in progress.testcases
+        return_values = [result for result in etc.outcome.results if isa(result, ReturnValue)]
+        if !isempty(return_values)
+            filtered_outcome = TestcaseOutcome(
+                return_values, etc.outcome.elapsed_time, etc.outcome.output)
+            progress_start_testcase!(pr2, etc.tcinfo, etc.labels)
+            progress_finish_testcase!(pr2, etc.tcinfo, etc.labels, filtered_outcome)
+        end
+    end
+end
 
-    all_results = mapreduce(outcome -> outcome.results, vcat, outcome_objs, init=[])
-    num_results = Dict(
+
+function _print_statistics(progress::ProgressReporter, full_time)
+
+    all_results = mapreduce(etc -> etc.outcome.results, vcat, progress.testcases, init=[])
+    stats = Dict(
         key => length(filter(result -> isa(result, tp), all_results))
         for (key, tp) in [
             (:pass, Union{Test.Pass, ReturnValue, Test.Broken}),
             (:fail, Union{Test.Fail, FailExplanation}),
             (:error, Test.Error)])
 
-    all_success = (num_results[:fail] + num_results[:error] == 0)
-
-    if progress.verbosity == 1
-        println()
+    if progress.doctest
+        full_time_str = "[...] s"
+        full_test_time_str = "[...] s"
+    else
+        full_test_time = mapreduce(etc -> etc.outcome.elapsed_time, +, progress.testcases)
+        full_time_str = pprint_time(full_time, meaningful_digits=3)
+        full_test_time_str = pprint_time(full_test_time, meaningful_digits=3)
     end
 
-    if progress.verbosity == 1
-        # If there are custom results returned, display them separately.
+    println("-" ^ 80)
+    println(
+        "$(stats[:pass]) tests passed, " *
+        "$(stats[:fail]) failed, " *
+        "$(stats[:error]) errored " *
+        "in $full_time_str (total test time $full_test_time_str)")
+end
 
-        custom_results = false
-        for (tcinfo, labels, outcome) in outcomes
-            if any(isa(result, ReturnValue) for result in outcome.results)
-                custom_results = true
-                break
-            end
-        end
 
-        if custom_results
-            println("-" ^ 80)
-            pr2 = progress_reporter([], 2, false)
-            for (tcinfo, labels, outcome) in outcomes
-                return_values = [result for result in outcome.results if isa(result, ReturnValue)]
-                if !isempty(return_values)
-                    filtered_outcome = TestcaseOutcome(
-                        return_values, outcome.elapsed_time, outcome.output)
-                    progress_start_testcases!(pr2, tcinfo, 0)
-                    progress_start_testcase!(pr2, tcinfo, labels)
-                    progress_finish_testcase!(pr2, tcinfo, labels, filtered_outcome)
-                end
-            end
-        end
-    end
-
-    if progress.verbosity >= 1
-        if progress.doctest
-            full_time_str = "[...] s"
-            full_test_time_str = "[...] s"
-        else
-            full_test_time = mapreduce(outcome -> outcome.elapsed_time, +, outcome_objs)
-            full_time_str = pprint_time(full_time, meaningful_digits=3)
-            full_test_time_str = pprint_time(full_test_time, meaningful_digits=3)
-        end
-
-        println("-" ^ 80)
-        println(
-            "$(num_results[:pass]) tests passed, " *
-            "$(num_results[:fail]) failed, " *
-            "$(num_results[:error]) errored " *
-            "in $full_time_str (total test time $full_test_time_str)")
-    end
-
-    for (tcinfo, labels, outcome) in outcomes
-        if is_failed(outcome)
+function _print_failures(progress::ProgressReporter)
+    for etc in progress.testcases
+        if is_failed(etc.outcome)
             println("=" ^ 80)
-            println(tag_string(tcinfo, labels; full=true))
+            println(tag_string(etc.tcinfo, etc.labels; full=true))
 
-            if length(outcome.output) > 0
+            if length(etc.outcome.output) > 0
                 println("Captured output:")
-                println(outcome.output)
+                println(etc.outcome.output)
             end
 
-            for result in outcome.results
+            for result in etc.outcome.results
                 if is_failed(result)
                     println(result)
                 end
             end
         end
     end
+end
 
-    all_success
+
+function progress_finish!(progress::ProgressReporter)
+
+    full_time = (time_ns() - progress.start_time) / 1e9
+
+    if progress.verbosity == 1
+        # Results are displayed with `print()`, so a line break in the end is needed.
+        println()
+    end
+
+    if progress.verbosity == 1 && _custom_results_present(progress)
+        _print_custom_results(progress)
+    end
+
+    if progress.verbosity >= 1
+        _print_statistics(progress, full_time)
+    end
+
+    _print_failures(progress)
 end
