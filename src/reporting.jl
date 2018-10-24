@@ -187,6 +187,33 @@ function progress_finish!(progress::ProgressReporter, outcomes)
         println()
     end
 
+    if progress.verbosity == 1
+        # If there are custom results returned, display them separately.
+
+        custom_results = false
+        for (tcinfo, labels, outcome) in outcomes
+            if any(isa(result, ReturnValue) for result in outcome.results)
+                custom_results = true
+                break
+            end
+        end
+
+        if custom_results
+            println("-" ^ 80)
+            pr2 = progress_reporter([], 2, false)
+            for (tcinfo, labels, outcome) in outcomes
+                return_values = [result for result in outcome.results if isa(result, ReturnValue)]
+                if !isempty(return_values)
+                    filtered_outcome = TestcaseOutcome(
+                        return_values, outcome.elapsed_time, outcome.output)
+                    progress_start_testcases!(pr2, tcinfo, 0)
+                    progress_start_testcase!(pr2, tcinfo, labels)
+                    progress_finish_testcase!(pr2, tcinfo, labels, filtered_outcome)
+                end
+            end
+        end
+    end
+
     if progress.verbosity >= 1
         if progress.doctest
             full_time_str = "[...] s"
