@@ -195,9 +195,11 @@ function runtests_internal(run_options, tcs, doctest=false)
     end
 
     if run_options[:verbosity] > 0
-        println("Running $(length(testcases)) out of $(length(all_testcases)) testcases...")
+        println(
+            "Using $(length(testcases)) out of $(length(all_testcases)) testcase definitions...")
         println("=" ^ 80)
     end
+
     all_successful = run_testcases(run_options, testcases, doctest)
     Int(!all_successful)
 end
