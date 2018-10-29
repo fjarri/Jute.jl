@@ -161,7 +161,7 @@ function progress_start!(progress::ProgressReporter)
     if progress.verbosity > 0
 
         if progress.doctest
-            platform = "[...]"
+            platform = "[...], Julia [...]"
             jute_version = "[...]"
         else
             kernel = Sys.iswindows() ? "Windows" : Sys.isapple() ? "macOS" : Sys.KERNEL

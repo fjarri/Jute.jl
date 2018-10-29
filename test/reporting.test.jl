@@ -129,7 +129,7 @@ end
         Collecting testcases...
         Using 10 out of 10 testcase definitions...
         ================================================================================
-        Platform: Julia <<<julia_version>>>, Jute <<<jute_version>>>
+        Platform: <<<platform>>>, Julia <<<julia_version>>>, Jute <<<jute_version>>>
         --------------------------------------------------------------------------------
         ....*.F..E....B..B..E..F
         --------------------------------------------------------------------------------
@@ -173,7 +173,7 @@ end
         Collecting testcases...
         Using 10 out of 10 testcase definitions...
         ================================================================================
-        Platform: Julia <<<julia_version>>>, Jute <<<jute_version>>>
+        Platform: <<<platform>>>, Julia <<<julia_version>>>, Jute <<<jute_version>>>
         --------------------------------------------------------------------------------
         multiple tests (<<<time>>>) [PASS] [PASS] [PASS]
         returning value (<<<time>>>) [PASS] [10]
@@ -224,7 +224,7 @@ end
         Collecting testcases...
         Using 9 out of 9 testcase definitions...
         ================================================================================
-        Platform: Julia <<<julia_version>>>, Jute <<<jute_version>>>
+        Platform: <<<platform>>>, Julia <<<julia_version>>>, Jute <<<jute_version>>>
         --------------------------------------------------------------------------------
         .
         group 1: ..
@@ -249,7 +249,7 @@ end
         Collecting testcases...
         Using 9 out of 9 testcase definitions...
         ================================================================================
-        Platform: Julia <<<julia_version>>>, Jute <<<jute_version>>>
+        Platform: <<<platform>>>, Julia <<<julia_version>>>, Jute <<<jute_version>>>
         --------------------------------------------------------------------------------
         root testcase 1 (<<<time>>>) [PASS]
         group 1/

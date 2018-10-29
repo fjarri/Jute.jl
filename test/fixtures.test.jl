@@ -82,7 +82,7 @@ end
         Collecting testcases...
         Using 1 out of 1 testcase definitions...
         ================================================================================
-        Platform: Julia <<<julia_version>>>, Jute <<<jute_version>>>
+        Platform: <<<platform>>>, Julia <<<julia_version>>>, Jute <<<jute_version>>>
         --------------------------------------------------------------------------------
         custom label [one] (<<<time>>>) [PASS]
         custom label [2] (<<<time>>>) [PASS]

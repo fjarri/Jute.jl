@@ -65,7 +65,7 @@ runtests(; options=Dict(:verbosity => 2))
 Collecting testcases...
 Using 3 out of 3 testcase definitions...
 ================================================================================
-Platform: Julia [...], Jute [...]
+Platform: [...], Julia [...], Jute [...]
 --------------------------------------------------------------------------------
 tc1 ([...] ms) [PASS]
 group/
@@ -115,7 +115,7 @@ runtests(; options=Dict(:verbosity => 2))
 Collecting testcases...
 Using 1 out of 1 testcase definitions...
 ================================================================================
-Platform: Julia [...], Jute [...]
+Platform: [...], Julia [...], Jute [...]
 --------------------------------------------------------------------------------
 parametrized testcase[1] ([...] ms) [PASS]
 parametrized testcase[2] ([...] ms) [PASS]
@@ -146,7 +146,7 @@ runtests(; options=Dict(:verbosity => 2))
 Collecting testcases...
 Using 1 out of 1 testcase definitions...
 ================================================================================
-Platform: Julia [...], Jute [...]
+Platform: [...], Julia [...], Jute [...]
 --------------------------------------------------------------------------------
 parametrized testcase[one] ([...] ms) [PASS]
 parametrized testcase[two] ([...] ms) [PASS]
@@ -176,7 +176,7 @@ runtests(; options=Dict(:verbosity => 2))
 Collecting testcases...
 Using 1 out of 1 testcase definitions...
 ================================================================================
-Platform: Julia [...], Jute [...]
+Platform: [...], Julia [...], Jute [...]
 --------------------------------------------------------------------------------
 parametrized testcase[1,3] ([...] ms) [PASS]
 parametrized testcase[1,4] ([...] ms) [PASS]
@@ -207,7 +207,7 @@ runtests(; options=Dict(:verbosity => 2))
 Collecting testcases...
 Using 1 out of 1 testcase definitions...
 ================================================================================
-Platform: Julia [...], Jute [...]
+Platform: [...], Julia [...], Jute [...]
 --------------------------------------------------------------------------------
 parametrized testcase[(1, 2)] ([...] ms) [PASS]
 parametrized testcase[(3, 4)] ([...] ms) [PASS]
@@ -288,7 +288,7 @@ runtests(; options=Dict(:verbosity => 2))
 Collecting testcases...
 Using 1 out of 1 testcase definitions...
 ================================================================================
-Platform: Julia [...], Jute [...]
+Platform: [...], Julia [...], Jute [...]
 --------------------------------------------------------------------------------
 tc[(1, 3)] ([...] ms) [PASS]
 tc[(1, 4)] ([...] ms) [PASS]
@@ -329,7 +329,7 @@ runtests(; options=Dict(:verbosity => 2))
 Collecting testcases...
 Using 1 out of 1 testcase definitions...
 ================================================================================
-Platform: Julia [...], Jute [...]
+Platform: [...], Julia [...], Jute [...]
 --------------------------------------------------------------------------------
 tempdir test[tempdir] ([...] ms) [PASS]
 --------------------------------------------------------------------------------
@@ -369,7 +369,7 @@ runtests(; options=Dict(:verbosity => 2, :include_only_tags => [:baz]))
 Collecting testcases...
 Using 1 out of 2 testcase definitions...
 ================================================================================
-Platform: Julia [...], Jute [...]
+Platform: [...], Julia [...], Jute [...]
 --------------------------------------------------------------------------------
 bar and baz ([...] ms) [PASS]
 --------------------------------------------------------------------------------
