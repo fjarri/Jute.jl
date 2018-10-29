@@ -5,6 +5,7 @@
 
 * ADDED: `@critical` macro to make test assertions terminate the testcase on failure.
 * ADDED: for `verbosity=1`, display the results returned by `@test_result` separately.
+* ADDED: printing the OS and the kernel info in the report header.
 * FIXED: `@produce` hanging when passed a non-string label.
 * FIXED: incorrect indentation with `verbosity=1` when a group has some testcases after nested groups.
 

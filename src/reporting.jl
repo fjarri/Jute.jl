@@ -161,15 +161,16 @@ function progress_start!(progress::ProgressReporter)
     if progress.verbosity > 0
 
         if progress.doctest
-            julia_version = "[...]"
+            platform = "[...]"
             jute_version = "[...]"
         else
-            julia_version = string(VERSION)
+            kernel = Sys.iswindows() ? "Windows" : Sys.isapple() ? "macOS" : Sys.KERNEL
+            platform = "$kernel ($(Sys.MACHINE)), Julia $(string(VERSION))"
             # FIXME: at the moment Pkg3 does not allow us to get out own version
             jute_version = "<unknown>"
         end
 
-        println("Platform: Julia $julia_version, Jute $jute_version")
+        println("Platform: $platform, Jute $jute_version")
         println("-" ^ 80)
     end
 
