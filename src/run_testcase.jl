@@ -94,7 +94,7 @@ macro critical(expr)
     end
 
     quote
-        $expr
+        $(esc(expr))
         if is_failed(Test.get_testset().results[end])
             throw(CriticalFailException())
         end

@@ -162,7 +162,8 @@ end
 
 
 function critical_fail()
-    @critical @test 1 == 2 # critical failure, execution should stop
+    i = 1 # to check that an external variable can be used in the assertion
+    @critical @test i == 2 # critical failure, execution should stop
 end
 
 
@@ -182,7 +183,6 @@ end
 @testcase "@critical on an unsupported expression" begin
     @test_throws LoadError eval(:( @critical 1 == 1 ))
 end
-
 
 
 @testcase "is_failed()" begin
