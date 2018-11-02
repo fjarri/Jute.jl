@@ -14,10 +14,10 @@ makedocs(
         "Internals" => "internals.md",
         "Version history" => "history.md",
     ],
+    html_prettyurls = false,
 )
 
 deploydocs(
-    julia = "nightly",
     repo = "github.com/fjarri/Jute.jl.git",
     target = "build",
     deps = nothing,
