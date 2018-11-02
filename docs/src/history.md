@@ -1,7 +1,7 @@
 # Version history
 
 
-## v0.2.1 (current development version)
+## v0.2.1 (2 Nov 2018)
 
 * ADDED: `@critical` macro to make test assertions terminate the testcase on failure.
 * ADDED: for `verbosity=1`, display the results returned by `@test_result` separately.
