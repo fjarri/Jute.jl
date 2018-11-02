@@ -117,9 +117,9 @@ Using 1 out of 1 testcase definitions...
 ================================================================================
 Platform: [...], Julia [...], Jute [...]
 --------------------------------------------------------------------------------
-parametrized testcase[1] ([...] ms) [PASS]
-parametrized testcase[2] ([...] ms) [PASS]
-parametrized testcase[3] ([...] ms) [PASS]
+parametrized testcase [1] ([...] ms) [PASS]
+parametrized testcase [2] ([...] ms) [PASS]
+parametrized testcase [3] ([...] ms) [PASS]
 --------------------------------------------------------------------------------
 3 tests passed, 0 failed, 0 errored in [...] s (total test time [...] s)
 ```
@@ -148,9 +148,9 @@ Using 1 out of 1 testcase definitions...
 ================================================================================
 Platform: [...], Julia [...], Jute [...]
 --------------------------------------------------------------------------------
-parametrized testcase[one] ([...] ms) [PASS]
-parametrized testcase[two] ([...] ms) [PASS]
-parametrized testcase[three] ([...] ms) [PASS]
+parametrized testcase [one] ([...] ms) [PASS]
+parametrized testcase [two] ([...] ms) [PASS]
+parametrized testcase [three] ([...] ms) [PASS]
 --------------------------------------------------------------------------------
 3 tests passed, 0 failed, 0 errored in [...] s (total test time [...] s)
 ```
@@ -178,10 +178,10 @@ Using 1 out of 1 testcase definitions...
 ================================================================================
 Platform: [...], Julia [...], Jute [...]
 --------------------------------------------------------------------------------
-parametrized testcase[1,3] ([...] ms) [PASS]
-parametrized testcase[1,4] ([...] ms) [PASS]
-parametrized testcase[2,3] ([...] ms) [PASS]
-parametrized testcase[2,4] ([...] ms) [PASS]
+parametrized testcase [1,3] ([...] ms) [PASS]
+parametrized testcase [1,4] ([...] ms) [PASS]
+parametrized testcase [2,3] ([...] ms) [PASS]
+parametrized testcase [2,4] ([...] ms) [PASS]
 --------------------------------------------------------------------------------
 4 tests passed, 0 failed, 0 errored in [...] s (total test time [...] s)
 ```
@@ -209,8 +209,8 @@ Using 1 out of 1 testcase definitions...
 ================================================================================
 Platform: [...], Julia [...], Jute [...]
 --------------------------------------------------------------------------------
-parametrized testcase[(1, 2)] ([...] ms) [PASS]
-parametrized testcase[(3, 4)] ([...] ms) [PASS]
+parametrized testcase [(1, 2)] ([...] ms) [PASS]
+parametrized testcase [(3, 4)] ([...] ms) [PASS]
 --------------------------------------------------------------------------------
 2 tests passed, 0 failed, 0 errored in [...] s (total test time [...] s)
 ```
@@ -290,10 +290,10 @@ Using 1 out of 1 testcase definitions...
 ================================================================================
 Platform: [...], Julia [...], Jute [...]
 --------------------------------------------------------------------------------
-tc[(1, 3)] ([...] ms) [PASS]
-tc[(1, 4)] ([...] ms) [PASS]
-tc[(2, 3)] ([...] ms) [PASS]
-tc[(2, 4)] ([...] ms) [PASS]
+tc [(1, 3)] ([...] ms) [PASS]
+tc [(1, 4)] ([...] ms) [PASS]
+tc [(2, 3)] ([...] ms) [PASS]
+tc [(2, 4)] ([...] ms) [PASS]
 --------------------------------------------------------------------------------
 4 tests passed, 0 failed, 0 errored in [...] s (total test time [...] s)
 ```
@@ -331,7 +331,7 @@ Using 1 out of 1 testcase definitions...
 ================================================================================
 Platform: [...], Julia [...], Jute [...]
 --------------------------------------------------------------------------------
-tempdir test[tempdir] ([...] ms) [PASS]
+tempdir test [tempdir] ([...] ms) [PASS]
 --------------------------------------------------------------------------------
 1 tests passed, 0 failed, 0 errored in [...] s (total test time [...] s)
 ```
