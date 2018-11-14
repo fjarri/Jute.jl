@@ -157,7 +157,7 @@ function _fixture(islocal, args...)
     options_expr = args[1:end-1]
     vars, unpacks, fixtures, body = parse_body(args[end])
 
-    fxname = islocal ? :local_fixture : :global_fixture
+    fxname = islocal ? :LocalFixture : :GlobalFixture
 
     if length(options_expr) > 0
         options = parse_options(options_expr)

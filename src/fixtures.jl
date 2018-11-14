@@ -21,35 +21,34 @@ is_callable(val) = !isempty(methods(val))
 struct ConstantFixture <: AbstractGlobalFixture
     name :: String
     lvals :: Array{LabeledValue, 1}
-end
 
+    """
+        ConstantFixture(vals[, labels])
 
-"""
-    constant_fixture(vals[, labels])
+    Create a [`ConstantFixture`](@ref) object.
+    Only called to convert a given value to a fixture internally,
+    users can just supply iterables directly as testcase or fixture parameters.
+    """
+    function ConstantFixture(vals, labels=nothing)
 
-Create a [`ConstantFixture`](@ref) object.
-Only called to convert a given value to a fixture internally,
-users can just supply iterables directly as testcase or fixture parameters.
-"""
-function constant_fixture(vals, labels=nothing)
-
-    c_vals = try_collect(vals)
-    if c_vals === nothing
-        error("`vals` must be an iterable")
-    end
-
-    if labels === nothing
-        labeled_vals = map(LabeledValue, c_vals)
-    else
-        c_labels = try_collect(labels)
-        if c_labels === nothing
-            error("`labels` must be an iterable")
+        c_vals = try_collect(vals)
+        if c_vals === nothing
+            error("`vals` must be an iterable")
         end
 
-        labeled_vals = map(LabeledValue, c_vals, c_labels)
-    end
+        if labels === nothing
+            labeled_vals = map(LabeledValue, c_vals)
+        else
+            c_labels = try_collect(labels)
+            if c_labels === nothing
+                error("`labels` must be an iterable")
+            end
 
-    ConstantFixture(String(gensym("constant")), labeled_vals)
+            labeled_vals = map(LabeledValue, c_vals, c_labels)
+        end
+
+        new(String(gensym("constant")), labeled_vals)
+    end
 end
 
 
@@ -62,28 +61,27 @@ struct GlobalFixture <: AbstractGlobalFixture
     ff :: FixtureFactory
     parameters :: Array{Fixture, 1}
     dependencies :: OrderedSet{AbstractGlobalFixture}
+
+    function GlobalFixture(producer, params...; name=nothing, instant_teardown=false)
+        if name === nothing
+            name = String(gensym("fixture"))
+        end
+
+        if !is_callable(producer)
+            error("Producer must be a callable")
+        end
+
+        params = collect(map(normalize_fixture, params))
+        # TODO: check that it does not depend on any local fixtures
+        deps = union(map(dependencies, params)..., global_fixtures(params))
+        ff = fixture_factory(producer; instant_teardown=instant_teardown)
+        new(name, ff, params, deps)
+    end
 end
 
 
 function setup(fx::GlobalFixture, args)
     setup(fx.ff, args)
-end
-
-
-function global_fixture(producer, params...; name=nothing, instant_teardown=false)
-    if name === nothing
-        name = String(gensym("fixture"))
-    end
-
-    if !is_callable(producer)
-        error("Producer must be a callable")
-    end
-
-    params = collect(map(normalize_fixture, params))
-    # TODO: check that it does not depend on any local fixtures
-    deps = union(map(dependencies, params)..., global_fixtures(params))
-    ff = fixture_factory(producer; instant_teardown=instant_teardown)
-    GlobalFixture(name, ff, params, deps)
 end
 
 
@@ -104,22 +102,22 @@ struct LocalFixture <: Fixture
     ff :: FixtureFactory
     parameters :: Array{Fixture, 1}
     dependencies :: OrderedSet{AbstractGlobalFixture}
-end
 
+    function LocalFixture(producer, params...; name=nothing)
+        if name === nothing
+            name = String(gensym("local_fixture"))
+        end
 
-function local_fixture(producer, params...; name=nothing)
-    if name === nothing
-        name = String(gensym("local_fixture"))
+        if !is_callable(producer)
+            error("Producer must be a callable")
+        end
+
+        params = collect(map(normalize_fixture, params))
+        deps = union(map(dependencies, params)..., global_fixtures(params))
+        ff = fixture_factory(producer; instant_teardown=false)
+        new(name, ff, params, deps)
     end
 
-    if !is_callable(producer)
-        error("Producer must be a callable")
-    end
-
-    params = collect(map(normalize_fixture, params))
-    deps = union(map(dependencies, params)..., global_fixtures(params))
-    ff = fixture_factory(producer; instant_teardown=false)
-    LocalFixture(name, ff, params, deps)
 end
 
 
@@ -137,8 +135,8 @@ global_fixtures(fxs) = OrderedSet{AbstractGlobalFixture}(filter(is_global_fixtur
 
 
 normalize_fixture(f::Fixture) = f
-normalize_fixture(f::Pair) = constant_fixture(f[1], f[2])
-normalize_fixture(f) = constant_fixture(f)
+normalize_fixture(f::Pair) = ConstantFixture(f[1], f[2])
+normalize_fixture(f) = ConstantFixture(f)
 
 
 parameters(fixture::LocalFixture) = fixture.parameters

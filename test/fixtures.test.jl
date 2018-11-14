@@ -17,36 +17,36 @@ end
 
 
 @testcase "constant fixture with non-1D iterable" begin
-    fx = Jute.constant_fixture(1)
+    fx = Jute.ConstantFixture(1)
     @test Jute.setup(fx) == [Jute.LabeledValue(1)]
 
-    fx = Jute.constant_fixture([1 2; 3 4])
+    fx = Jute.ConstantFixture([1 2; 3 4])
     @test Jute.setup(fx) == map(Jute.LabeledValue, [1, 3, 2, 4])
 
-    fx = Jute.constant_fixture([1 2; 3 4], ["one" "two"; "three" "four"])
+    fx = Jute.ConstantFixture([1 2; 3 4], ["one" "two"; "three" "four"])
     @test Jute.setup(fx) == map(Jute.LabeledValue, [1, 3, 2, 4], ["one", "three", "two", "four"])
 end
 
 
 @testcase "constant fixture with labels" begin
-    fx = Jute.constant_fixture([1], ["one"])
+    fx = Jute.ConstantFixture([1], ["one"])
     @test Jute.setup(fx) == [Jute.LabeledValue(1, "one")]
 end
 
 
 @testcase "constant fixture checks for iterable" begin
-    @test_throws ErrorException Jute.constant_fixture(:a)
-    @test_throws ErrorException Jute.constant_fixture([1], :a)
+    @test_throws ErrorException Jute.ConstantFixture(:a)
+    @test_throws ErrorException Jute.ConstantFixture([1], :a)
 end
 
 
 @testcase "global fixture checks for callable" begin
-    @test_throws ErrorException Jute.global_fixture(1)
+    @test_throws ErrorException Jute.GlobalFixture(1)
 end
 
 
 @testcase "local fixture checks for callable" begin
-    @test_throws ErrorException Jute.local_fixture(1)
+    @test_throws ErrorException Jute.LocalFixture(1)
 end
 
 
