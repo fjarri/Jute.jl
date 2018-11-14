@@ -100,14 +100,14 @@ macro testcase(args...)
     if length(options_expr) > 0
         options = parse_options(options_expr)
         tc_call = quote
-            testcase($name, $(fixtures...); $options...) do $(vars...)
+            Testcase($name, $(fixtures...); $options...) do $(vars...)
                 $(unpacks...)
                 $body
             end
         end
     else
         tc_call = quote
-            testcase($name, $(fixtures...)) do $(vars...)
+            Testcase($name, $(fixtures...)) do $(vars...)
                 $(unpacks...)
                 $body
             end
@@ -134,13 +134,13 @@ macro testgroup(args...)
     if length(options_expr) > 0
         options = parse_options(options_expr)
         tg_call = quote
-            testgroup($name; $options...) do
+            TestGroup($name; $options...) do
                 $body
             end
         end
     else
         tg_call = quote
-            testgroup($name) do
+            TestGroup($name) do
                 $body
             end
         end

@@ -23,38 +23,37 @@ struct Testcase
     for all combinations of the fixture values.
     """
     single_process :: Bool
-end
 
+    """
+        Testcase(func, params...; tags=[])
 
-"""
-    testcase(func, params...; tags=[])
+    Define a testcase.
 
-Define a testcase.
+    `func` is a testcase function.
+    The number of function parameters must be equal to the number
+    of parametrizing fixtures given in `params`.
+    This function will be called with all combinations of values
+    of fixtures from `params`.
 
-`func` is a testcase function.
-The number of function parameters must be equal to the number
-of parametrizing fixtures given in `params`.
-This function will be called with all combinations of values
-of fixtures from `params`.
+    `params` are either fixtures, iterables or pairs of two iterables
+    used to parametrize the function.
+    In the latter case, the first iterable will be used to produce the values,
+    and the second one to produce the corresponding labels (for logging).
 
-`params` are either fixtures, iterables or pairs of two iterables
-used to parametrize the function.
-In the latter case, the first iterable will be used to produce the values,
-and the second one to produce the corresponding labels (for logging).
+    `tags` is an array of `Symbol`s.
+    Testcases can be filtered in or out by tags,
+    see [run options](@ref run_options_manual) for details.
 
-`tags` is an array of `Symbol`s.
-Testcases can be filtered in or out by tags,
-see [run options](@ref run_options_manual) for details.
+    Returns a [`Testcase`](@ref) object.
+    """
+    function Testcase(
+            func, name::String, params...;
+            tags::Array{Symbol, 1}=Symbol[], single_process::Bool=false)
 
-Returns a [`Testcase`](@ref) object.
-"""
-function testcase(
-        func, name::String, params...;
-        tags::Array{Symbol, 1}=Symbol[], single_process::Bool=false)
-
-    params = collect(map(normalize_fixture, params))
-    deps = union(map(dependencies, params)..., global_fixtures(params))
-    Testcase(name, func, params, deps, Set(tags), single_process)
+        params = collect(map(normalize_fixture, params))
+        deps = union(map(dependencies, params)..., global_fixtures(params))
+        new(name, func, params, deps, Set(tags), single_process)
+    end
 end
 
 
@@ -71,11 +70,10 @@ struct TestGroup
     name :: String
     func
     single_process :: Bool
-end
 
-
-function testgroup(func, name; single_process::Bool=false)
-    TestGroup(name, func, single_process)
+    function TestGroup(func, name; single_process::Bool=false)
+        new(name, func, single_process)
+    end
 end
 
 
