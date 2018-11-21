@@ -20,7 +20,7 @@ If some testcase definitions were present before the call to [`runtests()`](@ref
 
 The [`@testgroup`](@ref Jute.@testgroup) definitions can contain other [`@testgroup`](@ref Jute.@testgroup) definitions and [`@testcase`](@ref Jute.@testcase) definitions.
 
-The `exit()` call is required to signal about any test failures to the processes that initiate the execution of the test suite, for instance CI tools.
+The `exit()` call is required to signal about any test failures to the processes that initiate the execution of the test suite, for instance, CI tools.
 [`runtests()`](@ref Jute.runtests) returns `1` if there were failed tests, `0` otherwise.
 
 !!! note
@@ -227,7 +227,7 @@ Note that the label still refers to the full element of the iterable.
 
 A global fixture is a more sophisticated variant of a constant fixture that has a setup and a teardown stage.
 For each value produced by the global fixture, the setup is called before the first testcase that uses it.
-As for the teardown, it is either called right away (if the option `instant_teardown` is `true`), or after the last testcase that uses it (if `instant_teardown` is `false`, which is the default).
+As for the teardown, it is either called right away (if the option `instant_teardown` is `true`) or after the last testcase that uses it (if `instant_teardown` is `false`, which is the default).
 If no testcases use it (for example, they were filtered out), neither setup nor teardown will be called.
 
 The setup and the teardown are defined by use of a single coroutine that produces the fixture value.
@@ -346,7 +346,7 @@ This can be used to establish a secondary grouping, independent of the primary g
 For example, one can tag performance tests, tests that run for a long time, unit/integration tests, tests that require a specific resource and so on.
 Testcases can be filtered by tags they have or don't have using [command-line arguments](@ref run_options_manual).
 
-The tagging is performed by the optional paramter `tag` to the macro [`@testcase`](@ref Jute.@testcase) that takes a list of `Symbol`s:
+The tagging is performed by the optional parameter `tag` to the macro [`@testcase`](@ref Jute.@testcase) that takes a list of `Symbol`s:
 
 ```@meta
 DocTestSetup = quote

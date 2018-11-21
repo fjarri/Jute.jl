@@ -53,8 +53,8 @@ You can pass several tags to this option, separated by spaces.
 
 **`:max_fails`**`:: Int` (`--max-fails`):
 stop after the given amount of failed testcases
-(a testcase is considered failed, if at least one test in it failed,
-or an unhandeld exception was thrown).
+(a testcase is considered failed if at least one test in it failed,
+or an unhandled exception was thrown).
 
 **`:test_file_postifx`**`:: String` (`--test-file-postfix`):
 postfix of the files which will be picked up by the automatic testcase discovery.
@@ -66,7 +66,7 @@ with the corresponding change in the default.
 
 **`:capture_output`**`:: Bool` (`--capture-output`/`--dont-capture-output`):
 capture all the output from testcases
-and only show the output of the failed ones in the end of the test run.
+and only show the output of the failed ones at the end of the test run.
 
 **`:dont_add_runtests_path`**:`:: Bool` (`--dont-add-runtests-path`/`--add-runtests-path`):
 do not push the test root path into `LOAD_PATH` before including test files
