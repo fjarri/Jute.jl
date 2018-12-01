@@ -166,8 +166,10 @@ function progress_start!(progress::ProgressReporter)
         else
             kernel = Sys.iswindows() ? "Windows" : Sys.isapple() ? "macOS" : Sys.KERNEL
             platform = "$kernel ($(Sys.MACHINE)), Julia $(string(VERSION))"
-            # FIXME: at the moment Pkg3 does not allow us to get out own version
-            jute_version = "<unknown>"
+            # TODO: when https://github.com/JuliaLang/Pkg.jl/issues/385 is resolved,
+            # the correct way of getting the version may change.
+            # Currently, `Pkg.installed()` sometimes works, so we try it.
+            jute_version = get(Pkg.installed(), "Jute", "<unknown>")
         end
 
         println("Platform: $platform, Jute $jute_version")
