@@ -1,6 +1,11 @@
 # Version history
 
 
+## v0.2.2 (25 Apr 2019)
+
+Switching from Attobot to Registrator.jl.
+
+
 ## v0.2.1 (2 Nov 2018)
 
 * ADDED: `@critical` macro to make test assertions terminate the testcase on failure.
