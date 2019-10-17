@@ -4,6 +4,17 @@ using ArgParse
 ArgParse.parse_item(::Type{Symbol}, s::AbstractString) = Symbol(s)
 
 
+# Taken from the docstring of `printstyled()`
+const VALID_COLORS = Set([
+    :normal, :default, :bold, :black, :blink, :blue, :cyan, :green, :hidden, :light_black,
+    :light_blue, :light_cyan, :light_green, :light_magenta, :light_red, :light_yellow,
+    :magenta, :nothing, :red, :reverse, :underline, :white, :yellow
+    ])
+
+
+is_valid_color(color::String) = Symbol(color) in VALID_COLORS
+
+
 const ARG_DEFAULTS = Dict(
     :include_only => nothing,
     :exclude => nothing,
@@ -14,12 +25,21 @@ const ARG_DEFAULTS = Dict(
     :verbosity => 1,
     :dont_add_runtests_path => false,
     :test_file_postfix => ".test.jl",
+    :color_pass => "green",
+    :color_fail => "red",
+    :color_error => "yellow",
+    :color_broken => "green",
+    :color_return => "blue",
     )
 
 
 function get_default(options, key)
     get(options, key, ARG_DEFAULTS[key])
 end
+
+
+# Used to escape underscores in symbols so that Markdown doesn't turn them into italic.
+escape_symbol(s::Symbol) = replace(string(s), "_" => "\\_")
 
 
 """
@@ -70,6 +90,10 @@ and only show the output of the failed ones at the end of the test run.
 
 **`:dont_add_runtests_path`**`:: Bool` (`--dont-add-runtests-path`/`--add-runtests-path`):
 do not push the test root path into `LOAD_PATH` before including test files
+
+**`:color_(pass/fail/error/broken/return)`**`:: String`
+(`--color-(pass/fail/error/broken/return)`):
+custom colors to use in the report. Supported colors: $(join(escape_symbol.(VALID_COLORS), ", ")).
 """
 function build_parser(options)
     s = ArgParseSettings(; autofix_names=true)
@@ -178,12 +202,80 @@ function build_parser(options)
                 :nargs => 0))
     end
 
+
+    add_arg_group(s, "Color scheme customization (supported colors: $(join(VALID_COLORS, ", ")))")
+
+    add_arg_table(
+        s,
+
+        "--color-pass",
+        Dict(
+            :help => "The color used to mark passed tests",
+            :metavar => "COLOR",
+            :arg_type => String,
+            :default => default(:color_pass),
+            :range_tester => is_valid_color),
+
+        "--color-fail",
+        Dict(
+            :help => "The color used to mark failed tests",
+            :metavar => "COLOR",
+            :arg_type => String,
+            :default => default(:color_fail),
+            :range_tester => is_valid_color),
+
+        "--color-error",
+        Dict(
+            :help => "The color used to mark non-fail errors in tests",
+            :metavar => "COLOR",
+            :arg_type => String,
+            :default => default(:color_error),
+            :range_tester => is_valid_color),
+
+        "--color-broken",
+        Dict(
+            :help => "The color used to mark known broken tests",
+            :metavar => "COLOR",
+            :arg_type => String,
+            :default => default(:color_broken),
+            :range_tester => is_valid_color),
+
+        "--color-return",
+        Dict(
+            :help => "The color used to mark custom return values in tests",
+            :metavar => "COLOR",
+            :arg_type => String,
+            :default => default(:color_return),
+            :range_tester => is_valid_color),
+        )
+
     s
 end
 
 
 maybe_regex(::Nothing) = nothing
 maybe_regex(s::String) = Regex(s)
+
+
+struct ReportColorScheme
+
+    color_pass :: Symbol
+    color_fail :: Symbol
+    color_error :: Symbol
+    color_broken :: Symbol
+    color_return :: Symbol
+
+    function ReportColorScheme(run_options)
+        fields = [
+            :color_pass,
+            :color_fail,
+            :color_error,
+            :color_broken,
+            :color_return,
+            ]
+        new([Symbol(run_options[field]) for field in fields]...)
+    end
+end
 
 
 function normalize_options(run_options)
@@ -207,6 +299,11 @@ function normalize_options(run_options)
     if haskey(run_options, :add_runtests_path)
         run_options[:dont_add_runtests_path] = !run_options[:add_runtests_path]
         delete!(run_options, :add_runtests_path)
+    end
+
+    run_options[:report_color_scheme] = ReportColorScheme(run_options)
+    for name in fieldnames(ReportColorScheme)
+        delete!(run_options, name)
     end
 
     run_options

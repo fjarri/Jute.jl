@@ -90,6 +90,7 @@ function run_testcases(run_options, tcs, doctest)
     fails_num = 0
     max_fails = run_options[:max_fails] :: Int
     max_fails_reached = false
+    color_scheme = run_options[:report_color_scheme] :: ReportColorScheme
 
     for (i, entry) in enumerate(tcs)
 
@@ -124,7 +125,7 @@ function run_testcases(run_options, tcs, doctest)
             progress_start_testcase!(progress, tcinfo, labels)
             outcome = run_testcase(tc, args, capture_output)
             map(release, dvals)
-            progress_finish_testcase!(progress, tcinfo, labels, outcome)
+            progress_finish_testcase!(progress, tcinfo, labels, outcome, color_scheme)
 
             if is_failed(outcome)
                 fails_num += 1
@@ -150,7 +151,7 @@ function run_testcases(run_options, tcs, doctest)
         end
     end
 
-    progress_finish!(progress)
+    progress_finish!(progress, color_scheme)
 
     fails_num == 0
 end

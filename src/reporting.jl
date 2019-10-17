@@ -2,13 +2,13 @@ struct Verbosity{T}
 end
 
 
-result_color(::Any, ::Any) = :default
-result_color(::Test.Pass, ::Verbosity{2}) = :green
-result_color(::Test.Fail, ::Any) = :red
-result_color(::Test.Error, ::Any) = :yellow
-result_color(::Test.Broken, ::Verbosity{2}) = :green
-result_color(::ReturnValue, ::Verbosity{2}) = :blue
-result_color(::FailExplanation, ::Any) = :red
+result_color(cs::ReportColorScheme, ::Any, ::Any) = :default
+result_color(cs::ReportColorScheme, ::Test.Pass, ::Verbosity{2}) = cs.color_pass
+result_color(cs::ReportColorScheme, ::Test.Fail, ::Any) = cs.color_fail
+result_color(cs::ReportColorScheme, ::Test.Error, ::Any) = cs.color_error
+result_color(cs::ReportColorScheme, ::Test.Broken, ::Verbosity{2}) = cs.color_broken
+result_color(cs::ReportColorScheme, ::ReturnValue, ::Verbosity{2}) = cs.color_return
+result_color(cs::ReportColorScheme, ::FailExplanation, ::Any) = cs.color_fail
 
 
 result_show(::Test.Pass, ::Verbosity{1}) = "."
@@ -126,7 +126,8 @@ end
 
 
 function progress_finish_testcase!(
-        progress::ProgressReporter, tcinfo::TestcaseInfo, labels, outcome)
+        progress::ProgressReporter, tcinfo::TestcaseInfo, labels,
+        outcome::TestcaseOutcome, color_scheme::ReportColorScheme)
 
     push!(progress.testcases, ExecutedTestcase(tcinfo, labels, outcome))
 
@@ -135,7 +136,7 @@ function progress_finish_testcase!(
         for result in outcome.results
             printstyled(
                 result_show(result, Verbosity{verbosity}()),
-                color=result_color(result, Verbosity{verbosity}()))
+                color=result_color(color_scheme, result, Verbosity{verbosity}()))
         end
     elseif verbosity >= 2
         if progress.doctest
@@ -150,7 +151,7 @@ function progress_finish_testcase!(
             result_str = result_show(result, Verbosity{verbosity}())
             printstyled(
                 " [$result_str]",
-                color=result_color(result, Verbosity{verbosity}()))
+                color=result_color(color_scheme, result, Verbosity{verbosity}()))
         end
         println()
     end
@@ -190,7 +191,7 @@ function _custom_results_present(progress::ProgressReporter)
 end
 
 
-function _print_custom_results(progress::ProgressReporter)
+function _print_custom_results(progress::ProgressReporter, color_scheme::ReportColorScheme)
     println("-" ^ 80)
     pr2 = ProgressReporter(2, false)
     for etc in progress.testcases
@@ -199,7 +200,7 @@ function _print_custom_results(progress::ProgressReporter)
             filtered_outcome = TestcaseOutcome(
                 return_values, etc.outcome.elapsed_time, etc.outcome.output)
             progress_start_testcase!(pr2, etc.tcinfo, etc.labels)
-            progress_finish_testcase!(pr2, etc.tcinfo, etc.labels, filtered_outcome)
+            progress_finish_testcase!(pr2, etc.tcinfo, etc.labels, filtered_outcome, color_scheme)
         end
     end
 end
@@ -254,7 +255,7 @@ function _print_failures(progress::ProgressReporter)
 end
 
 
-function progress_finish!(progress::ProgressReporter)
+function progress_finish!(progress::ProgressReporter, color_scheme::ReportColorScheme)
 
     full_time = (time_ns() - progress.start_time) / 1e9
 
@@ -264,7 +265,7 @@ function progress_finish!(progress::ProgressReporter)
     end
 
     if progress.verbosity == 1 && _custom_results_present(progress)
-        _print_custom_results(progress)
+        _print_custom_results(progress, color_scheme)
     end
 
     if progress.verbosity >= 1

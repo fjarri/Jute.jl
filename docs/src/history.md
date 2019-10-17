@@ -3,6 +3,7 @@
 
 ## Current development version
 
+* ADDED: color customization options `--color-(pass/fail/error/broken/return)`.
 * FIXED: help for `--include-only-tags`/`--exclude-tags` command-line options is slightly more clear now.
 
 
