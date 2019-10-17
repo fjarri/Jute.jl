@@ -1,6 +1,11 @@
 # Version history
 
 
+## Current development version
+
+* FIXED: help for `--include-only-tags`/`--exclude-tags` command-line options is slightly more clear now.
+
+
 ## v0.2.2 (25 Apr 2019)
 
 Switching from Attobot to Registrator.jl.

@@ -362,7 +362,7 @@ end
 @testcase tags=[:bar, :baz] "bar and baz" begin
 end
 
-runtests(; options=Dict(:verbosity => 2, :include_only_tags => [:baz]))
+runtests(; options=Dict(:verbosity => 2, :include_only_tags => ["baz"]))
 
 # output
 
