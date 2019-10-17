@@ -47,8 +47,6 @@ function normalize_template(s)
 end
 
 
-# FIXME: when the "fail description" functionality is available,
-# we need to use it here, so that the match fails are reported as fails and not errors.
 function test_match_text(template, text)
     text_lines = split(strip(text), "\n")
     template_lines = split(normalize_template(template), "\n")
