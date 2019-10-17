@@ -68,7 +68,7 @@ with the corresponding change in the default.
 capture all the output from testcases
 and only show the output of the failed ones at the end of the test run.
 
-**`:dont_add_runtests_path`**:`:: Bool` (`--dont-add-runtests-path`/`--add-runtests-path`):
+**`:dont_add_runtests_path`**`:: Bool` (`--dont-add-runtests-path`/`--add-runtests-path`):
 do not push the test root path into `LOAD_PATH` before including test files
 """
 function build_parser(options)
