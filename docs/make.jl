@@ -4,7 +4,7 @@ using Jute
 
 makedocs(
     modules = [Jute],
-    format = :html,
+    format = Documenter.HTML(prettyurls=false),
     sitename = "Jute.jl",
     authors = "Bogdan Opanchuk",
     pages = [
@@ -14,7 +14,6 @@ makedocs(
         "Internals" => "internals.md",
         "Version history" => "history.md",
     ],
-    html_prettyurls = false,
 )
 
 deploydocs(
