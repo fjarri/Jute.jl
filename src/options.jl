@@ -266,14 +266,13 @@ struct ReportColorScheme
     color_return :: Symbol
 
     function ReportColorScheme(run_options)
-        fields = [
-            :color_pass,
-            :color_fail,
-            :color_error,
-            :color_broken,
-            :color_return,
-            ]
-        new([Symbol(run_options[field]) for field in fields]...)
+        new(
+            Symbol(run_options[:color_pass]),
+            Symbol(run_options[:color_fail]),
+            Symbol(run_options[:color_error]),
+            Symbol(run_options[:color_broken]),
+            Symbol(run_options[:color_return]),
+            )
     end
 end
 
