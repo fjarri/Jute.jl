@@ -54,4 +54,28 @@ end
 end
 
 
+@testcase "tag options processing" begin
+    opts = Jute.build_run_options(; options=Dict(:include_only_tags => [:tag1, :tag2]))
+    @test opts[:include_only_tags] == [:tag1, :tag2]
+
+    opts = Jute.build_run_options(; args=["-t", "tag1", "tag2"])
+    @test opts[:include_only_tags] == [:tag1, :tag2]
+
+    opts = Jute.build_run_options(; options=Dict(:exclude_tags => [:tag1, :tag2]))
+    @test opts[:exclude_tags] == [:tag1, :tag2]
+
+    opts = Jute.build_run_options(; args=["-n", "tag1", "tag2"])
+    @test opts[:exclude_tags] == [:tag1, :tag2]
+end
+
+
+@testcase "color options processing" begin
+    opts = Jute.build_run_options(; options=Dict(:color_pass => :blue))
+    @test opts[:report_color_scheme].color_pass == :blue
+
+    opts = Jute.build_run_options(; args=["--color-pass=blue"])
+    @test opts[:report_color_scheme].color_pass == :blue
+end
+
+
 end

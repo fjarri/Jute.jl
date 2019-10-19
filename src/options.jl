@@ -18,18 +18,18 @@ is_valid_color(color::String) = Symbol(color) in VALID_COLORS
 const ARG_DEFAULTS = Dict(
     :include_only => nothing,
     :exclude => nothing,
-    :include_only_tags => String[],
-    :exclude_tags => String[],
+    :include_only_tags => Symbol[],
+    :exclude_tags => Symbol[],
     :max_fails => 0,
     :capture_output => false,
     :verbosity => 1,
     :dont_add_runtests_path => false,
     :test_file_postfix => ".test.jl",
-    :color_pass => "green",
-    :color_fail => "red",
-    :color_error => "yellow",
-    :color_broken => "green",
-    :color_return => "blue",
+    :color_pass => :green,
+    :color_fail => :red,
+    :color_error => :yellow,
+    :color_broken => :green,
+    :color_return => :blue,
     )
 
 
@@ -63,13 +63,18 @@ takes a regular expression; tests with full names that match it will not be exec
 **`:verbosity`**`:: Int` (`--verbosity`, `-v`):
 `0`, `1` or `2`, defines the amount of output that will be shown. `1` is the default.
 
-**`:include_only_tags`**`:: Array{String, 1}` (`--include-only-tags`, `-t`):
+**`:include_only_tags`**`:: Array{Symbol, 1}` (`--include-only-tags`, `-t`):
 include only tests with any of the specified tags.
 You can pass several tags to this option, separated by spaces.
 
-**`:exclude_tags`**`:: Array{String, 1}` (`--exclude-tags`, `-n`):
+**`:exclude_tags`**`:: Array{Symbol, 1}` (`--exclude-tags`, `-n`):
 exclude tests with any of the specified tags.
 You can pass several tags to this option, separated by spaces.
+
+!!! note
+
+    Programmatically (using `options` keyword of [`runtests`](@ref))
+    tags must be passed as symbols.
 
 **`:max_fails`**`:: Int` (`--max-fails`):
 stop after the given amount of failed testcases
@@ -91,9 +96,14 @@ and only show the output of the failed ones at the end of the test run.
 **`:dont_add_runtests_path`**`:: Bool` (`--dont-add-runtests-path`/`--add-runtests-path`):
 do not push the test root path into `LOAD_PATH` before including test files
 
-**`:color_(pass/fail/error/broken/return)`**`:: String`
+**`:color_(pass/fail/error/broken/return)`**`:: Symbol`
 (`--color-(pass/fail/error/broken/return)`):
 custom colors to use in the report. Supported colors: $(join(escape_symbol.(VALID_COLORS), ", ")).
+
+!!! note
+
+    Programmatically (using `options` keyword of [`runtests`](@ref))
+    colors must be passed as symbols.
 """
 function build_parser(options)
     s = ArgParseSettings(; autofix_names=true)
@@ -125,7 +135,7 @@ function build_parser(options)
             :metavar => "TAGS",
             :arg_type => String,
             :nargs => '+',
-            :default => default(:include_only_tags)),
+            :default => String.(default(:include_only_tags))),
 
         ["--exclude-tags", "-n"],
         Dict(
@@ -133,7 +143,7 @@ function build_parser(options)
             :metavar => "TAGS",
             :arg_type => String,
             :nargs => '+',
-            :default => default(:exclude_tags)),
+            :default => String.(default(:exclude_tags))),
 
         "--max-fails",
         Dict(
@@ -213,7 +223,7 @@ function build_parser(options)
             :help => "The color used to mark passed tests",
             :metavar => "COLOR",
             :arg_type => String,
-            :default => default(:color_pass),
+            :default => String(default(:color_pass)),
             :range_tester => is_valid_color),
 
         "--color-fail",
@@ -221,7 +231,7 @@ function build_parser(options)
             :help => "The color used to mark failed tests",
             :metavar => "COLOR",
             :arg_type => String,
-            :default => default(:color_fail),
+            :default => String(default(:color_fail)),
             :range_tester => is_valid_color),
 
         "--color-error",
@@ -229,7 +239,7 @@ function build_parser(options)
             :help => "The color used to mark non-fail errors in tests",
             :metavar => "COLOR",
             :arg_type => String,
-            :default => default(:color_error),
+            :default => String(default(:color_error)),
             :range_tester => is_valid_color),
 
         "--color-broken",
@@ -237,7 +247,7 @@ function build_parser(options)
             :help => "The color used to mark known broken tests",
             :metavar => "COLOR",
             :arg_type => String,
-            :default => default(:color_broken),
+            :default => String(default(:color_broken)),
             :range_tester => is_valid_color),
 
         "--color-return",
@@ -245,7 +255,7 @@ function build_parser(options)
             :help => "The color used to mark custom return values in tests",
             :metavar => "COLOR",
             :arg_type => String,
-            :default => default(:color_return),
+            :default => String(default(:color_return)),
             :range_tester => is_valid_color),
         )
 
