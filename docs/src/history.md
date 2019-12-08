@@ -6,6 +6,7 @@
 * ADDED: color customization options `--color-(pass/fail/error/broken/return)`.
 * FIXED: help for `--include-only-tags`/`--exclude-tags` command-line options is slightly more clear now.
 * FIXED: actually support Julia 1.0 and 1.1 now - there was some unsupported syntax used.
+* FIXED: updated the method of getting Jute version to prevent test fails on Julia 1.4 nightly.
 
 
 ## v0.2.2 (25 Apr 2019)
