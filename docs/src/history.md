@@ -1,7 +1,7 @@
 # Version history
 
 
-## Current development version
+## v0.2.3 (7 Dec 2019)
 
 * ADDED: color customization options `--color-(pass/fail/error/broken/return)`.
 * FIXED: help for `--include-only-tags`/`--exclude-tags` command-line options is slightly more clear now.
