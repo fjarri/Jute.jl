@@ -78,4 +78,13 @@ end
 end
 
 
+@testcase "overriding tag options" begin
+    opts = Jute.build_run_options(; args=["-n", "-"], options=Dict(:exclude_tags => [:tag1, :tag2]))
+    @test opts[:exclude_tags] == []
+
+    opts = Jute.build_run_options(; args=["-t", "-"], options=Dict(:include_only_tags => [:tag1, :tag2]))
+    @test opts[:include_only_tags] == []
+end
+
+
 end

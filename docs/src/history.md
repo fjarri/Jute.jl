@@ -1,6 +1,11 @@
 # Version history
 
 
+## Current development version
+
+* ADDED: a value `-` passed to `--include-only-tags`/`--exclude-tags` clears all the other values passed to them. Can be used to override the arguments passed from `runtest()`.
+
+
 ## v0.2.3 (7 Dec 2019)
 
 * ADDED: color customization options `--color-(pass/fail/error/broken/return)`.
