@@ -167,7 +167,7 @@ function progress_start!(progress::ProgressReporter)
         else
             kernel = Sys.iswindows() ? "Windows" : Sys.isapple() ? "macOS" : Sys.KERNEL
             platform = "$kernel ($(Sys.MACHINE)), Julia $(string(VERSION))"
-            if VERSION <= v"1.3"
+            if VERSION < v"1.4"
                 jute_version = get(Pkg.installed(), "Jute", "<unknown>")
             else
                 # The new way, as per https://github.com/JuliaLang/Pkg.jl/issues/385
