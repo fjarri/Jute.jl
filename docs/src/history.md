@@ -1,6 +1,11 @@
 # Version history
 
 
+## v0.2.4 (13 Feb 2020)
+
+* FIXED: bug in reporting for julia [1.3.1, 1.4.0) (an incorrect version check).
+
+
 ## v0.2.3 (20 Dec 2019)
 
 * ADDED: color customization options `--color-(pass/fail/error/broken/return)`.
