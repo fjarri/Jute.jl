@@ -1,4 +1,5 @@
 using Jute
+using BenchmarkTools
 
 include("TestUtils.jl")
 

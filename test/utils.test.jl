@@ -88,4 +88,18 @@ end
 end
 
 
+@testcase "benchmark_result()" begin
+    trial = @benchmark 100 * 200
+    s = benchmark_result(trial)
+    @test !(match(r"^[\d\.]+ (ns|μs|ms)$", s) === nothing)
+
+    # Some function that will produce allocations
+    func() = Array{Int}(undef, 100)
+
+    trial = @benchmark $func()
+    s = benchmark_result(trial)
+    @test !(match(r"^[\d\.]+ (ns|μs|ms), \d+ bytes \(1 allocs\)$", s) === nothing)
+end
+
+
 end

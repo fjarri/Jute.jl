@@ -145,3 +145,29 @@ function with_output_capture(func, pass_through::Bool=false)
 
     ret, output
 end
+
+
+"""
+    benchmark_result(trial::BenchmarkTools.Trial)
+
+A short string with the minimum time and allocations
+resulting from a `BenchmarkTool.@benchmark` run.
+
+Can be used in a testcase as:
+```
+trial = @benchmark myfunc(\$x, \$y)
+@test_result benchmark_result(trial)
+```
+"""
+function benchmark_result(trial::BenchmarkTools.Trial)
+    time_str = BenchmarkTools.prettytime(minimum(trial.times))
+
+    if trial.allocs > 0
+        mem_str = BenchmarkTools.prettymemory(trial.memory)
+        alloc_str = ", $mem_str ($(trial.allocs) allocs)"
+    else
+        alloc_str = ""
+    end
+
+    time_str * alloc_str
+end

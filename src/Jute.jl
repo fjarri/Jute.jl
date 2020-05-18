@@ -4,9 +4,11 @@ module Jute
 
 using Pkg
 using Random
+using BenchmarkTools
 
 
 include("utils.jl")
+export benchmark_result
 
 include("options.jl")
 

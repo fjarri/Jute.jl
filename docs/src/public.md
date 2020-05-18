@@ -54,3 +54,10 @@ temporary_dir
 run_options
 fixed_rng
 ```
+
+
+## Utilities
+
+```@docs
+benchmark_result
+```
