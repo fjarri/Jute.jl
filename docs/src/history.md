@@ -1,7 +1,7 @@
 # Version history
 
 
-## Current development version
+## v0.2.5 (17 May 2020)
 
 * ADDED: `fixed_rng()` local fixture.
 * ADDED: `benchmark_result()` utility function.
