@@ -18,9 +18,9 @@ end
 
 @testcase "temporary_dir" begin
 
-    tdir = ""
-
     tcs = Jute.collect_testobjs() do
+        tdir = "---"
+
         @testcase "tc1" for dir in temporary_dir
             @test isdir(dir)
             tdir = dir
@@ -30,6 +30,7 @@ end
         end
 
         @testcase "tc2" begin
+            @test tdir != "---"
             @test !isdir(tdir) # check that the directory was deleted
         end
     end
