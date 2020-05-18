@@ -3,6 +3,7 @@ __precompile__()
 module Jute
 
 using Pkg
+using Random
 
 
 include("utils.jl")
@@ -44,5 +45,6 @@ export runtests
 include("builtin_fixtures.jl")
 export run_options
 export temporary_dir
+export fixed_rng
 
 end

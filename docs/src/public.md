@@ -52,4 +52,5 @@ Assertions can be made to terminate the testcase on failure.
 ```@docs
 temporary_dir
 run_options
+fixed_rng
 ```
