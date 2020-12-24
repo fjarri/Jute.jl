@@ -1,5 +1,6 @@
 import Test
-import Test: @test, @test_throws, @test_broken, @test_skip, @test_warn, @test_nowarn, @inferred
+import Test: @test, @test_throws, @test_broken, @test_skip, @test_warn, @test_nowarn, @inferred,
+             get_testset_depth, get_testset, record
 
 
 # Re-documenting the assertions from Test manually, because we need Documenter to pick them up.
@@ -117,18 +118,26 @@ is_failed(outcome::TestcaseOutcome) = any(map(is_failed, outcome.results))
 
 
 mutable struct JuteTestSet <: Test.AbstractTestSet
-    results :: Array{Test.Result, 1}
+    description :: AbstractString
+    results :: Vector
 
-    JuteTestSet(descr; results=[]) = new(results)
+    JuteTestSet(descr; results=[]) = new(descr, results)
 end
 
 
 function Test.record(ts::JuteTestSet, res::Test.Result)
     push!(ts.results, res)
+    res
 end
 
 
-function Test.finish(ts::JuteTestSet) end
+function Test.finish(ts::JuteTestSet)
+    # If this runs under ReportTests, tell the parent testset what happened.
+    if get_testset_depth() != 0
+        record(get_testset(), ts)
+    end
+    ts
+end
 
 
 function run_testcase(tc::Testcase, args, capture_output::Bool=false)
@@ -137,7 +146,8 @@ function run_testcase(tc::Testcase, args, capture_output::Bool=false)
 
     elapsed_time, output = with_output_capture(!capture_output) do
         t = time_ns()
-        Test.@testset JuteTestSet results=:($results) begin
+
+        Test.@testset JuteTestSet "$(tc.name)" results=:($results) begin
             try
                 Base.invokelatest(tc.func, args...)
             catch e
