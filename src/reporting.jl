@@ -25,6 +25,7 @@ result_show(::Test.Error, ::Verbosity{1}) = "E"
 result_show(::Test.Error, ::Verbosity{2}) = "ERROR"
 result_show(::FailExplanation, ::Verbosity{1}) = "F"
 result_show(::FailExplanation, ::Verbosity{2}) = "FAIL"
+result_show(::JuteTestSet, ::Verbosity) = ""
 
 
 function Base.show(io::IO, fe::FailExplanation)
