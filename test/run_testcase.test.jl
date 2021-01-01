@@ -224,4 +224,14 @@ end
 end
 
 
+@testcase "A parent test set can see child Jute test cases" begin
+    ts = Jute.Test.@testset "Aggregator" begin
+        outcome = get_outcome() do
+            @test 1 == 1
+        end
+    end
+    @test length(ts.results) == 1
+    @test ts.results[1].description == "tc"
+end
+
 end

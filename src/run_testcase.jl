@@ -103,7 +103,7 @@ end
 
 
 struct TestcaseOutcome
-    results :: Array{Test.Result, 1}
+    results :: Vector
     elapsed_time :: Float64
     output :: String
 end
@@ -117,27 +117,36 @@ is_failed(outcome::TestcaseOutcome) = any(map(is_failed, outcome.results))
 
 
 mutable struct JuteTestSet <: Test.AbstractTestSet
-    results :: Array{Test.Result, 1}
+    description :: AbstractString
+    results :: Vector
 
-    JuteTestSet(descr; results=[]) = new(results)
+    JuteTestSet(descr; results=[]) = new(descr, results)
 end
 
 
-function Test.record(ts::JuteTestSet, res::Test.Result)
+function Test.record(ts::JuteTestSet, res)
     push!(ts.results, res)
+    res
 end
 
 
-function Test.finish(ts::JuteTestSet) end
+function Test.finish(ts::JuteTestSet)
+    # If this runs under ReportTests, tell the parent testset what happened.
+    if Test.get_testset_depth() != 0
+        parent_ts = Test.get_testset()
+        Test.record(parent_ts, ts)
+    end
+    ts
+end
 
 
 function run_testcase(tc::Testcase, args, capture_output::Bool=false)
     succeeded = true
-    results = Test.Result[]
+    results = []
 
     elapsed_time, output = with_output_capture(!capture_output) do
         t = time_ns()
-        Test.@testset JuteTestSet results=:($results) begin
+        Test.@testset JuteTestSet "$(tc.name)" results=:($results) begin
             try
                 Base.invokelatest(tc.func, args...)
             catch e

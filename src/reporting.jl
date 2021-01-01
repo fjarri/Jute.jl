@@ -25,6 +25,7 @@ result_show(::Test.Error, ::Verbosity{1}) = "E"
 result_show(::Test.Error, ::Verbosity{2}) = "ERROR"
 result_show(::FailExplanation, ::Verbosity{1}) = "F"
 result_show(::FailExplanation, ::Verbosity{2}) = "FAIL"
+result_show(::JuteTestSet, ::Verbosity) = ""
 
 
 function Base.show(io::IO, fe::FailExplanation)
@@ -149,9 +150,11 @@ function progress_finish_testcase!(
 
         for result in outcome.results
             result_str = result_show(result, Verbosity{verbosity}())
-            printstyled(
-                " [$result_str]",
-                color=result_color(color_scheme, result, Verbosity{verbosity}()))
+            if result_str != ""
+                printstyled(
+                    " [$result_str]",
+                    color=result_color(color_scheme, result, Verbosity{verbosity}()))
+            end
         end
         println()
     end
